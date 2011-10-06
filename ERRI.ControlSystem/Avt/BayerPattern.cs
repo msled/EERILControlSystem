@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace EERIL.ControlSystem.Avt {
+	public enum BayerPattern : uint {
+		RGGB = 0,            // First line RGRG, second line GBGB...
+		GBRG = 1,            // First line GBGB, second line RGRG...
+		GRBG = 2,            // First line GRGR, second line BGBG...
+		BGGR = 3             // First line BGBG, second line GRGR...
+	};
+}

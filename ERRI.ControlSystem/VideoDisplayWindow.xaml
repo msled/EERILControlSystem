@@ -1,0 +1,9 @@
+﻿<Window x:Class="EERIL.ControlSystem.VideoDisplayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:local="clr-namespace:EERIL.ControlSystem"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Video Display" Height="489" Width="612" Closed="WindowClosed">
+    <Canvas Name="canvas">
+        <Image Name="videoImage" Source="/Msled;component/Images/under_ice_5001.jpg"  Width="{Binding ElementName=canvas, Path=ActualWidth}" Stretch="None" />
+    </Canvas>
+</Window>
