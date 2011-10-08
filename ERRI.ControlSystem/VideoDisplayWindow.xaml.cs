@@ -107,6 +107,7 @@ namespace EERIL.ControlSystem {
             videoImage.Source = frame.ToBitmapSource();
             frame.Dispose();
             GC.Collect(1);
+            Thread.Yield();
 		}
 
 		private void WindowClosed(object sender, EventArgs e) {

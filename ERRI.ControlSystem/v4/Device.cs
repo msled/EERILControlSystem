@@ -252,11 +252,11 @@ namespace EERIL.ControlSystem.v4 {
 
 		public void StartVideoCapture(uint timeout) {
             this.camera.Open();
-            //this.camera.BeginCapture();
+            this.camera.BeginCapture();
 		}
 
 		public void StopVideoCapture() {
-            //this.camera.EndCapture();
+            this.camera.EndCapture();
             this.camera.Close();
 		}
 

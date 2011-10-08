@@ -98,7 +98,7 @@ namespace EERIL.ControlSystem {
         }
 
 		void ActiveDeviceMessageReceived(string message) {
-			serialData.Text += message;
+			//serialData.Text += message;
 		}
 
 		void ControllerConnectionChanged(bool connected) {

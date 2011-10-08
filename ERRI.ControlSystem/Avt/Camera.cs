@@ -17,11 +17,8 @@ namespace EERIL.ControlSystem.Avt
         private GCHandle[] frameBufferHandles;
         private GCHandle[] framePoolHandles;
         private tFrame[] frames;
-        private uint lastFrame;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
-        private long frameCount = 0;
-        private bool delayFrame = false;
 
         public event FrameReadyHandler FrameReady;
 
@@ -29,29 +26,9 @@ namespace EERIL.ControlSystem.Avt
         {
             if (FrameReady != null)
             {
-                if (frameCount < long.MaxValue)
-                    frameCount++;
-                else
-                    frameCount = 0;
                 tFrame tFrame = (tFrame)Marshal.PtrToStructure(framePointer, typeof(tFrame));
                 Frame frame = new Frame(this, framePointer, tFrame, buffers[framePointer]);
-                if (frame.FrameCount >= lastFrame)
-                {
-                    lastFrame = frame.FrameCount;
-                    FrameReady(this, frame);
-                    /*FrameReadyHandler eventHandler = FrameReady;
-                    Delegate[] delegates = eventHandler.GetInvocationList();
-                    foreach (FrameReadyHandler handler in delegates)
-                    {
-                        DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
-                        if (dispatcherObject != null && !dispatcherObject.CheckAccess())
-                        {
-                            dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, this, frame);
-                        }
-                        else
-                            handler(this, frame);
-                    }*/
-                }
+                FrameReady(this, frame);
             }
         }
 
