@@ -295,12 +295,12 @@ namespace EERIL.ControlSystem.Avt
         {
             if (camera.HasValue)
             {
-                tErr err = Pv.CameraClose(camera.Value);
-                camera = null;
-                if (err != tErr.eErrSuccess)
-                {
-                    throw new PvException(err);
-                }
+                    tErr err = Pv.CameraClose(camera.Value);
+                    camera = null;
+                    if (err != tErr.eErrSuccess)
+                    {
+                        throw new PvException(err);
+                    }
             }
         }
     };

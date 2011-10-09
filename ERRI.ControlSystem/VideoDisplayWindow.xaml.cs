@@ -19,22 +19,24 @@ using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace EERIL.ControlSystem {
+    public delegate void BitmapFrameCapturedHandler(BitmapFrame frame);
 	/// <summary>
 	/// Interaction logic for VideoDisplay.xaml
 	/// </summary>
 	public partial class VideoDisplayWindow
 	{
-		//private Bitmap videoCanvas;
-		//private BitmapSizeOptions sizeOption;
+        public event BitmapFrameCapturedHandler BitmapFrameCaptured;
 		private readonly IDeviceManager deviceManager;
 	    private const byte axisAngleDivisor = byte.MaxValue/180;
-		//private Int32Rect rectangle;
-		//private long lastDraw = 0L;
 		private Controller controller;
         [return: MarshalAs(UnmanagedType.U1)]
 		[DllImport("gdi32.dll")]
 		protected static extern bool DeleteObject(IntPtr hObject);
         private List<byte> sent = new List<byte>(100);
+        private bool captureFrame = false;
+        private BitmapFrame bitmapFrame = null;
+        private readonly TriggerStateChangedHandler triggerStateChangedHandler;
+        private readonly ButtonStateChangedHandler buttonStateChangedHandler;
 		public DashboardWindow Dashboard {
 			get;
 			set;
@@ -50,24 +52,63 @@ namespace EERIL.ControlSystem {
 			set;
 		}
 
+        public Controller Controller
+        {
+            get
+            {
+                return controller;
+            }
+            set
+            {
+                if (controller != null)
+                {
+                    controller.TriggerStateChanged -= triggerStateChangedHandler;
+                    controller.ButtonStateChanged -= buttonStateChangedHandler;
+                }
+                controller = value;
+                if (controller != null)
+                {
+                    controller.TriggerStateChanged += triggerStateChangedHandler;
+                    controller.ButtonStateChanged += buttonStateChangedHandler;
+                }
+            }
+        }
+
+        private void OnBitmapFrameCaptured(BitmapFrame frame)
+        {
+            if (BitmapFrameCaptured != null)
+            {
+                BitmapFrameCapturedHandler eventHandler = BitmapFrameCaptured;
+                Delegate[] delegates = eventHandler.GetInvocationList();
+                foreach (BitmapFrameCapturedHandler handler in delegates)
+                {
+                    DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
+                    if (dispatcherObject != null && !dispatcherObject.CheckAccess())
+                    {
+                        dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, frame);
+                    }
+                    else
+                        handler(frame);
+                }
+            }
+        }
+
 		public VideoDisplayWindow(IMission mission, IDeployment deployment) {
 			InitializeComponent();
 			Mission = mission;
 			Deployment = deployment;
 			Title = String.Format("Video - {0} > {1}", mission.Name, deployment.DateTime.ToString());
-			canvas.SizeChanged += CanvasSizeChanged;
 		    var app = Application.Current as App;
 		    if (app == null)
 		    {
 		       throw new Exception("Something has gone arye!"); 
 		    }
+
+            triggerStateChangedHandler = new TriggerStateChangedHandler(ControllerTriggerStateChanged);
+            buttonStateChangedHandler = new ButtonStateChangedHandler(ControllerButtonStateChanged);
             deviceManager = app.DeviceManager;
 		    this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate
 		                                                                                                             {
-				//headsUpDisplay.Width = (canvas.ActualWidth / 100) * Settings.Default.HeadsUpDisplayZoom;
-				//Canvas.SetTop(headsUpDisplay, Settings.Default.HeadsUpDisplayLocation.Y);
-				//Canvas.SetLeft(headsUpDisplay, Settings.Default.HeadsUpDisplayLocation.X);
-
 				if (deployment.Devices.Count > 0) {
 					IDevice device = deployment.Devices[0];
 					device.FrameReady += DeviceFrameReady;
@@ -92,26 +133,50 @@ namespace EERIL.ControlSystem {
 			}), null);
 		}
 
-		void ControllerButtonStateChanged(Button button) {
-			if (button == Button.Y && !controller.Y) {
-				//headsUpDisplay.Visibility = headsUpDisplay.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
-			}
-		}
+        void ControllerTriggerStateChanged(Trigger trigger, bool pressed)
+        {
+            switch (trigger)
+            {
+                case Trigger.Right:
+                    if (pressed)
+                    {
+                        captureFrame = true;
+                    }
+                    break;
+            }
+        }
 
-		void CanvasSizeChanged(object sender, SizeChangedEventArgs e) {
-			//headsUpDisplay.Width = (canvas.ActualWidth / 100) * Settings.Default.HeadsUpDisplayZoom;
+		void ControllerButtonStateChanged(Button button, bool pressed) {
+            switch (button)
+            {
+                case Button.Y:
+                    if (pressed)
+                    {
+                        headsUpDisplay.Visibility = headsUpDisplay.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+                    }
+                    break;
+            }
 		}
 
 		void DeviceFrameReady(object sender, IFrame frame)
 		{
-            videoImage.Source = frame.ToBitmapSource();
+            BitmapSource source = frame.ToBitmapSource();
+            videoImage.Source = source;
+            if (captureFrame)
+            {
+                bitmapFrame = BitmapFrame.Create(source);
+                OnBitmapFrameCaptured(bitmapFrame);
+                captureFrame = false;
+            }
             frame.Dispose();
             GC.Collect(1);
             Thread.Yield();
 		}
 
 		private void WindowClosed(object sender, EventArgs e) {
-			Dashboard.Close();
+            Dashboard.Dispatcher.Invoke(
+                DispatcherPriority.Normal,
+                new Action( () => { Dashboard.Close(); } ));
 		}
 	}
 }

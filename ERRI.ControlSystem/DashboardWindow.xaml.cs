@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Xna.Framework.Input;
 using EERIL.ControlSystem;
+using System.Windows.Threading;
 
 namespace EERIL.ControlSystem {
 	/// <summary>
@@ -20,8 +21,10 @@ namespace EERIL.ControlSystem {
 	public partial class DashboardWindow : Window {
 		private Controller controller = null;
 		private IDeviceManager deviceManager;
+        private VideoDisplayWindow videoDisplayWindow = null;
 		private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
 		private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
+        private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
 		public Controller Controller {
 			get {
 				return controller;
@@ -31,15 +34,35 @@ namespace EERIL.ControlSystem {
 					controller.AxisChanged -= controllerAxisChangedHandler;
 					controller.ConnectionChanged -= controllerConnectionChangedHandler;
 				}
-				controller = value;
-				controller.AxisChanged += controllerAxisChangedHandler;
-				controller.ConnectionChanged += controllerConnectionChangedHandler;
+                controller = value;
+                if (controller != null)
+                {
+                    controller.AxisChanged += controllerAxisChangedHandler;
+                    controller.ConnectionChanged += controllerConnectionChangedHandler;
+                }
 			}
 		}
 		public VideoDisplayWindow VideoDisplay {
-			get;
-			set;
+            get
+            {
+                return videoDisplayWindow;
+            }
+            set
+            {
+                if(videoDisplayWindow != null){
+                    videoDisplayWindow.BitmapFrameCaptured -= bitmapFrameCapturedHandler;
+                }
+                videoDisplayWindow = value;
+                if(videoDisplayWindow != null){
+                    videoDisplayWindow.BitmapFrameCaptured += bitmapFrameCapturedHandler;
+                }
+            }
 		}
+
+        void VideoDisplayWindowBitmapFrameCaptured(BitmapFrame frame)
+        {
+            throw new NotImplementedException();
+        }
 
 		private IDeployment Deployment {
 			get;
@@ -62,7 +85,7 @@ namespace EERIL.ControlSystem {
 			}
 			controllerAxisChangedHandler = new ControllerAxisChangedHandler(ControllerAxisChanged);
 			controllerConnectionChangedHandler = new ControllerConnectionChangedHandler(ControllerConnectionChanged);
-			Controller = new Controller(ControllerIndex.One);
+            bitmapFrameCapturedHandler = new BitmapFrameCapturedHandler(VideoDisplayWindowBitmapFrameCaptured);
 			this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString());
             TopFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(TopFinOffsetSlider_ValueChanged);
             RightFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(RightFinOffsetSlider_ValueChanged);
@@ -153,9 +176,14 @@ namespace EERIL.ControlSystem {
 		}
 
 		private void Window_Closed(object sender, EventArgs e) {
-			VideoDisplay.Close();
+            if (VideoDisplay.IsVisible)
+            {
+                VideoDisplay.Dispatcher.Invoke(
+                    DispatcherPriority.Normal,
+                    new Action(() => { VideoDisplay.Close(); }));
+            }
             deviceManager.ActiveDevice.Close();
-			Owner.Show();
+            (Application.Current as App).MainWindow.Show();
 		}
 	}
 }

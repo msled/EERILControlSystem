@@ -32,7 +32,6 @@ namespace EERIL.ControlSystem {
         byte LeftFinOffset { get; set; }
 		byte Thrust { get; set; }
 		PowerConfigurations PowerConfiguration { get; set; }
-		Bitmap CaptureImage(uint timeout);
 		void StartVideoCapture(uint timeout);
 		void StopVideoCapture();
 		void PrepareForGrab(ref uint dcamMode, ref uint colorCode, ref uint width, ref uint height);

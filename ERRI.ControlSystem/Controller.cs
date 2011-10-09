@@ -10,11 +10,16 @@ using System.Windows.Threading;
 
 namespace EERIL.ControlSystem {
 	public delegate void ControllerConnectionChangedHandler(bool connected);
-	public delegate void ButtonStateChangedHandler(Button button);
+	public delegate void ButtonStateChangedHandler(Button button, bool pressed);
 	public delegate void ControllerAxisChangedHandler(ControllerJoystick joystick, ControllerJoystickAxis axis, byte oldValue, byte newValue);
+    public delegate void TriggerStateChangedHandler(Trigger trigger, bool pressed);
 	public enum Button{
 		Y
 	}
+    public enum Trigger
+    {
+        Left, Right
+    }
 	public enum ControllerJoystickAxis {
 		X,Y
 	}
@@ -29,6 +34,7 @@ namespace EERIL.ControlSystem {
 		public event ControllerAxisChangedHandler AxisChanged;
 		public event ControllerConnectionChangedHandler ConnectionChanged;
 		public event ButtonStateChangedHandler ButtonStateChanged;
+        public event TriggerStateChangedHandler TriggerStateChanged;
 		private readonly PlayerIndex playerIndex;
 		private bool connected = false;
 		private Thread monitorThread;
@@ -64,16 +70,36 @@ namespace EERIL.ControlSystem {
 				}
 			}
 		}
-		protected void OnButtonStateChanged(Button button) {
+
+        protected void OnTriggerStateChanged(Trigger trigger, bool pressed)
+        {
+            if (ButtonStateChanged != null)
+            {
+                TriggerStateChangedHandler eventHandler = TriggerStateChanged;
+                Delegate[] delegates = eventHandler.GetInvocationList();
+                foreach (TriggerStateChangedHandler handler in delegates)
+                {
+                    DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
+                    if (dispatcherObject != null && !dispatcherObject.CheckAccess())
+                    {
+                        dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, trigger, pressed);
+                    }
+                    else
+                        handler(trigger, pressed);
+                }
+            }
+        }
+
+		protected void OnButtonStateChanged(Button button, bool pressed) {
 			if (ButtonStateChanged != null) {
 				ButtonStateChangedHandler eventHandler = ButtonStateChanged;
 				Delegate[] delegates = eventHandler.GetInvocationList();
 				foreach (ButtonStateChangedHandler handler in delegates) {
 					DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
 					if (dispatcherObject != null && !dispatcherObject.CheckAccess()) {
-						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, button);
+						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, button, pressed);
 					} else
-						handler(button);
+						handler(button, pressed);
 				}
 			}
 		}
@@ -94,14 +120,14 @@ namespace EERIL.ControlSystem {
 
 		public Controller(ControllerIndex index) {
 			playerIndex = (Microsoft.Xna.Framework.PlayerIndex)Enum.Parse(typeof(Microsoft.Xna.Framework.PlayerIndex), Enum.GetName(typeof(ControllerIndex), index));
-			monitorThread = new Thread(new ThreadStart(ControllerMonitor));
+            monitorThread = new Thread(new ThreadStart(ControllerMonitor));
 			monitorThread.IsBackground = true;
 			monitorThread.Start();
 		}
 
 		private void ControllerMonitor(){
 			byte leftX = 0, leftY = 0, rightX = 0, rightY = 0;
-			bool y = false;
+            bool y = false, rightTrigger = false;
 			while(run){
 				state = GamePad.GetState(playerIndex);
 				if (connected != state.IsConnected) {
@@ -136,8 +162,13 @@ namespace EERIL.ControlSystem {
                     }
 					if (y != Y) {
 						y = Y;
-						OnButtonStateChanged(Button.Y);
+						OnButtonStateChanged(Button.Y, y);
 					}
+                    if (rightTrigger != RightTrigger)
+                    {
+                        rightTrigger = RightTrigger;
+                        OnTriggerStateChanged(Trigger.Right, rightTrigger);
+                    }
 				}
 				Thread.Yield();
 			}

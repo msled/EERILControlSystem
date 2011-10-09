@@ -1,9 +1,10 @@
-﻿<Window x:Class="EERIL.ControlSystem.VideoDisplayWindow"
+﻿<Window xmlns:my="clr-namespace:EERIL.DeviceControls;assembly=EERI.DeviceControls"  x:Class="EERIL.ControlSystem.VideoDisplayWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:local="clr-namespace:EERIL.ControlSystem"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Video Display" Height="489" Width="612" Closed="WindowClosed">
-    <Canvas Name="canvas">
-        <Image Name="videoImage" Source="/Msled;component/Images/under_ice_5001.jpg"  Width="{Binding ElementName=canvas, Path=ActualWidth}" Stretch="None" />
-    </Canvas>
+        Title="Video Display" Height="489" Width="612" Closed="WindowClosed" Background="White">
+        <Grid Name="canvas" Background="Black">
+        <Image Name="videoImage" Width="{Binding ActualWidth, ElementName=canvas}" Stretch="None" Source="/EERIL.ControlSystem;component/Resources/Images/under_ice_5001.jpg" />
+        <my:HeadsUpDisplay Name="headsUpDisplay" Width="{Binding ActualWidth, ElementName=canvas}" Height="{Binding ActualHeight, ElementName=canvas}" />
+        </Grid>
 </Window>

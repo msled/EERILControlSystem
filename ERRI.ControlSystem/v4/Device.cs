@@ -236,20 +236,6 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
-		public Bitmap CaptureImage(uint timeout){
-            //Todo: fix me
-            return null;
-            /*this.camera.
-			UInt32 width = this.ImageWidth;                                           // get current width from camera
-			UInt32 height = this.ImageHeight;                                         // get current height from camera
-			enUniColorCode colorCode = this.camera.CurColorCodeEn;                             // current IIDC color code
-			UInt32 dcamMode = 0;
-			this.camera.PrepareFreeGrab(ref dcamMode, ref colorCode, ref width, ref height);
-			Bitmap bitmap = new Bitmap((int)width, (int)height, this.camera.GrabPixelFormat());
-			this.camera.GrabImage(bitmap, timeout);
-			return bitmap;*/
-		}
-
 		public void StartVideoCapture(uint timeout) {
             this.camera.Open();
             this.camera.BeginCapture();

@@ -130,7 +130,6 @@ void loop(){
  }
  if(imu){
    while((imuLength = Serial2.available())){
-     log("i" + imuLength);
      while(imuLength-- > 0){
        log(Serial2.read());
      }
