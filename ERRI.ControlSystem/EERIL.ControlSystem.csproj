@@ -134,6 +134,7 @@
     <Compile Include="Test\ITest.cs" />
     <Compile Include="ThreadSafeObservableCollection.cs" />
     <Compile Include="v4\Device.cs" />
+    <Compile Include="v4\PowerTest.cs" />
     <Compile Include="VideoDisplayWindow.xaml.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

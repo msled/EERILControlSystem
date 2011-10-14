@@ -9,8 +9,6 @@ const int RIGHT_FIN_PIN = 11,
    THRUST_PIN = 12,
    BUOYANCY_PIN = 2,
    LED_DIMMER_PIN = 9,
-   SURFACE_BAUD = 9600,
-   IMU_BAUD = 115200,
    IMU_BUFFER_LENGTH = 25,
    LOGGER_BAUD = 9600,
    VERSION_MAJOR = 4,
@@ -22,31 +20,41 @@ const int RIGHT_FIN_PIN = 11,
    FIBER_TRANS_POWER = 10,
    TX_LED = 47,
    RX_LED = 46,
-   IMU_READ_FIRMWARE_VERSION = 0xE9;
+   IMU_READ_FIRMWARE_VERSION_COMMAND = 0xE9,
+   IMU_READ_SENSOR_DATA_COMMAND = 0xCC;
+   
+const byte IMU_CONTINOUS_PRESET_COMMAND[] = {0xD6, 0xC6, 0x6B, IMU_READ_SENSOR_DATA_COMMAND},
+   IMU_CONTINOUS_MODE_COMMAND[] = {0xD4, 0xA3, 0x47, 0x02};
+   
+const long IMU_BAUD = 115200, SURFACE_BAUD = 115200;
 
 Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster;
 
+unsigned long time, lastImuRequest = 0, imuRequestInterval = 300;
+
 int topFinOffset = 0, rightFinOffset = 0, bottomFinOffset = 0, leftFinOffset = 0, 
     horizontalFinPos = 90, verticalFinPos = 90,
-    readLength, current, length, imuLength, terminus = 0x0D;
+    readLength, current, length, imuLength, imuRecordLength, imuCommand, terminus = 0x0D,
+    buffer[BUFFER_LENGTH];
 
-int buffer[BUFFER_LENGTH];
-char imuBuffer[IMU_BUFFER_LENGTH];
-
-boolean imu = false, logger = false;
+boolean imu = false, logger = false, imuLog = false, sensorDataRead = false;
 
 void setup(){
    //Surface Control
    Serial.begin(SURFACE_BAUD);
    //IMU
-   Serial2.begin(IMU_BAUD);
+    Serial2.begin(IMU_BAUD);
    //Logger
    Serial3.begin(LOGGER_BAUD);
    thruster.attach(THRUST_PIN);
+   //Neutral
+   thrust(0x34);
    topFin.attach(TOP_FIN_PIN);
    rightFin.attach(RIGHT_FIN_PIN);
    bottomFin.attach(BOTTOM_FIN_PIN);
    leftFin.attach(LEFT_FIN_PIN);
+   vertical(90);
+   horizontal(90);
    pinMode(LED_DIMMER_PIN, OUTPUT);
    //Turn off LEDs
    
@@ -112,11 +120,15 @@ void loop(){
        case 'i':
          imu = buffer[1] > 0;
          if(imu){
-           Serial2.write(IMU_READ_FIRMWARE_VERSION);
+           Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND);
+           //Serial2.write(IMU_READ_SENSOR_DATA_COMMAND);
+           //Serial2.write(IMU_CONTINOUS_PRESET_COMMAND, 4);
+           //Serial2.write(IMU_CONTINOUS_MODE_COMMAND, 4);
          }
          break;
        case 'l':
          logger = buffer[1] > 0;
+         log('l' + buffer[1]);
          break;
        case 'o':
          log('v' + String(VERSION_MAJOR, DEC) + "." + String(VERSION_MINOR, DEC));
@@ -128,13 +140,58 @@ void loop(){
      length = 0;
    }
  }
- if(imu){
-   while((imuLength = Serial2.available())){
-     while(imuLength-- > 0){
-       log(Serial2.read());
-     }
-   }
- }
+ time = millis();
+   if(imu){
+       if((imuLength = Serial2.available()) > 0){
+        while(imuLength > 0){
+          imuCommand = Serial2.peek();
+          switch(imuCommand){
+            case IMU_READ_FIRMWARE_VERSION_COMMAND:
+              imuLog = true;
+              imuRecordLength = 7;
+              break;
+            case IMU_READ_SENSOR_DATA_COMMAND:
+              imuLog = true;
+              imuRecordLength = 79;
+              break;
+            case 0xD6:
+            case 0xD4:
+              imuLog = true;
+              imuRecordLength = 4;
+              break;
+            default:
+              imuLog = false;
+              imuRecordLength = 1;
+              break;
+          }
+          Serial.write('[');
+          Serial.print(imuLength, DEC);
+          Serial.write(" | ");
+          Serial.print(imuRecordLength, DEC);
+          Serial.write(']');
+          Serial.write(terminus);
+          if(imuRecordLength > imuLength){
+            break;
+          }
+          while(imuRecordLength-- > 0){
+            if(imuLog){
+              log(String(Serial2.read(),HEX), imuRecordLength == 0);
+            } else {
+              Serial2.read();
+            }
+            imuLength--;
+          }
+          if(imuCommand == IMU_READ_SENSOR_DATA_COMMAND){
+            sensorDataRead = true;
+          }
+        }
+      }
+      if(lastImuRequest == 0 || (sensorDataRead && time - imuRequestInterval > lastImuRequest)){
+        Serial2.write(IMU_READ_SENSOR_DATA_COMMAND);
+        lastImuRequest = time;
+        sensorDataRead = false;
+      }
+    }
 }
 
 void vertical(int pos){
@@ -144,8 +201,8 @@ void vertical(int pos){
    pos = 116;
  }
  verticalFinPos = pos;
- topFin.write(pos + topFinOffset);
- bottomFin.write(180 - (pos + bottomFinOffset));
+ topFin.write(180 - (pos + topFinOffset));
+ bottomFin.write(pos + bottomFinOffset);
  log('v' + String(pos));
 }
 
@@ -192,28 +249,40 @@ void power(int config){
  log('p' + String(config));
 }
 
-void log(char data){
- log(data);
+void log(String data){
+  log(data, true);
 }
 
-void log(String data){
+void log(int data){
+  log(data, true);
+}
+
+void log(int data, boolean terminate){
   //digitalWrite(TX_LED, HIGH);
-  Serial.print(data);
-  Serial.write(terminus);
+  Serial.write(data);
+  if(terminate){
+    Serial.write(terminus);
+  }
   if(logger){
-    Serial3.print(data);
-    Serial3.write(terminus);
+    Serial3.write(data);
+    if(terminate){
+      Serial3.write(terminus);
+    }
   }
   //digitalWrite(TX_LED, LOW);
 }
 
-void log(int data){
+void log(String data, boolean terminate){
   //digitalWrite(TX_LED, HIGH);
-  Serial.write(data);
-  Serial.write(terminus);
+  Serial.print(data);
+  if(terminate){
+    Serial.write(terminus);
+  }
   if(logger){
-    Serial3.write(data);
-    Serial3.write(terminus);
+    Serial3.print(data);
+    if(terminate){
+      Serial3.write(terminus);
+    }
   }
   //digitalWrite(TX_LED, LOW);
 }

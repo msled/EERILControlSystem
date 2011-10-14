@@ -4,7 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Video Display" Height="489" Width="612" Closed="WindowClosed" Background="White">
         <Grid Name="canvas" Background="Black">
-        <Image Name="videoImage" Width="{Binding ActualWidth, ElementName=canvas}" Stretch="None" Source="/EERIL.ControlSystem;component/Resources/Images/under_ice_5001.jpg" />
+        <Image Name="videoImage" Width="{Binding ActualWidth, ElementName=canvas}" Stretch="None" />
         <my:HeadsUpDisplay Name="headsUpDisplay" Width="{Binding ActualWidth, ElementName=canvas}" Height="{Binding ActualHeight, ElementName=canvas}" />
         </Grid>
 </Window>

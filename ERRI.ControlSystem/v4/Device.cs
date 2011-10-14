@@ -50,7 +50,16 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
-		public IList<ITest> Tests { get { return null; } }
+        public IList<ITest> Tests
+        {
+            get
+            {
+                return new List<ITest>()
+                {
+                    new PowerTest(this)
+                };
+            }
+        }
 
 		public IList<ISensor> Sensors { get { return null; } }
 
