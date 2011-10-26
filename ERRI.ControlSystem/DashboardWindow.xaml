@@ -37,6 +37,7 @@
                 <Slider Height="23" Name="LeftFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="90" />
             </StackPanel>
         </StackPanel>
+        <Button Height="23" Name="imuButton" Width="75" Content="IMU Off" Click="imuButton_Click" />
         <Label Name="serialDataLabel">Serial Data:</Label>
         <TextBox Name="serialData" VerticalAlignment="Stretch" Height="160" Width="847" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" />
     </StackPanel>

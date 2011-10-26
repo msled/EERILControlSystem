@@ -11,7 +11,7 @@ using System.Windows.Media.Imaging;
 
 namespace EERIL.ControlSystem {
 	public delegate void FrameReadyHandler(object sender, IFrame frame);
-	public delegate void DeviceMessageHandler(string message);
+    public delegate void DeviceMessageHandler(byte[] message);
 	public interface IDevice : IDisposable {
 		event FrameReadyHandler FrameReady;
 		event DeviceMessageHandler MessageReceived;
@@ -31,6 +31,7 @@ namespace EERIL.ControlSystem {
         byte BottomFinOffset { get; set; }
         byte LeftFinOffset { get; set; }
 		byte Thrust { get; set; }
+        bool IsImuActive { get; set; }
 		PowerConfigurations PowerConfiguration { get; set; }
 		void StartVideoCapture(uint timeout);
 		void StopVideoCapture();

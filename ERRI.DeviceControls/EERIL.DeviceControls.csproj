@@ -54,6 +54,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OrientationMatrix.cs" />
     <Compile Include="Point3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

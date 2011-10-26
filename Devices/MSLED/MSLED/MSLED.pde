@@ -25,19 +25,23 @@ const int RIGHT_FIN_PIN = 11,
    
 const byte IMU_CONTINOUS_PRESET_COMMAND[] = {0xD6, 0xC6, 0x6B, IMU_READ_SENSOR_DATA_COMMAND},
    IMU_CONTINOUS_MODE_COMMAND[] = {0xD4, 0xA3, 0x47, 0x02};
+
+unsigned short imuChksum,  imuResponseChksum;
    
 const long IMU_BAUD = 115200, SURFACE_BAUD = 115200;
 
 Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster;
 
-unsigned long time, lastImuRequest = 0, imuRequestInterval = 300;
+unsigned long time, lastImuRequest = 0, imuRequestInterval = 500;
 
 int topFinOffset = 0, rightFinOffset = 0, bottomFinOffset = 0, leftFinOffset = 0, 
     horizontalFinPos = 90, verticalFinPos = 90,
     readLength, current, length, imuLength, imuRecordLength, imuCommand, terminus = 0x0D,
     buffer[BUFFER_LENGTH];
+    
+byte imuBuffer[128];
 
-boolean imu = false, logger = false, imuLog = false, sensorDataRead = false;
+boolean imu = false, logger = false, imuLog = true, sensorDataRead = false;
 
 void setup(){
    //Surface Control
@@ -147,16 +151,13 @@ void loop(){
           imuCommand = Serial2.peek();
           switch(imuCommand){
             case IMU_READ_FIRMWARE_VERSION_COMMAND:
-              imuLog = true;
               imuRecordLength = 7;
               break;
             case IMU_READ_SENSOR_DATA_COMMAND:
-              imuLog = true;
               imuRecordLength = 79;
               break;
             case 0xD6:
             case 0xD4:
-              imuLog = true;
               imuRecordLength = 4;
               break;
             default:
@@ -164,23 +165,18 @@ void loop(){
               imuRecordLength = 1;
               break;
           }
-          Serial.write('[');
-          Serial.print(imuLength, DEC);
-          Serial.write(" | ");
-          Serial.print(imuRecordLength, DEC);
-          Serial.write(']');
-          Serial.write(terminus);
           if(imuRecordLength > imuLength){
             break;
           }
-          while(imuRecordLength-- > 0){
-            if(imuLog){
-              log(String(Serial2.read(),HEX), imuRecordLength == 0);
-            } else {
-              Serial2.read();
-            }
-            imuLength--;
+          for(int i = 0; i < imuRecordLength; i++){
+            imuBuffer[i] = Serial2.read();
           }
+          if(imuLog && checksum(imuBuffer, imuRecordLength)){
+            log(imuBuffer, imuRecordLength);
+          } else {
+            imuLog = true;
+          }
+ 
           if(imuCommand == IMU_READ_SENSOR_DATA_COMMAND){
             sensorDataRead = true;
           }
@@ -249,6 +245,20 @@ void power(int config){
  log('p' + String(config));
 }
 
+boolean checksum(byte* buffer, int length){
+  imuChksum = 0;
+  for (int i = 0; i < length - 2; i++)
+    imuChksum += buffer[i];
+  //-------- Extract the big-endian checksum from reply
+  imuResponseChksum = buffer[length - 2] << 8;
+  imuResponseChksum += buffer[length - 1];
+  return imuChksum == imuResponseChksum;
+}
+
+void log(byte* buffer, int length){
+  log(buffer, length, true);
+}
+
 void log(String data){
   log(data, true);
 }
@@ -272,6 +282,21 @@ void log(int data, boolean terminate){
   //digitalWrite(TX_LED, LOW);
 }
 
+void log(byte* buffer, int length, boolean terminate){
+  //digitalWrite(TX_LED, HIGH);
+  Serial.write(buffer, length);
+  if(terminate){
+    Serial.write(terminus);
+  }
+  if(logger){
+    Serial3.write(buffer, length);
+    if(terminate){
+      Serial3.write(terminus);
+    }
+  }
+  //digitalWrite(TX_LED, LOW);
+}
+
 void log(String data, boolean terminate){
   //digitalWrite(TX_LED, HIGH);
   Serial.print(data);
@@ -286,4 +311,3 @@ void log(String data, boolean terminate){
   }
   //digitalWrite(TX_LED, LOW);
 }
-//  Serial3.write(data);

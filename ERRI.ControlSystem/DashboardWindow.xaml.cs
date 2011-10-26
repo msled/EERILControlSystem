@@ -83,6 +83,7 @@ namespace EERIL.ControlSystem {
 				deviceManager.ActiveDevice = deployment.Devices[0];
 				deviceManager.ActiveDevice.MessageReceived += new DeviceMessageHandler(ActiveDeviceMessageReceived);
 			}
+            imuButton.DataContext = false;
 			controllerAxisChangedHandler = new ControllerAxisChangedHandler(ControllerAxisChanged);
 			controllerConnectionChangedHandler = new ControllerConnectionChangedHandler(ControllerConnectionChanged);
             bitmapFrameCapturedHandler = new BitmapFrameCapturedHandler(VideoDisplayWindowBitmapFrameCaptured);
@@ -120,7 +121,8 @@ namespace EERIL.ControlSystem {
             deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(e.NewValue);
         }
 
-		void ActiveDeviceMessageReceived(string message) {
+        void ActiveDeviceMessageReceived(byte[] message)
+        {
 			//serialData.Text += message;
 		}
 
@@ -185,5 +187,13 @@ namespace EERIL.ControlSystem {
             deviceManager.ActiveDevice.Close();
             (Application.Current as App).MainWindow.Show();
 		}
+
+        private void imuButton_Click(object sender, RoutedEventArgs e)
+        {
+            IDevice device = deviceManager.ActiveDevice;
+            device.IsImuActive = !device.IsImuActive;
+            imuButton.Content = "IMU " + (device.IsImuActive ? "On" : "Off");
+            //imuButton.IsEnabled = false;
+        }
 	}
 }

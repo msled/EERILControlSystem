@@ -23,5 +23,6 @@ namespace EERIL.ControlSystem.Test {
 		Boolean Active { get; set; }
 
 		IOperation Begin();
+        void Cancel();
 	}
 }

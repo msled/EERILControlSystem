@@ -17,6 +17,7 @@ using System.Windows.Threading;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Threading;
+using EERIL.DeviceControls;
 
 namespace EERIL.ControlSystem {
     public delegate void BitmapFrameCapturedHandler(BitmapFrame frame);
@@ -106,7 +107,13 @@ namespace EERIL.ControlSystem {
 
             triggerStateChangedHandler = new TriggerStateChangedHandler(ControllerTriggerStateChanged);
             buttonStateChangedHandler = new ButtonStateChangedHandler(ControllerButtonStateChanged);
-            deviceManager = app.DeviceManager;
+
+            deviceManager = (Application.Current as App).DeviceManager;
+            if (deployment.Devices.Count > 0)
+            {
+                deviceManager.ActiveDevice = deployment.Devices[0];
+                deviceManager.ActiveDevice.MessageReceived += new DeviceMessageHandler(ActiveDeviceMessageReceived);
+            }
 		    this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate
 		                                                                                                             {
 				if (deployment.Devices.Count > 0) {
@@ -157,6 +164,46 @@ namespace EERIL.ControlSystem {
                     break;
             }
 		}
+
+        void ActiveDeviceMessageReceived(byte[] message)
+        {
+            switch (message[0])
+            {
+                case 0xCC:
+                    if (message.Length < 74)
+                        break;
+                    uint timer = BitConverter.ToUInt32(message, 73);
+                    headsUpDisplay.Acceleration = new Point3D(){
+                        X = BitConverter.ToSingle(message, 1),
+                        Y = BitConverter.ToSingle(message, 4),
+                        Z = BitConverter.ToSingle(message, 9)
+                    };
+                    headsUpDisplay.AngleRate = new Point3D(){
+                        X = BitConverter.ToSingle(message, 13),
+                        Y = BitConverter.ToSingle(message, 17),
+                        Z = BitConverter.ToSingle(message, 21)
+                    };
+                    headsUpDisplay.Magnetometer = new Point3D(){
+                        X = BitConverter.ToSingle(message, 25),
+                        Y = BitConverter.ToSingle(message, 29),
+                        Z = BitConverter.ToSingle(message, 33)
+                    };
+                    headsUpDisplay.Orientation = new OrientationMatrix()
+                    {
+                        M11 = BitConverter.ToSingle(message, 37),
+                        M12 = BitConverter.ToSingle(message, 41),
+                        M13 = BitConverter.ToSingle(message, 45),
+                        M21 = BitConverter.ToSingle(message, 49),
+                        M22 = BitConverter.ToSingle(message, 53),
+                        M23 = BitConverter.ToSingle(message, 57),
+                        M31 = BitConverter.ToSingle(message, 61),
+                        M32 = BitConverter.ToSingle(message, 65),
+                        M33 = BitConverter.ToSingle(message, 69)
+                    };
+                    headsUpDisplay.InvalidateVisual();
+                    break;
+            }
+        }
 
 		void DeviceFrameReady(object sender, IFrame frame)
 		{

@@ -46,19 +46,20 @@ namespace EERIL.DeviceControls {
 		}
 		public Point3D Acceleration {
 			get;
-			private set;
+			set;
 		}
 		public Point3D Magnetometer {
 			get;
-			private set;
+			set;
 		}
 		public Point3D AngleRate {
 			get;
-			private set;
+			set;
 		}
-		public Matrix Orientation {
+        public OrientationMatrix Orientation
+        {
 			get;
-			private set;
+			set;
 		}
 		public ushort Temperature {
 			get;
@@ -176,6 +177,7 @@ namespace EERIL.DeviceControls {
 		protected void RenderFalseHorizon(DrawingContext context) {
 			if (falseHorizonPen != null) {
 				context.DrawGeometry(falseHorizonPen.Brush, falseHorizonPen, falseHorizon);
+                falseHorizonTransparent.Transform = new RotateTransform(Math.Atan(this.Orientation.M23 / this.Orientation.M33));
 				context.DrawGeometry(falseHorizonTransparentPen.Brush, falseHorizonTransparentPen, falseHorizonTransparent);
 			}
 		}

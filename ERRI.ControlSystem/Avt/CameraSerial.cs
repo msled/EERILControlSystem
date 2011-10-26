@@ -9,7 +9,7 @@ namespace EERIL.ControlSystem.Avt
 {
     internal class CameraSerial
     {
-// Camera registers dealing with Serial IO
+        // Camera registers dealing with Serial IO
         private const int REG_SIO_INQUIRY = 0x16000;
         private const int REG_SIO_MODE_INQUIRY = 0x16100;
         private const int REG_SIO_MODE = 0x16104;
@@ -29,11 +29,10 @@ namespace EERIL.ControlSystem.Avt
         [MethodImpl(MethodImplOptions.Synchronized)]
         private static unsafe bool FWriteMem(uint camera, uint address, byte[] buffer, uint length)
         {
-            uint numRegs = (length + 3)/4;
+            uint numRegs = (length + 3) / 4;
             uint[] pAddressArray = new uint[numRegs];
             uint[] pDataArray = new uint[numRegs];
             uint written = 0;
-            bool result;
 
 
             //
@@ -49,16 +48,16 @@ namespace EERIL.ControlSystem.Avt
                 byte* incrementablePointer = bufferPointer;
                 for (uint i = 0; i < numRegs; i++)
                 {
-                    pAddressArray[i] = address + (i*4);
+                    pAddressArray[i] = address + (i * 4);
 
-                    pDataArray[i] = (uint) *(incrementablePointer++) << 24;
-                    pDataArray[i] |= (uint) *(incrementablePointer++) << 16;
-                    pDataArray[i] |= (uint) *(incrementablePointer++) << 8;
-                    pDataArray[i] |= (uint) *(incrementablePointer++);
+                    pDataArray[i] = (uint)*(incrementablePointer++) << 24;
+                    pDataArray[i] |= (uint)*(incrementablePointer++) << 16;
+                    pDataArray[i] |= (uint)*(incrementablePointer++) << 8;
+                    pDataArray[i] |= (uint)*(incrementablePointer++);
                 }
 
                 // 2.  Execute write.
-                tErr error = (tErr) Pv.RegisterWrite(camera, numRegs, pAddressArray, pDataArray, ref written);
+                tErr error = (tErr)Pv.RegisterWrite(camera, numRegs, pAddressArray, pDataArray, ref written);
                 if (error != tErr.eErrSuccess)
                     throw new PvException(error);
             }
@@ -66,12 +65,11 @@ namespace EERIL.ControlSystem.Avt
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private static bool FReadMem(uint camera, uint address, byte[] buffer, uint length)
+        private static void FReadMem(uint camera, uint address, byte[] buffer, uint length)
         {
-            uint numRegs = (length + 3)/4;
+            uint numRegs = (length + 3) / 4;
             uint[] pAddressArray = new uint[numRegs];
             uint[] pDataArray = new uint[numRegs];
-            bool result;
             uint read = 0;
 
 
@@ -83,29 +81,24 @@ namespace EERIL.ControlSystem.Avt
 
             // 1.  Generate read addresses
             for (uint i = 0; i < numRegs; i++)
-                pAddressArray[i] = address + (i*4);
+                pAddressArray[i] = address + (i * 4);
 
             // 2.  Execute read.
-            if ((tErr) Pv.RegisterRead(camera, numRegs, pAddressArray, pDataArray, ref read) == tErr.eErrSuccess)
+            tErr error = (tErr)Pv.RegisterRead(camera, numRegs, pAddressArray, pDataArray, ref read);
+            if (error != tErr.eErrSuccess)
+                throw new PvException(error);
+
+            uint data = 0;
+
+            // 3.  Convert from MSB-packed registers to byte array
+            for (uint i = 0; i < length; i++)
             {
-                uint data = 0;
+                if (i % 4 == 0)
+                    data = pDataArray[i / 4];
 
-                // 3.  Convert from MSB-packed registers to byte array
-                for (uint i = 0; i < length; i++)
-                {
-                    if (i%4 == 0)
-                        data = pDataArray[i/4];
-
-                    buffer[i] = Convert.ToByte((data >> 24) & 0xFF);
-                    data <<= 8;
-                }
-
-                result = true;
+                buffer[i] = Convert.ToByte((data >> 24) & 0xFF);
+                data <<= 8;
             }
-            else
-                result = false;
-
-            return result;
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
@@ -116,7 +109,7 @@ namespace EERIL.ControlSystem.Avt
 
 
             regAddresses[0] = REG_SIO_MODE;
-            regValues[0] = 0x00000C05; // 9600, N, 8, 1
+            regValues[0] = 0x00000C09; // 9600, N, 8, 1
 
             regAddresses[1] = REG_SIO_TX_CONTROL;
             regValues[1] = 3; // Reset & enable transmitter
@@ -136,14 +129,14 @@ namespace EERIL.ControlSystem.Avt
         public static bool WriteBytesToSerialIo(uint camera, byte[] buffer, uint length)
         {
             uint[] value = new uint[2];
-            uint[] addressData = new uint[] {REG_SIO_TX_STATUS};
+            uint[] addressData = new uint[] { REG_SIO_TX_STATUS };
             uint read = 0;
             tErr error;
 
             // Wait for transmitter ready.
             do
             {
-                error = (tErr) Pv.RegisterRead(camera, 1, addressData, value, ref read);
+                error = (tErr)Pv.RegisterRead(camera, 1, addressData, value, ref read);
                 if (error != tErr.eErrSuccess)
                     throw new PvException(error);
             } while (value[0] == 0U); // Waiting for transmitter-ready bit
@@ -153,10 +146,10 @@ namespace EERIL.ControlSystem.Avt
                 return false;
 
             // Write the buffer length.  This triggers transmission.
-            value = new[] {length};
-            addressData = new uint[] {REG_SIO_TX_LENGTH};
+            value = new[] { length };
+            addressData = new uint[] { REG_SIO_TX_LENGTH };
             uint written = 0;
-            error = (tErr) Pv.RegisterWrite(camera, 1, addressData, value, ref written);
+            error = (tErr)Pv.RegisterWrite(camera, 1, addressData, value, ref written);
             if (error != tErr.eErrSuccess)
                 throw new PvException(error);
 
@@ -183,8 +176,7 @@ namespace EERIL.ControlSystem.Avt
             if (dataLength > 0)
             {
                 // Read the data.
-                if (!FReadMem(camera, REG_SIO_RX_BUFFER, buffer, dataLength))
-                    return false;
+                FReadMem(camera, REG_SIO_RX_BUFFER, buffer, dataLength);
 
                 // Decrement the camera's read index.
                 error = (tErr)Pv.RegisterWrite(camera, 1, REG_SIO_RX_LENGTH_ADDRESS, lengthData, ref written);

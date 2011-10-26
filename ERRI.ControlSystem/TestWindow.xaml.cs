@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using EERIL.ControlSystem.Test;
 
 namespace EERIL.ControlSystem {
 	/// <summary>
@@ -39,5 +40,11 @@ namespace EERIL.ControlSystem {
 		private void cancelButton_Click(object sender, RoutedEventArgs e) {
 			this.Close();
 		}
+
+        private void beginButton_Click(object sender, RoutedEventArgs e)
+        {
+            ITest test = testTreeView.SelectedItem as ITest;
+            test.Begin();
+        }
 	}
 }

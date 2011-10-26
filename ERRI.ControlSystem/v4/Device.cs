@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using System.Text;
 using System.Drawing.Imaging;
 using EERIL.ControlSystem.Properties;
+using System.Runtime.CompilerServices;
 
 namespace EERIL.ControlSystem.v4 {
 	[ControlSystem.Device("MsledOS", OsVersion = new double[] { 4 })]
@@ -19,6 +20,7 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly MemoryMappedFile file;
         private readonly EERIL.ControlSystem.Properties.Settings settings = EERIL.ControlSystem.Properties.Settings.Default;
 		private List<byte> buffer = new List<byte>();
+        private bool isImuActive = false;
 		private byte horizontalFinPosition;
 
 		private byte verticalFinPosition;
@@ -187,6 +189,22 @@ namespace EERIL.ControlSystem.v4 {
             }
 		}
 
+        public bool IsImuActive
+        {
+            get
+            {
+                return isImuActive;
+            }
+            set
+            {
+                if (!camera.WriteBytesToSerial(new byte[] { 0x69, (byte)(value ? 0x10 : 0x00), 0x0D }))
+                {
+                    throw new Exception("Failed to transmit IMU activation.");
+                }
+                isImuActive = value;
+            }
+        }
+
 		public PowerConfigurations PowerConfiguration {
 			get { return powerConfiguration; }
 			set { powerConfiguration = value; }
@@ -231,7 +249,8 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
-		protected void OnMessageReceived(string message) {
+        protected void OnMessageReceived(byte[] message)
+        {
 			if (MessageReceived != null) {
 				DeviceMessageHandler eventHandler = MessageReceived;
 				Delegate[] delegates = eventHandler.GetInvocationList();
@@ -272,9 +291,13 @@ namespace EERIL.ControlSystem.v4 {
 			uint length = 0;
             while (true)
             {
-                camera.ReadBytesFromSerial(buffer, ref length);
-                if (length > 0)
-                    ParseSerial(buffer, length);
+                lock (buffer)
+                {
+                    if (camera.ReadBytesFromSerial(buffer, ref length) && length > 0)
+                    {
+                        ParseSerial(buffer, length);
+                    }
+                }
 				Thread.Yield();
 			}
 		}
@@ -282,18 +305,16 @@ namespace EERIL.ControlSystem.v4 {
 		private void ParseSerial(byte[] array, uint length) {
             for (int i = 0; i < length; i++)
             {
-			    if (array[i] != 0x0D)
-			    {
-			        buffer.Add(array[i]);
-                    continue;
-			    }
-			    byte[] message;
-                lock(buffer)
+                if (array[i] != 0x0D)
                 {
-                    message = buffer.ToArray(); 
-                    buffer.Clear();
+                    buffer.Add(array[i]);
                 }
-			    OnMessageReceived(Encoding.ASCII.GetString(message));
+                else
+                {
+                    byte[] message = buffer.ToArray();
+                    buffer.Clear();
+                    OnMessageReceived(message);
+                }
 			}
 		}
 
