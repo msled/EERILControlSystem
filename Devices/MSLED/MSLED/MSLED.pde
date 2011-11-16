@@ -2,15 +2,21 @@
 
 //Note that if the Buoyancy motor is ever changed from PJ7, changing BUOYANCY_ENABLE may affect all DDRJ and PORTJ entries which will include some serial ports. If it is moved to a standard arduino pin, DDRJ and PORTJ entries may be removed.
 
-const int RIGHT_FIN_PIN = 11,
-   BOTTOM_FIN_PIN = 44,
-   LEFT_FIN_PIN = 45,
-   TOP_FIN_PIN = 46,
+//This sucks...
+//Right == Top
+const int RIGHT_FIN_PIN = 46,
+//Bottom == Right
+   BOTTOM_FIN_PIN = 11,
+   //Left == Bottom
+   LEFT_FIN_PIN = 44,
+   //Top == Left
+   TOP_FIN_PIN = 45,
    THRUST_PIN = 12,
    BUOYANCY_PIN = 2,
    LED_DIMMER_PIN = 9,
+   VOLTAGE_PIN = 15,
+   CURRENT_PIN = 6,
    IMU_BUFFER_LENGTH = 25,
-   LOGGER_BAUD = 9600,
    VERSION_MAJOR = 4,
    VERSION_MINOR = 0,
    BUFFER_LENGTH = 10,
@@ -20,28 +26,34 @@ const int RIGHT_FIN_PIN = 11,
    FIBER_TRANS_POWER = 10,
    TX_LED = 47,
    RX_LED = 46,
-   IMU_READ_FIRMWARE_VERSION_COMMAND = 0xE9,
-   IMU_READ_SENSOR_DATA_COMMAND = 0xCC;
+   IMU_READ_FIRMWARE_VERSION_COMMAND_CODE = 0xE9,
+   IMU_READ_SENSOR_DATA_COMMAND_CODE = 0xCC,
+   IMU_CONTINUOUS_COMMAND_CODE = 0xC4,
+   //IMU_MODE_COMMAND_CODE = 0xD4,
+   IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE = 0xFA;//,
+   //IMU_DEVICE_RESET_COMMAND_CODE = 0xFE;
    
-const byte IMU_CONTINOUS_PRESET_COMMAND[] = {0xD6, 0xC6, 0x6B, IMU_READ_SENSOR_DATA_COMMAND},
-   IMU_CONTINOUS_MODE_COMMAND[] = {0xD4, 0xA3, 0x47, 0x02};
+const byte IMU_CONTINUOUS_COMMAND[] = {IMU_CONTINUOUS_COMMAND_CODE, 0xC1, 0x29, IMU_READ_SENSOR_DATA_COMMAND_CODE},
+  IMU_STOP_CONTINUOUS_MODE_COMMAND[] = {IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE, 0x75, 0xB4};
+  //IMU_CONTINUOUS_MODE_COMMAND[] = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x2},
+  //IMU_DEVICE_RESET_COMMAND[] = {IMU_DEVICE_RESET_COMMAND_CODE, 0x9E, 0x3A};//,
 
 unsigned short imuChksum,  imuResponseChksum;
+
+unsigned long lastRamp = 0, lastBattery = 0, time, lastCommand = 0, heartbeatThreshhold = 150;
    
-const long IMU_BAUD = 115200, SURFACE_BAUD = 115200;
+const long IMU_BAUD = 115200, SURFACE_BAUD = 115200, LOGGER_BAUD = 115200;
 
 Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster;
 
-unsigned long time, lastImuRequest = 0, imuRequestInterval = 500;
-
 int topFinOffset = 0, rightFinOffset = 0, bottomFinOffset = 0, leftFinOffset = 0, 
     horizontalFinPos = 90, verticalFinPos = 90,
-    readLength, current, length, imuLength, imuRecordLength, imuCommand, terminus = 0x0D,
-    buffer[BUFFER_LENGTH];
+    readLength, nextByte, current, length, imuLength, imuRecordLength, imuCommand, terminus = 0x0D,
+    buffer[BUFFER_LENGTH], voltage, currentThrust, targetThrust, rampDelay = 10, batteryDelay=100;
     
-byte imuBuffer[128];
+byte imuBuffer[128], serialBuffer[5], thrustBuffer[3];
 
-boolean imu = false, logger = false, imuLog = true, sensorDataRead = false;
+boolean imu = false, logger = false, imuLog = true, sensorDataRead = false, ramping = false;
 
 void setup(){
    //Surface Control
@@ -51,17 +63,17 @@ void setup(){
    //Logger
    Serial3.begin(LOGGER_BAUD);
    thruster.attach(THRUST_PIN);
-   //Neutral
-   thrust(0x34);
    topFin.attach(TOP_FIN_PIN);
    rightFin.attach(RIGHT_FIN_PIN);
    bottomFin.attach(BOTTOM_FIN_PIN);
    leftFin.attach(LEFT_FIN_PIN);
-   vertical(90);
-   horizontal(90);
+   
+   neutralize();
+   
    pinMode(LED_DIMMER_PIN, OUTPUT);
    //Turn off LEDs
-   
+   serialBuffer[0] = 'b';
+   thrustBuffer[0] = 't';
    //buoyancyPlunger.attach(BUOYANCY_PIN);
    //DDRJ = DDRJ | BUOYANCY_ENABLE; // sets PJ6 to OUTPUT while leaving all other Port J pinModes unchanged.
    //DDRJ = DDRJ & V5_FLAG; // sets PJ5 to input while leaving all other Port J pinModes unchanged
@@ -73,18 +85,19 @@ void setup(){
 }
 
 void loop(){
- 
+ time = millis();
  if(Serial.available()){
    
    //digitalWrite(RX_LED, HIGH);
    do{
-     current = Serial.read();
-     buffer[length++] = current;
-   }while(current != terminus && length < BUFFER_LENGTH && Serial.available());
+     nextByte = Serial.read();
+     buffer[length++] = nextByte;
+   }while(nextByte != terminus && length < BUFFER_LENGTH && Serial.available());
    //digitalWrite(RX_LED, LOW);
 
      
-   if(current == terminus){
+   if(nextByte == terminus){
+     lastCommand = time;
      switch(buffer[0]){
        case 'v':
          vertical(buffer[1]);
@@ -124,10 +137,10 @@ void loop(){
        case 'i':
          imu = buffer[1] > 0;
          if(imu){
-           Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND);
-           //Serial2.write(IMU_READ_SENSOR_DATA_COMMAND);
-           //Serial2.write(IMU_CONTINOUS_PRESET_COMMAND, 4);
-           //Serial2.write(IMU_CONTINOUS_MODE_COMMAND, 4);
+           Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
+           Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
+         } else {
+           Serial2.write(IMU_STOP_CONTINUOUS_MODE_COMMAND, 3);
          }
          break;
        case 'l':
@@ -144,20 +157,38 @@ void loop(){
      length = 0;
    }
  }
- time = millis();
+   if(lastBattery + batteryDelay < time || time < lastBattery){
+     current = analogRead(CURRENT_PIN) * .0049 / 20 * 0.03;
+     voltage = analogRead(VOLTAGE_PIN) * .0049 * 302 / 82;
+     serialBuffer[1] = current; 
+     serialBuffer[2] = current >> 8;
+     serialBuffer[3] = voltage;
+     serialBuffer[4] = voltage >> 8;
+     for(int i = 1; i < 5; i++){
+       if(serialBuffer[i] == 0x0D)
+         serialBuffer[i]--;
+     }
+     log(serialBuffer, 5);
+     lastBattery = time;
+   }
+   
+   if(ramping && (lastRamp + rampDelay < time || time < lastRamp)){
+     thrust(targetThrust);
+   }
+   
    if(imu){
        if((imuLength = Serial2.available()) > 0){
         while(imuLength > 0){
           imuCommand = Serial2.peek();
           switch(imuCommand){
-            case IMU_READ_FIRMWARE_VERSION_COMMAND:
+            case IMU_READ_FIRMWARE_VERSION_COMMAND_CODE:
               imuRecordLength = 7;
               break;
-            case IMU_READ_SENSOR_DATA_COMMAND:
+            case IMU_READ_SENSOR_DATA_COMMAND_CODE:
               imuRecordLength = 79;
               break;
-            case 0xD6:
-            case 0xD4:
+            case IMU_CONTINUOUS_COMMAND_CODE:
+            //case IMU_MODE_COMMAND_CODE:
               imuRecordLength = 4;
               break;
             default:
@@ -170,24 +201,29 @@ void loop(){
           }
           for(int i = 0; i < imuRecordLength; i++){
             imuBuffer[i] = Serial2.read();
+            if(imuBuffer[i] == 0x0D) {
+              imuBuffer[i]++;
+            }
+            imuLength--;
           }
           if(imuLog && checksum(imuBuffer, imuRecordLength)){
             log(imuBuffer, imuRecordLength);
-          } else {
-            imuLog = true;
           }
- 
-          if(imuCommand == IMU_READ_SENSOR_DATA_COMMAND){
-            sensorDataRead = true;
-          }
+          imuLog = true;
         }
       }
-      if(lastImuRequest == 0 || (sensorDataRead && time - imuRequestInterval > lastImuRequest)){
-        Serial2.write(IMU_READ_SENSOR_DATA_COMMAND);
-        lastImuRequest = time;
-        sensorDataRead = false;
-      }
     }
+    
+    if(time - lastCommand > heartbeatThreshhold){
+      neutralize();
+    }
+}
+
+void neutralize(){
+   //Neutral
+   thrust(0x34);
+   vertical(90);
+   horizontal(90);
 }
 
 void vertical(int pos){
@@ -215,8 +251,14 @@ void horizontal(int pos){
 }
 
 void thrust(int speed){
- thruster.write(speed);
- log('t' + String(speed));
+ currentThrust += (speed < currentThrust) ? -1 : 1;
+ targetThrust = speed;
+ ramping = targetThrust != currentThrust;
+ lastRamp = time;
+ thruster.write(currentThrust);
+ thrustBuffer[1] = currentThrust;
+ thrustBuffer[2] = currentThrust >> 8;
+ log(thrustBuffer, 3);
 }
 
 void buoyancy(int pos){
@@ -226,17 +268,17 @@ void buoyancy(int pos){
 
 void power(int config){
  switch (config){
-   case 0: //All peripherals on including buoyancy motor
+   case '0': //All peripherals on including buoyancy motor
       digitalWrite(LED_POWER, HIGH);
       digitalWrite(FIBER_TRANS_POWER, HIGH);
       //PORTJ = PORTJ | BUOYANCY_ENABLE; // sets PJ6 HIGH while leaving all other port J pins unchanged
       break;
-   case 1: //All peripherals on except the buoyancy motor
+   case '1': //All peripherals on except the buoyancy motor
       digitalWrite(LED_POWER, HIGH);
       digitalWrite(FIBER_TRANS_POWER, HIGH);
       //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
       break;
-   case 2:
+   case '2':
      digitalWrite(FIBER_TRANS_POWER, LOW);
      digitalWrite(LED_POWER, LOW);
      //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged

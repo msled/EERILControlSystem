@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using Microsoft.Xna.Framework.Input;
 using EERIL.ControlSystem;
 using System.Windows.Threading;
+using System.IO;
 
 namespace EERIL.ControlSystem {
 	/// <summary>

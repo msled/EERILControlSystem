@@ -10,6 +10,7 @@ using System.Text;
 using System.Drawing.Imaging;
 using EERIL.ControlSystem.Properties;
 using System.Runtime.CompilerServices;
+using System.IO;
 
 namespace EERIL.ControlSystem.v4 {
 	[ControlSystem.Device("MsledOS", OsVersion = new double[] { 4 })]
@@ -289,17 +290,21 @@ namespace EERIL.ControlSystem.v4 {
 		private void MonitorSerialCommunication() {
 			byte[] buffer = new byte[settings.SerialReceiveInputBufferSize];
 			uint length = 0;
-            while (true)
+            using (FileStream fileStream = File.Create(@"C:\MSLEDLogs\" + DateTime.Now.Ticks.ToString() + ".stream"))
             {
-                lock (buffer)
+                while (true)
                 {
-                    if (camera.ReadBytesFromSerial(buffer, ref length) && length > 0)
+                    lock (buffer)
                     {
-                        ParseSerial(buffer, length);
+                        if (camera.ReadBytesFromSerial(buffer, ref length) && length > 0)
+                        {
+                            ParseSerial(buffer, length);
+                            fileStream.Write(buffer, 0, Convert.ToInt32(length));
+                        }
                     }
+                    Thread.Yield();
                 }
-				Thread.Yield();
-			}
+            }
 		}
 
 		private void ParseSerial(byte[] array, uint length) {
@@ -309,7 +314,7 @@ namespace EERIL.ControlSystem.v4 {
                 {
                     buffer.Add(array[i]);
                 }
-                else
+                else if(buffer.Count > 0)
                 {
                     byte[] message = buffer.ToArray();
                     buffer.Clear();

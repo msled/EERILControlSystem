@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Msled.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="EERIL.ControlSystem.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="MissionDirectory" Type="System.String" Scope="User">
@@ -15,7 +15,7 @@
       <Value Profile="(Default)">2000</Value>
     </Setting>
     <Setting Name="SerialReceiveInputBufferSize" Type="System.UInt32" Scope="User">
-      <Value Profile="(Default)">1024</Value>
+      <Value Profile="(Default)">512</Value>
     </Setting>
     <Setting Name="HeadsUpDisplayZoom" Type="System.Byte" Scope="User">
       <Value Profile="(Default)">25</Value>

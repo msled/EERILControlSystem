@@ -19,6 +19,8 @@ namespace EERIL.ControlSystem.Avt
         private tFrame[] frames;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
+        private Timer heartbeatTimer;
+        private byte[] hearbeat = new byte[]{0xA6};
 
         public event FrameReadyHandler FrameReady;
 
@@ -41,14 +43,19 @@ namespace EERIL.ControlSystem.Avt
             tErr error = Pv.CaptureQueueFrame(this.camera.Value, framePointer, this.callback);
             if(error != tErr.eErrSuccess)
             {
-                throw new PvException(error);
+                throw new PvException(error); // TODO: throws exception here
             }
         }
 
         public Camera(tCameraInfo cameraInfo)
         {
+            this.heartbeatTimer = new Timer(Heartbeat, null, 100, 100);
             this.cameraInfo = cameraInfo;
             this.callback = new tFrameCallback(OnFrameReady);
+        }
+
+        public void Heartbeat(object state){
+            this.WriteBytesToSerial(hearbeat);
         }
 
 
@@ -266,6 +273,7 @@ namespace EERIL.ControlSystem.Avt
 
         public bool WriteBytesToSerial(byte[] buffer)
         {
+            heartbeatTimer.Change(100, 100);
             return camera.HasValue ? CameraSerial.WriteBytesToSerialIo(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength)) : false;
         }
 

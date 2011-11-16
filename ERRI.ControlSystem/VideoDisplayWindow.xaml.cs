@@ -38,6 +38,12 @@ namespace EERIL.ControlSystem {
         private BitmapFrame bitmapFrame = null;
         private readonly TriggerStateChangedHandler triggerStateChangedHandler;
         private readonly ButtonStateChangedHandler buttonStateChangedHandler;
+        private byte[] m11Buffer = new byte[4], 
+            m12Buffer = new byte[4], 
+            m13Buffer = new byte[4], 
+            m23Buffer = new byte[4], 
+            m33Buffer = new byte[4],
+            batteryBuffer = new byte[2];
 		public DashboardWindow Dashboard {
 			get;
 			set;
@@ -169,11 +175,22 @@ namespace EERIL.ControlSystem {
         {
             switch (message[0])
             {
+                case 0x74:
+                    if (message.Length < 2)
+                        break;
+                    headsUpDisplay.Thrust = message[1] - 52;
+                    break;
+                case 0x62:
+                    if (message.Length < 5)
+                        break;
+                    headsUpDisplay.Current = BitConverter.ToUInt16(message, 1);
+                    headsUpDisplay.Voltage = BitConverter.ToUInt16(message, 3);
+                    break;
                 case 0xCC:
-                    if (message.Length < 74)
+                    if (!verifyChecksum(message))
                         break;
                     uint timer = BitConverter.ToUInt32(message, 73);
-                    headsUpDisplay.Acceleration = new Point3D(){
+                    /*headsUpDisplay.Acceleration = new Point3D(){
                         X = BitConverter.ToSingle(message, 1),
                         Y = BitConverter.ToSingle(message, 4),
                         Z = BitConverter.ToSingle(message, 9)
@@ -199,10 +216,55 @@ namespace EERIL.ControlSystem {
                         M31 = BitConverter.ToSingle(message, 61),
                         M32 = BitConverter.ToSingle(message, 65),
                         M33 = BitConverter.ToSingle(message, 69)
-                    };
-                    headsUpDisplay.InvalidateVisual();
+                    };*/
+                    
+                    m11Buffer[0] = message[40];
+                    m11Buffer[1] = message[39];
+                    m11Buffer[2] = message[38];
+                    m11Buffer[3] = message[37];
+
+                    m12Buffer[0] = message[44];
+                    m12Buffer[1] = message[43];
+                    m12Buffer[2] = message[42];
+                    m12Buffer[3] = message[41];
+                    //This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
+                    headsUpDisplay.Yaw = Math.Atan2(BitConverter.ToSingle(m11Buffer, 0), BitConverter.ToSingle(m12Buffer, 0));
+                    m13Buffer[0] = message[48];
+                    m13Buffer[1] = message[47];
+                    m13Buffer[2] = message[46];
+                    m13Buffer[3] = message[45];
+                    //This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
+                    headsUpDisplay.Pitch = Math.Asin(BitConverter.ToSingle(m13Buffer, 0) * -1) * -1;
+                    m23Buffer[0] = message[60];
+                    m23Buffer[1] = message[59];
+                    m23Buffer[2] = message[58];
+                    m23Buffer[3] = message[57];
+
+                    m33Buffer[0] = message[72];
+                    m33Buffer[1] = message[71];
+                    m33Buffer[2] = message[70];
+                    m33Buffer[3] = message[69];
+                    //This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
+                    headsUpDisplay.Roll = Math.Atan2(BitConverter.ToSingle(m23Buffer, 0), BitConverter.ToSingle(m33Buffer, 0)) * -1;
+                    //Did I mention ^ that stuff is backwards.
                     break;
             }
+        }
+
+        private bool verifyChecksum(byte[] message){
+            bool result = false;
+            if (message.Length > 2)
+            {
+                int checksum = 0, messageChecksum = 0;
+                for (int i = 0, l = message.Length; i < l - 2; i++)
+                {
+                    checksum += message[i];
+                }
+                messageChecksum = message[message.Length - 2] << 8;
+                messageChecksum += message[message.Length - 1];
+                result = checksum == messageChecksum;
+            }
+            return result;
         }
 
 		void DeviceFrameReady(object sender, IFrame frame)
