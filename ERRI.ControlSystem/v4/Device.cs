@@ -38,7 +38,7 @@ namespace EERIL.ControlSystem.v4 {
 
 		private PowerConfigurations powerConfiguration;
 
-		public event FrameReadyHandler FrameReady;
+		public event DeviceFrameReadyHandler FrameReady;
 
 		public event DeviceMessageHandler MessageReceived;
 
@@ -238,9 +238,9 @@ namespace EERIL.ControlSystem.v4 {
 
 		protected void OnFrameReady(IFrame frame) {
 			if (FrameReady != null) {
-				FrameReadyHandler eventHandler = FrameReady;
+				DeviceFrameReadyHandler eventHandler = FrameReady;
 				Delegate[] delegates = eventHandler.GetInvocationList();
-				foreach (FrameReadyHandler handler in delegates) {
+				foreach (DeviceFrameReadyHandler handler in delegates) {
 					DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
 					if (dispatcherObject != null && !dispatcherObject.CheckAccess()) {
 						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, this, frame);
@@ -258,9 +258,9 @@ namespace EERIL.ControlSystem.v4 {
 				foreach (DeviceMessageHandler handler in delegates) {
 					DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
 					if (dispatcherObject != null && !dispatcherObject.CheckAccess()) {
-						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, message);
+						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, this, message);
 					} else
-						handler(message);
+						handler(this, message);
 				}
 			}
 		}
@@ -290,8 +290,6 @@ namespace EERIL.ControlSystem.v4 {
 		private void MonitorSerialCommunication() {
 			byte[] buffer = new byte[settings.SerialReceiveInputBufferSize];
 			uint length = 0;
-            using (FileStream fileStream = File.Create(@"C:\MSLEDLogs\" + DateTime.Now.Ticks.ToString() + ".stream"))
-            {
                 while (true)
                 {
                     lock (buffer)
@@ -299,12 +297,10 @@ namespace EERIL.ControlSystem.v4 {
                         if (camera.ReadBytesFromSerial(buffer, ref length) && length > 0)
                         {
                             ParseSerial(buffer, length);
-                            fileStream.Write(buffer, 0, Convert.ToInt32(length));
                         }
                     }
                     Thread.Yield();
                 }
-            }
 		}
 
 		private void ParseSerial(byte[] array, uint length) {

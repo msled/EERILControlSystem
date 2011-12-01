@@ -10,10 +10,10 @@ using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 
 namespace EERIL.ControlSystem {
-	public delegate void FrameReadyHandler(object sender, IFrame frame);
-    public delegate void DeviceMessageHandler(byte[] message);
+	public delegate void DeviceFrameReadyHandler(object sender, IFrame frame);
+    public delegate void DeviceMessageHandler(object sender, byte[] message);
 	public interface IDevice : IDisposable {
-		event FrameReadyHandler FrameReady;
+		event DeviceFrameReadyHandler FrameReady;
 		event DeviceMessageHandler MessageReceived;
 		IList<ITest> Tests { get; }
 		IList<ISensor> Sensors { get; }

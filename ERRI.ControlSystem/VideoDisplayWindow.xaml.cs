@@ -171,7 +171,7 @@ namespace EERIL.ControlSystem {
             }
 		}
 
-        void ActiveDeviceMessageReceived(byte[] message)
+        void ActiveDeviceMessageReceived(object sender, byte[] message)
         {
             switch (message[0])
             {
