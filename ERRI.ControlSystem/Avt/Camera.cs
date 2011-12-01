@@ -20,7 +20,7 @@ namespace EERIL.ControlSystem.Avt
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
         private Timer heartbeatTimer;
-        private byte[] hearbeat = new byte[]{0xA6};
+        private byte[] heartbeat = new byte[]{0xA6, 0x0D};
 
         public event FrameReadyHandler FrameReady;
 
@@ -55,7 +55,7 @@ namespace EERIL.ControlSystem.Avt
         }
 
         public void Heartbeat(object state){
-            this.WriteBytesToSerial(hearbeat);
+            this.WriteBytesToSerial(heartbeat);
         }
 
 
