@@ -236,6 +236,9 @@ namespace EERIL.ControlSystem.Avt
                 if(error != tErr.eErrSuccess)
                     goto error;
             }
+            error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "Freerun");
+            if (error != tErr.eErrSuccess)
+                goto error;
             error = Pv.AttrEnumSet(this.camera.Value, "AcquisitionMode", "Continuous");
             if (error != tErr.eErrSuccess)
                 goto error;
@@ -246,8 +249,6 @@ namespace EERIL.ControlSystem.Avt
             return;
         error:
             EndCapture();
-            Pv.CaptureQueueClear(this.camera.Value);
-            Pv.CommandRun(this.camera.Value, "AcquisitionStop");
 
             throw new PvException(error);
         }
@@ -258,6 +259,7 @@ namespace EERIL.ControlSystem.Avt
             {
                 throw new PvException(tErr.eErrUnavailable);
             }
+            Pv.CaptureQueueClear(this.camera.Value);
             foreach (GCHandle handle in framePoolHandles)
             {
                 handle.Free();
