@@ -127,7 +127,7 @@ namespace EERIL.ControlSystem {
 
 		private void ControllerMonitor(){
 			byte leftX = 0, leftY = 0, rightX = 0, rightY = 0;
-            bool y = false, rightTrigger = false;
+            bool y = false, rightTrigger = false, leftTrigger = false;
 			while(run){
 				state = GamePad.GetState(playerIndex);
 				if (connected != state.IsConnected) {
@@ -163,11 +163,16 @@ namespace EERIL.ControlSystem {
 					if (y != Y) {
 						y = Y;
 						OnButtonStateChanged(Button.Y, y);
-					}
+                    }
                     if (rightTrigger != RightTrigger)
                     {
                         rightTrigger = RightTrigger;
                         OnTriggerStateChanged(Trigger.Right, rightTrigger);
+                    }
+                    if (leftTrigger != LeftTrigger)
+                    {
+                        leftTrigger = LeftTrigger;
+                        OnTriggerStateChanged(Trigger.Left, leftTrigger);
                     }
 				}
 				Thread.Yield();

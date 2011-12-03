@@ -122,7 +122,7 @@ namespace EERIL.ControlSystem {
             deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(e.NewValue);
         }
 
-        void ActiveDeviceMessageReceived(byte[] message)
+        void ActiveDeviceMessageReceived(object sender, byte[] message)
         {
 			//serialData.Text += message;
 		}
