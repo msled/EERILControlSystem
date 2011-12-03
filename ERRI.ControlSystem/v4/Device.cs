@@ -172,17 +172,16 @@ namespace EERIL.ControlSystem.v4 {
             }
         }
 
+        public bool Turbo
+        {
+            get;
+            set;
+        }
+
 		public byte Thrust {
 			get { return thrust; }
 			set {
-                byte throttled = Convert.ToByte((value / 18) + 48);
-
-                if (throttled > 52)
-                    throttled--;
-                else if (throttled < 52)
-                    throttled++;
-
-                if (!camera.WriteBytesToSerial(new byte[] { 0x74, throttled, 0x0D }))
+                if (!camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte((Turbo ? value : value / 2) + 90), 0x0D }))
                 {
                     throw new Exception("Failed to transmit thrust to device.");
                 }

@@ -150,11 +150,14 @@ namespace EERIL.ControlSystem {
         {
             switch (trigger)
             {
-                case Trigger.Right:
+                case Trigger.Left:
                     if (pressed)
                     {
                         captureFrame = true;
                     }
+                    break;
+                case Trigger.Right:
+                    deviceManager.ActiveDevice.Turbo = pressed;
                     break;
             }
         }
