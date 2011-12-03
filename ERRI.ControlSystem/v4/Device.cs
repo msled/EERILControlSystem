@@ -18,7 +18,6 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly ICamera camera;
 		private string displayName = null;
 		private readonly Thread serialMonitorThread;
-		private readonly MemoryMappedFile file;
         private readonly EERIL.ControlSystem.Properties.Settings settings = EERIL.ControlSystem.Properties.Settings.Default;
 		private List<byte> buffer = new List<byte>();
         private bool isImuActive = false;
@@ -181,7 +180,7 @@ namespace EERIL.ControlSystem.v4 {
 		public byte Thrust {
 			get { return thrust; }
 			set {
-                if (!camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte((Turbo ? value : value / 2) + 90), 0x0D }))
+                if (!camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte(Turbo ? value : (value - 90) / 2 + 90), 0x0D }))
                 {
                     throw new Exception("Failed to transmit thrust to device.");
                 }
@@ -222,9 +221,6 @@ namespace EERIL.ControlSystem.v4 {
 
 		public Device(ICamera camera) {
 			this.camera = camera;
-			this.camera.FrameReady += CameraFrameReady;
-			file = MemoryMappedFile.CreateOrOpen(camera.SerialString + "_" + DateTime.Now,
-                                                 EERIL.ControlSystem.Properties.Settings.Default.SerialMappedFileCapacity);
 			serialMonitorThread = new Thread(MonitorSerialCommunication);
             serialMonitorThread.Name = "Serial Communication Monitor";
             serialMonitorThread.IsBackground = true;

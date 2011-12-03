@@ -239,7 +239,7 @@ namespace EERIL.ControlSystem.Avt
             error = Pv.AttrEnumSet(this.camera.Value, "AcquisitionMode", "Continuous");
             if (error != tErr.eErrSuccess)
                 goto error;
-            Pv.CommandRun(this.camera.Value, "AcquisitionStart");
+            error = Pv.CommandRun(this.camera.Value, "AcquisitionStart");
             if (error != tErr.eErrSuccess)
                 goto error;
 

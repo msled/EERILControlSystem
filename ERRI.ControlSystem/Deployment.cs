@@ -56,7 +56,7 @@ namespace EERIL.ControlSystem {
 			deployment.Save();
             foreach (IDevice device in devices)
             {
-                deployment.serialLogStreams.Add(device, File.Create(Path.Combine(deployment.serialDataDirectory.FullName, device.Id + "_" + DateTime.Now.Ticks.ToString() + ".stream")));
+                deployment.serialLogStreams.Add(device, File.Create(Path.Combine(deployment.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString() + ".stream")));
                 device.MessageReceived += new DeviceMessageHandler(deployment.DeviceMessageReceived);
             }
 			return deployment;

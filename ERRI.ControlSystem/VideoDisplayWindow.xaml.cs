@@ -181,7 +181,7 @@ namespace EERIL.ControlSystem {
                 case 0x74:
                     if (message.Length < 2)
                         break;
-                    headsUpDisplay.Thrust = message[1] - 52;
+                    headsUpDisplay.Thrust = message[1] - 90;
                     break;
                 case 0x62:
                     if (message.Length < 5)
