@@ -220,7 +220,8 @@ namespace EERIL.ControlSystem.v4 {
 		}
 
 		public Device(ICamera camera) {
-			this.camera = camera;
+            this.camera = camera;
+            this.camera.FrameReady += CameraFrameReady;
 			serialMonitorThread = new Thread(MonitorSerialCommunication);
             serialMonitorThread.Name = "Serial Communication Monitor";
             serialMonitorThread.IsBackground = true;

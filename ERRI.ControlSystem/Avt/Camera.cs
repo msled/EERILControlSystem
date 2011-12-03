@@ -236,6 +236,9 @@ namespace EERIL.ControlSystem.Avt
                 if(error != tErr.eErrSuccess)
                     goto error;
             }
+            /*error = Pv.AttrFloat32Set(this.camera.Value, "FrameRate", 10);
+            if (error != tErr.eErrSuccess)
+                goto error;*/
             error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "Freerun");
             if (error != tErr.eErrSuccess)
                 goto error;
