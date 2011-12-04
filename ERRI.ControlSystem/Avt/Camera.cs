@@ -93,7 +93,7 @@ namespace EERIL.ControlSystem.Avt
         public Interface InterfaceType
         {
             get { return (Interface)cameraInfo.InterfaceType; }
-        }56
+        }
 
         public string DisplayName
         {
