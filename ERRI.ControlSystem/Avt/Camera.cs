@@ -249,7 +249,6 @@ namespace EERIL.ControlSystem.Avt
             error = Pv.CommandRun(this.camera.Value, "AcquisitionStart");
             if (error != tErr.eErrSuccess)
                 goto error;
-n
             return;
         error:
             EndCapture();
