@@ -17,6 +17,7 @@ namespace EERIL.ControlSystem.Avt
         private GCHandle[] frameBufferHandles;
         private GCHandle[] framePoolHandles;
         private tFrame[] frames;
+        private int framePoolSize = 5;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
         private Timer heartbeatTimer;
@@ -92,7 +93,7 @@ namespace EERIL.ControlSystem.Avt
         public Interface InterfaceType
         {
             get { return (Interface)cameraInfo.InterfaceType; }
-        }
+        }56
 
         public string DisplayName
         {
@@ -204,9 +205,9 @@ namespace EERIL.ControlSystem.Avt
             if (error != tErr.eErrSuccess)
                 goto error;
 
-            frameBufferHandles = new GCHandle[10];
-            framePoolHandles = new GCHandle[10];
-            frames = new tFrame[10];
+            frameBufferHandles = new GCHandle[framePoolSize];
+            framePoolHandles = new GCHandle[framePoolSize];
+            frames = new tFrame[framePoolSize];
 
             uint bufferSize = 0;
             error = Pv.AttrUint32Get(this.camera.Value, "TotalBytesPerFrame", ref bufferSize);
@@ -216,7 +217,7 @@ namespace EERIL.ControlSystem.Avt
             GCHandle bufferHandle, frameHandle;
             tFrame frame;
             IntPtr framePointer;
-            for (int count = 9; count >= 0; count--)
+            for (int count = framePoolSize - 1; count >= 0; count--)
             {
                 buffer = new byte[bufferSize];
                 bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
@@ -236,10 +237,10 @@ namespace EERIL.ControlSystem.Avt
                 if(error != tErr.eErrSuccess)
                     goto error;
             }
-            /*error = Pv.AttrFloat32Set(this.camera.Value, "FrameRate", 10);
+            error = Pv.AttrFloat32Set(this.camera.Value, "FrameRate", 15);
             if (error != tErr.eErrSuccess)
-                goto error;*/
-            error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "Freerun");
+                goto error;
+            error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "FixedRate");
             if (error != tErr.eErrSuccess)
                 goto error;
             error = Pv.AttrEnumSet(this.camera.Value, "AcquisitionMode", "Continuous");
@@ -248,7 +249,7 @@ namespace EERIL.ControlSystem.Avt
             error = Pv.CommandRun(this.camera.Value, "AcquisitionStart");
             if (error != tErr.eErrSuccess)
                 goto error;
-
+n
             return;
         error:
             EndCapture();

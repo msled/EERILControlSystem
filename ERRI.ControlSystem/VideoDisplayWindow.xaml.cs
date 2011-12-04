@@ -59,6 +59,18 @@ namespace EERIL.ControlSystem {
 			set;
 		}
 
+        public double YawOffset
+        {
+            get
+            {
+                return headsUpDisplay.YawOffset;
+            }
+            set
+            {
+                headsUpDisplay.YawOffset = value;
+            }
+        }
+
         public Controller Controller
         {
             get
@@ -248,7 +260,7 @@ namespace EERIL.ControlSystem {
                     m33Buffer[2] = message[70];
                     m33Buffer[3] = message[69];
                     //This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
-                    headsUpDisplay.Roll = Math.Atan2(BitConverter.ToSingle(m23Buffer, 0), BitConverter.ToSingle(m33Buffer, 0)) * -1;
+                    headsUpDisplay.Roll = Math.Atan2(BitConverter.ToSingle(m23Buffer, 0), BitConverter.ToSingle(m33Buffer, 0));
                     //Did I mention ^ that stuff is backwards.
                     break;
             }

@@ -20,6 +20,10 @@
             </StackPanel>
         </StackPanel>
         <StackPanel Name="OffsetPanel" Width="250">
+            <StackPanel Name="HeadingOffsetPanel" Orientation="Horizontal">
+                <Label Content="Heading Offset:" Height="28" Width="105" />
+                <Slider Height="23" Name="HeadingOffsetSlider" Width="145" Minimum="-5" Maximum="5" />
+            </StackPanel>
             <StackPanel Name="TopFinOffsetPanel" Orientation="Horizontal">
                 <Label Content="Top Fin Offset:" Height="28" Width="105" />
                 <Slider Height="23" Name="TopFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="90" />

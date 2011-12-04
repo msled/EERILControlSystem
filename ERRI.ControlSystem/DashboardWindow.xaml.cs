@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -23,6 +24,7 @@ namespace EERIL.ControlSystem {
 		private Controller controller = null;
 		private IDeviceManager deviceManager;
         private VideoDisplayWindow videoDisplayWindow = null;
+        private readonly Properties.Settings settings = Properties.Settings.Default;
 		private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
 		private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
         private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
@@ -89,10 +91,16 @@ namespace EERIL.ControlSystem {
 			controllerConnectionChangedHandler = new ControllerConnectionChangedHandler(ControllerConnectionChanged);
             bitmapFrameCapturedHandler = new BitmapFrameCapturedHandler(VideoDisplayWindowBitmapFrameCaptured);
 			this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString());
+            HeadingOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(HeadingOffsetSlider_ValueChanged);
             TopFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(TopFinOffsetSlider_ValueChanged);
             RightFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(RightFinOffsetSlider_ValueChanged);
             BottomFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(BottomFinOffsetSlider_ValueChanged);
             LeftFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(LeftFinOffsetSlider_ValueChanged);
+            HeadingOffsetSlider.Value = settings.HeadingOffset;
+            TopFinOffsetSlider.Value = settings.TopFinOffset;
+            RightFinOffsetSlider.Value = settings.RightFinOffset;
+            BottomFinOffsetSlider.Value = settings.BottomFinOffset;
+            LeftFinOffsetSlider.Value = settings.LeftFinOffset;
 			/*dashboardChart.DataContext = new KeyValuePair<DateTime, int>[] { 
 				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 30, 24, DateTimeKind.Utc), 12), 
 				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 30, 34, DateTimeKind.Utc), 23), 
@@ -102,24 +110,29 @@ namespace EERIL.ControlSystem {
 			};*/
 		}
 
+        void HeadingOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            videoDisplayWindow.YawOffset = settings.HeadingOffset =  e.NewValue;
+        }
+
         void LeftFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            deviceManager.ActiveDevice.LeftFinOffset = Convert.ToByte(e.NewValue);
+            deviceManager.ActiveDevice.LeftFinOffset = Convert.ToByte(settings.LeftFinOffset = e.NewValue);
         }
 
         void BottomFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            deviceManager.ActiveDevice.BottomFinOffset = Convert.ToByte(e.NewValue);
+            deviceManager.ActiveDevice.BottomFinOffset = Convert.ToByte(settings.BottomFinOffset = e.NewValue);
         }
 
         void RightFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            deviceManager.ActiveDevice.RightFinOffset = Convert.ToByte(e.NewValue);
+            deviceManager.ActiveDevice.RightFinOffset = Convert.ToByte(settings.RightFinOffset = e.NewValue);
         }
 
         void TopFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(e.NewValue);
+            deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(settings.TopFinOffset = e.NewValue);
         }
 
         void ActiveDeviceMessageReceived(object sender, byte[] message)

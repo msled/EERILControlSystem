@@ -23,5 +23,20 @@
     <Setting Name="HeadsUpDisplayLocation" Type="System.Drawing.Point" Scope="User">
       <Value Profile="(Default)">0, 0</Value>
     </Setting>
+    <Setting Name="HeadingOffset" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="TopFinOffset" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">90</Value>
+    </Setting>
+    <Setting Name="RightFinOffset" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">90</Value>
+    </Setting>
+    <Setting Name="BottomFinOffset" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">90</Value>
+    </Setting>
+    <Setting Name="LeftFinOffset" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">90</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

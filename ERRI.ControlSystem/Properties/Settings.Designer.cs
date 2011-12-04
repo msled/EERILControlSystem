@@ -106,5 +106,65 @@ namespace EERIL.ControlSystem.Properties {
                 this["HeadsUpDisplayLocation"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double HeadingOffset {
+            get {
+                return ((double)(this["HeadingOffset"]));
+            }
+            set {
+                this["HeadingOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public double TopFinOffset {
+            get {
+                return ((double)(this["TopFinOffset"]));
+            }
+            set {
+                this["TopFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public double RightFinOffset {
+            get {
+                return ((double)(this["RightFinOffset"]));
+            }
+            set {
+                this["RightFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public double BottomFinOffset {
+            get {
+                return ((double)(this["BottomFinOffset"]));
+            }
+            set {
+                this["BottomFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public double LeftFinOffset {
+            get {
+                return ((double)(this["LeftFinOffset"]));
+            }
+            set {
+                this["LeftFinOffset"] = value;
+            }
+        }
     }
 }

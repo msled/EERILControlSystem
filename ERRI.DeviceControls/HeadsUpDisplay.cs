@@ -19,6 +19,7 @@ namespace EERIL.DeviceControls {
         private double fontSize;
         private ushort voltage;
         private ushort current;
+        private double yawOffset;
         private int thrust;
 		private Brush brush = Brushes.Green;
 		private Brush gaugeBrush = Brushes.Green;
@@ -95,8 +96,19 @@ namespace EERIL.DeviceControls {
             }
             set
             {
-                invertedYawTransform.X = (yawTransform.X = value * ratioToDisplayAngleMultiplier) * -1;
+                invertedYawTransform.X = (yawTransform.X = (value + yawOffset) * ratioToDisplayAngleMultiplier) * -1;
                 this.InvalidateVisual();
+            }
+        }
+        public double YawOffset
+        {
+            get
+            {
+                return yawOffset;
+            }
+            set
+            {
+                yawOffset = value;
             }
         }
         public ushort Temperature
