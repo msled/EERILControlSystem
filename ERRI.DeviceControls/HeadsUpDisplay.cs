@@ -299,13 +299,13 @@ namespace EERIL.DeviceControls
             angleLeftRight = new Point(baseLine, halfHeight);
             angleRightLeft = new Point(width - baseLine, halfHeight);
             angleRightRight = new Point(width, halfHeight);
-            temperatureFormattedText = new FormattedText("Temperature", CultureInfo.CurrentUICulture,
+            temperatureFormattedText = new FormattedText("Temperature C", CultureInfo.CurrentUICulture,
                                                          FlowDirection.LeftToRight, new Typeface("Courier"), fontSize,
                                                          brush)
                                            {
                                                TextAlignment = TextAlignment.Center
                                            };
-            humidityFormattedText = new FormattedText("Humidity", CultureInfo.CurrentUICulture,
+            humidityFormattedText = new FormattedText("Humidity %", CultureInfo.CurrentUICulture,
                                                       FlowDirection.LeftToRight, new Typeface("Courier"), fontSize,
                                                       brush)
                                         {
