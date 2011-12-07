@@ -18,8 +18,8 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly ICamera camera;
 		private string displayName = null;
 		private readonly Thread serialMonitorThread;
-        private readonly EERIL.ControlSystem.Properties.Settings settings = EERIL.ControlSystem.Properties.Settings.Default;
-		private List<byte> buffer = new List<byte>();
+        private readonly Settings settings = Settings.Default;
+		private readonly List<byte> buffer = new List<byte>();
         private bool isImuActive = false;
 		private byte horizontalFinPosition;
 
@@ -32,6 +32,8 @@ namespace EERIL.ControlSystem.v4 {
         private byte bottomFinOffset = 0;
 
         private byte leftFinOffset = 0;
+
+	    private byte finRange;
 
 		private byte thrust;
 
@@ -99,7 +101,9 @@ namespace EERIL.ControlSystem.v4 {
 
 		public byte HorizontalFinPosition {
 			get { return horizontalFinPosition; }
-			set {
+			set
+			{
+			    value = EnforceFinRange(value);
 				if(!camera.WriteBytesToSerial(new byte[] { 0x68, value, 0x0D }))
 				{
 				    throw new Exception("Failed to transmit horizontal fin position to device.");
@@ -110,7 +114,9 @@ namespace EERIL.ControlSystem.v4 {
 
 		public byte VerticalFinPosition {
 			get { return verticalFinPosition; }
-			set {
+            set
+            {
+                value = EnforceFinRange(value);
                 if (!camera.WriteBytesToSerial(new byte[] { 0x76, value, 0x0D }))
                 {
                     throw new Exception("Failed to transmit vertical fin position to device.");
@@ -171,9 +177,18 @@ namespace EERIL.ControlSystem.v4 {
             }
         }
 
-        public bool Turbo
-        {
-            get;
+	    public byte FinRange
+	    {
+	        get { return finRange; }
+	        set
+	        {
+	            finRange = value;
+	            HorizontalFinPosition = horizontalFinPosition;
+	            VerticalFinPosition = verticalFinPosition;
+	        }
+	    }
+
+	    public bool Turbo { get;
             set;
         }
 
@@ -227,6 +242,25 @@ namespace EERIL.ControlSystem.v4 {
             serialMonitorThread.IsBackground = true;
             serialMonitorThread.Priority = ThreadPriority.BelowNormal;
 		}
+
+        private byte EnforceFinRange(byte value)
+        {
+            int adjustedValue = value - 90,
+                invertedRange;
+            byte result;
+            if (adjustedValue > FinRange)
+            {
+                result = (byte)(FinRange + 90);
+            }
+            else if (adjustedValue < (invertedRange = FinRange * -1))
+            {
+                result = (byte)(invertedRange + 90);
+            } else
+            {
+                result = value;
+            }
+            return result;
+        }
 
 		private void CameraFrameReady(object sender, IFrame frame) {
 			OnFrameReady(frame);

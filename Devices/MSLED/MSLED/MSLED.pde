@@ -1,28 +1,29 @@
 #include <Servo.h>
 
-//Note that if the Buoyancy motor is ever changed from PJ7, changing BUOYANCY_ENABLE may affect all DDRJ and PORTJ entries which will include some serial ports. If it is moved to a standard arduino pin, DDRJ and PORTJ entries may be removed.
+   
+const long IMU_BAUD = 115200, SURFACE_BAUD = 115200, LOGGER_BAUD = 115200;
 
-//This sucks...
-//Right == Top
+//Note that if the Buoyancy motor is ever changed from PJ7, changing BUOYANCY_ENABLE may affect all DDRJ and PORTJ entries which will include some serial ports. If it is moved to a standard arduino pin, DDRJ and PORTJ entries may be removed.
 const int RIGHT_FIN_PIN = 46,
-//Bottom == Right
    BOTTOM_FIN_PIN = 11,
-   //Left == Bottom
    LEFT_FIN_PIN = 44,
-   //Top == Left
    TOP_FIN_PIN = 45,
    THRUST_PIN = 12,
    BUOYANCY_PIN = 2,
    LED_DIMMER_PIN = 9,
    VOLTAGE_PIN = 15,
-   CURRENT_PIN = 6,
+   CURRENT_PIN = 7,
+   HUMIDITY_PIN = 6,
+   TEMPERATURE_PIN = 5,
    IMU_BUFFER_LENGTH = 25,
    VERSION_MAJOR = 4,
    VERSION_MINOR = 0,
    BUFFER_LENGTH = 10,
-   LED_POWER = 13,
    BUOYANCY_ENABLE = B01000000,
    V5_FLAG = B11011111,
+   LED_POWER = 13,
+   HORIZONTAL_POWER = 27,
+   VERTICAL_POWER = 26,
    FIBER_TRANS_POWER = 10,
    TX_LED = 47,
    RX_LED = 46,
@@ -38,22 +39,25 @@ const byte IMU_CONTINUOUS_COMMAND[] = {IMU_CONTINUOUS_COMMAND_CODE, 0xC1, 0x29, 
   //IMU_CONTINUOUS_MODE_COMMAND[] = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x2},
   //IMU_DEVICE_RESET_COMMAND[] = {IMU_DEVICE_RESET_COMMAND_CODE, 0x9E, 0x3A};//,
 
-unsigned short imuChksum,  imuResponseChksum;
-
-unsigned long lastRamp = 0, lastBattery = 0, time, lastCommand = 0, heartbeatThreshhold = 150;
-   
-const long IMU_BAUD = 115200, SURFACE_BAUD = 115200, LOGGER_BAUD = 115200;
-
-Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster;
+unsigned long lastRamp = 0, lastSensor = 0, time, lastCommand = 0, heartbeatThreshhold = 150;
 
 int topFinOffset = 0, rightFinOffset = 0, bottomFinOffset = 0, leftFinOffset = 0, 
     horizontalFinPos = 90, verticalFinPos = 90,
-    readLength, nextByte, current, length, imuLength, imuRecordLength, imuCommand, terminus = 0x0D,
-    buffer[BUFFER_LENGTH], voltage, currentThrust, targetThrust, rampDelay = 10, batteryDelay=100;
+    readLength, nextByte, length, imuLength, imuRecordLength, imuCommand, terminus = 0x0D,
+    buffer[BUFFER_LENGTH], currentThrust, targetThrust, rampDelay = 10, sensorDelay=100;
+
+unsigned short imuChksum,  imuResponseChksum;
     
-byte imuBuffer[128], serialBuffer[5], thrustBuffer[3];
+byte imuBuffer[128], sensorBuffer[17], thrustBuffer[3];
 
 boolean imu = false, logger = false, imuLog = true, sensorDataRead = false, ramping = false;
+
+Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster;
+
+union f2ba{
+  byte array[4];
+  float val;
+} float2ByteArray;
 
 void setup(){
    //Surface Control
@@ -67,19 +71,21 @@ void setup(){
    rightFin.attach(RIGHT_FIN_PIN);
    bottomFin.attach(BOTTOM_FIN_PIN);
    leftFin.attach(LEFT_FIN_PIN);
+   pinMode(LED_POWER, OUTPUT);
+   pinMode(VERTICAL_POWER, OUTPUT);
+   pinMode(HORIZONTAL_POWER, OUTPUT);
+   pinMode(FIBER_TRANS_POWER, OUTPUT);
+   pinMode(LED_DIMMER_PIN, OUTPUT);
    
    neutralize();
    
-   pinMode(LED_DIMMER_PIN, OUTPUT);
-   //Turn off LEDs
-   serialBuffer[0] = 'b';
+   power(0);
+   
+   sensorBuffer[0] = 'b';
    thrustBuffer[0] = 't';
    //buoyancyPlunger.attach(BUOYANCY_PIN);
    //DDRJ = DDRJ | BUOYANCY_ENABLE; // sets PJ6 to OUTPUT while leaving all other Port J pinModes unchanged.
    //DDRJ = DDRJ & V5_FLAG; // sets PJ5 to input while leaving all other Port J pinModes unchanged
-   pinMode(LED_POWER, OUTPUT);
-   pinMode(FIBER_TRANS_POWER, OUTPUT);
-   digitalWrite(FIBER_TRANS_POWER, HIGH);
    //pinMode(TX_LED, OUTPUT);
    //pinMode(RX_LED, OUTPUT);
 }
@@ -157,19 +163,33 @@ void loop(){
      length = 0;
    }
  }
-   if(lastBattery + batteryDelay < time || time < lastBattery){
-     current = analogRead(CURRENT_PIN) * .0049 / 20 * 0.03;
-     voltage = analogRead(VOLTAGE_PIN) * .0049 * 302 / 82;
-     serialBuffer[1] = current; 
-     serialBuffer[2] = current >> 8;
-     serialBuffer[3] = voltage;
-     serialBuffer[4] = voltage >> 8;
-     for(int i = 1; i < 5; i++){
-       if(serialBuffer[i] == 0x0D)
-         serialBuffer[i]--;
+   if(lastSensor + sensorDelay < time || time < lastSensor){
+     float2ByteArray.val = analogRead(CURRENT_PIN) * .0049 / 50 / 0.03;
+     sensorBuffer[1] = float2ByteArray.array[0]; 
+     sensorBuffer[2] = float2ByteArray.array[1]; 
+     sensorBuffer[3] = float2ByteArray.array[2]; 
+     sensorBuffer[4] = float2ByteArray.array[3]; 
+     float2ByteArray.val = analogRead(VOLTAGE_PIN) * .0049 * 302 / 82;
+     sensorBuffer[5] = float2ByteArray.array[0]; 
+     sensorBuffer[6] = float2ByteArray.array[1]; 
+     sensorBuffer[7] = float2ByteArray.array[2]; 
+     sensorBuffer[8] = float2ByteArray.array[3]; 
+     float2ByteArray.val = (analogRead(HUMIDITY_PIN) / 204.6 - .75) * 33.33;
+     sensorBuffer[9] = float2ByteArray.array[0]; 
+     sensorBuffer[10] = float2ByteArray.array[1]; 
+     sensorBuffer[11] = float2ByteArray.array[2]; 
+     sensorBuffer[12] = float2ByteArray.array[3]; 
+     float2ByteArray.val = (analogRead(TEMPERATURE_PIN) / 204.6 - .251) / 0.0064 - 40;
+     sensorBuffer[13] = float2ByteArray.array[0]; 
+     sensorBuffer[14] = float2ByteArray.array[1]; 
+     sensorBuffer[15] = float2ByteArray.array[2]; 
+     sensorBuffer[16] = float2ByteArray.array[3]; 
+     for(int i = 1; i < 17; i++){
+       if(sensorBuffer[i] == 0x0D)
+         sensorBuffer[i]--;
      }
-     log(serialBuffer, 5);
-     lastBattery = time;
+     log(sensorBuffer, 17);
+     lastSensor = time;
    }
    
    if(ramping && (lastRamp + rampDelay < time || time < lastRamp)){
@@ -227,11 +247,6 @@ void neutralize(){
 }
 
 void vertical(int pos){
- if(pos < 64){
-   pos = 64;
- } else if (pos > 116){
-   pos = 116;
- }
  verticalFinPos = pos;
  topFin.write(180 - (pos + topFinOffset));
  bottomFin.write(pos + bottomFinOffset);
@@ -239,14 +254,9 @@ void vertical(int pos){
 }
 
 void horizontal(int pos){
- if(pos < 64){
-   pos = 64;
- } else if (pos > 116){
-   pos = 116;
- }
  horizontalFinPos = pos;
- leftFin.write(pos + leftFinOffset);
- rightFin.write(180 - (pos + rightFinOffset));
+ rightFin.write(pos + leftFinOffset);
+ leftFin.write(180 - (pos + rightFinOffset));
  log('h' + String(pos));
 }
 
@@ -268,23 +278,30 @@ void buoyancy(int pos){
 
 void power(int config){
  switch (config){
-   case '0': //All peripherals on including buoyancy motor
-      digitalWrite(LED_POWER, HIGH);
-      digitalWrite(FIBER_TRANS_POWER, HIGH);
+   case 0: //All peripherals on including buoyancy motor
+     digitalWrite(VERTICAL_POWER, HIGH);
+     digitalWrite(HORIZONTAL_POWER, HIGH);
+     digitalWrite(FIBER_TRANS_POWER, HIGH);
+     digitalWrite(LED_POWER, HIGH);
       //PORTJ = PORTJ | BUOYANCY_ENABLE; // sets PJ6 HIGH while leaving all other port J pins unchanged
       break;
-   case '1': //All peripherals on except the buoyancy motor
-      digitalWrite(LED_POWER, HIGH);
-      digitalWrite(FIBER_TRANS_POWER, HIGH);
+   case 1: //All peripherals on except the buoyancy motor
+     digitalWrite(VERTICAL_POWER, HIGH);
+     digitalWrite(HORIZONTAL_POWER, HIGH);
+     digitalWrite(FIBER_TRANS_POWER, HIGH);
+     digitalWrite(LED_POWER, HIGH);
       //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
       break;
-   case '2':
+   case 2:
      digitalWrite(FIBER_TRANS_POWER, LOW);
      digitalWrite(LED_POWER, LOW);
+     digitalWrite(VERTICAL_POWER, LOW);
+     digitalWrite(HORIZONTAL_POWER, LOW);
+     digitalWrite(FIBER_TRANS_POWER, LOW);
      //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
  }
    
- log('p' + String(config));
+ log('p' + config);
 }
 
 boolean checksum(byte* buffer, int length){

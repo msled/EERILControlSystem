@@ -110,21 +110,21 @@ namespace EERIL.ControlSystem.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double HeadingOffset {
+        public double YawOffset {
             get {
-                return ((double)(this["HeadingOffset"]));
+                return ((double)(this["YawOffset"]));
             }
             set {
-                this["HeadingOffset"] = value;
+                this["YawOffset"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("90")]
-        public double TopFinOffset {
+        public byte TopFinOffset {
             get {
-                return ((double)(this["TopFinOffset"]));
+                return ((byte)(this["TopFinOffset"]));
             }
             set {
                 this["TopFinOffset"] = value;
@@ -134,9 +134,9 @@ namespace EERIL.ControlSystem.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("90")]
-        public double RightFinOffset {
+        public byte RightFinOffset {
             get {
-                return ((double)(this["RightFinOffset"]));
+                return ((byte)(this["RightFinOffset"]));
             }
             set {
                 this["RightFinOffset"] = value;
@@ -146,9 +146,9 @@ namespace EERIL.ControlSystem.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("90")]
-        public double BottomFinOffset {
+        public byte BottomFinOffset {
             get {
-                return ((double)(this["BottomFinOffset"]));
+                return ((byte)(this["BottomFinOffset"]));
             }
             set {
                 this["BottomFinOffset"] = value;
@@ -158,12 +158,24 @@ namespace EERIL.ControlSystem.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("90")]
-        public double LeftFinOffset {
+        public byte LeftFinOffset {
             get {
-                return ((double)(this["LeftFinOffset"]));
+                return ((byte)(this["LeftFinOffset"]));
             }
             set {
                 this["LeftFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("64")]
+        public byte FinRange {
+            get {
+                return ((byte)(this["FinRange"]));
+            }
+            set {
+                this["FinRange"] = value;
             }
         }
     }
