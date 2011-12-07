@@ -132,6 +132,8 @@ namespace EERIL.ControlSystem {
                 deviceManager.ActiveDevice = deployment.Devices[0];
                 deviceManager.ActiveDevice.MessageReceived += new DeviceMessageHandler(ActiveDeviceMessageReceived);
             }
+
+		    headsUpDisplay.YawOffset = Settings.Default.YawOffset;
 		    this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate
 		                                                                                                             {
 				if (deployment.Devices.Count > 0) {
@@ -140,7 +142,13 @@ namespace EERIL.ControlSystem {
                     device.Open();
                     try
                     {
-					    deviceManager.ActiveDevice.StartVideoCapture(1000);
+                        IDevice activeDevice = deviceManager.ActiveDevice;
+                        deviceManager.ActiveDevice.StartVideoCapture(1000);
+                        activeDevice.FinRange = Settings.Default.FinRange;
+                        activeDevice.TopFinOffset = Settings.Default.TopFinOffset;
+                        activeDevice.RightFinOffset = Settings.Default.RightFinOffset;
+                        activeDevice.BottomFinOffset = Settings.Default.BottomFinOffset;
+                        activeDevice.LeftFinOffset = Settings.Default.LeftFinOffset;
                     } catch (Exception ex)
                     {
                         StringBuilder message = new StringBuilder(ex.ToString());
@@ -196,10 +204,12 @@ namespace EERIL.ControlSystem {
                     headsUpDisplay.Thrust = message[1] - 90;
                     break;
                 case 0x62:
-                    if (message.Length < 5)
+                    if (message.Length < 17)
                         break;
-                    headsUpDisplay.Current = BitConverter.ToUInt16(message, 1);
-                    headsUpDisplay.Voltage = BitConverter.ToUInt16(message, 3);
+                    headsUpDisplay.Current = BitConverter.ToSingle(message, 1);
+                    headsUpDisplay.Voltage = BitConverter.ToSingle(message, 5);
+                    headsUpDisplay.Humidity = BitConverter.ToSingle(message, 9);
+                    headsUpDisplay.Temperature = BitConverter.ToSingle(message, 13);
                     break;
                 case 0xCC:
                     if (!verifyChecksum(message))
@@ -260,6 +270,7 @@ namespace EERIL.ControlSystem {
                     m33Buffer[2] = message[70];
                     m33Buffer[3] = message[69];
                     //This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
+                    // This is temporarily not wrong, but should be made wrong again, because of strange behavior of the IMU in Antarctica.
                     headsUpDisplay.Roll = Math.Atan2(BitConverter.ToSingle(m23Buffer, 0), BitConverter.ToSingle(m33Buffer, 0));
                     //Did I mention ^ that stuff is backwards.
                     break;
