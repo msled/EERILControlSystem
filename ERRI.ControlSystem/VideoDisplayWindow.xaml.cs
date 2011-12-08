@@ -38,13 +38,15 @@ namespace EERIL.ControlSystem {
         private BitmapFrame bitmapFrame = null;
         private readonly TriggerStateChangedHandler triggerStateChangedHandler;
         private readonly ButtonStateChangedHandler buttonStateChangedHandler;
-        private byte[] m11Buffer = new byte[4], 
-            m12Buffer = new byte[4], 
-            m13Buffer = new byte[4], 
-            m23Buffer = new byte[4], 
-            m33Buffer = new byte[4],
-            batteryBuffer = new byte[2];
-		public DashboardWindow Dashboard {
+        private readonly byte[] m11Buffer = new byte[4];
+	    private readonly byte[] m12Buffer = new byte[4];
+	    private readonly byte[] m13Buffer = new byte[4];
+	    private readonly byte[] m23Buffer = new byte[4];
+	    private readonly byte[] m33Buffer = new byte[4];
+
+        public bool RecordVideoStream { get; set; }
+
+	    public DashboardWindow Dashboard {
 			get;
 			set;
 		}
@@ -212,7 +214,7 @@ namespace EERIL.ControlSystem {
                     headsUpDisplay.Temperature = BitConverter.ToSingle(message, 13);
                     break;
                 case 0xCC:
-                    if (!verifyChecksum(message))
+                    if (!VerifyChecksum(message))
                         break;
                     uint timer = BitConverter.ToUInt32(message, 73);
                     /*headsUpDisplay.Acceleration = new Point3D(){
@@ -277,7 +279,7 @@ namespace EERIL.ControlSystem {
             }
         }
 
-        private bool verifyChecksum(byte[] message){
+        private static bool VerifyChecksum(byte[] message){
             bool result = false;
             if (message.Length > 2)
             {
@@ -303,15 +305,17 @@ namespace EERIL.ControlSystem {
                 OnBitmapFrameCaptured(bitmapFrame);
                 captureFrame = false;
             }
-            frame.Dispose();
-            GC.Collect(1);
-            Thread.Yield();
+            if(RecordVideoStream)
+            {
+                Deployment.RecordFrame(sender as IDevice, frame);
+            }
+		    frame.Dispose();
 		}
 
 		private void WindowClosed(object sender, EventArgs e) {
             Dashboard.Dispatcher.Invoke(
                 DispatcherPriority.Normal,
-                new Action( () => { Dashboard.Close(); } ));
+                new Action( () => Dashboard.Close()));
 		}
 	}
 }

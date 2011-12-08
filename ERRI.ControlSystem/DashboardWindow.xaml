@@ -49,7 +49,8 @@
                                Path=LeftFinOffset}" />
             </StackPanel>
         </StackPanel>
-        <Button Height="23" Name="imuButton" Width="75" Content="IMU Off" Click="ImuButtonClick" />
+        <Button Height="23" Name="imuButton" Width="120" Content="Activate IMU" Click="ImuButtonClick" />
+        <Button Height="23" Name="recordVideoButton" Width="120" Content="Record Video" Click="RecordVideoButtonClick" />
         <Label Name="serialDataLabel">Serial Data:</Label>
         <TextBox Name="serialData" VerticalAlignment="Stretch" Height="160" Width="847" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" />
     </StackPanel>

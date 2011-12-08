@@ -187,8 +187,14 @@ namespace EERIL.ControlSystem {
         {
             IDevice device = deviceManager.ActiveDevice;
             device.IsImuActive = !device.IsImuActive;
-            imuButton.Content = "IMU " + (device.IsImuActive ? "On" : "Off");
+            imuButton.Content = device.IsImuActive ? "IMU is Active" : "Activate IMU";
             //imuButton.IsEnabled = false;
+        }
+
+        private void RecordVideoButtonClick(object sender, RoutedEventArgs e)
+        {
+            VideoDisplay.RecordVideoStream = !VideoDisplay.RecordVideoStream;
+            recordVideoButton.Content = VideoDisplay.RecordVideoStream ? "Video is Recording" : "Record Video";
         }
 	}
 }

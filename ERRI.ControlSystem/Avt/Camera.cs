@@ -17,11 +17,11 @@ namespace EERIL.ControlSystem.Avt
         private GCHandle[] frameBufferHandles;
         private GCHandle[] framePoolHandles;
         private tFrame[] frames;
-        private int framePoolSize = 5;
+        private const int FRAME_POOL_SIZE = 10;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
-        private Timer heartbeatTimer;
-        private byte[] heartbeat = new byte[]{0xA6, 0x0D};
+        private readonly Timer heartbeatTimer;
+        private readonly byte[] heartbeat = new byte[]{0xA6, 0x0D};
 
         public event FrameReadyHandler FrameReady;
 
@@ -205,9 +205,9 @@ namespace EERIL.ControlSystem.Avt
             if (error != tErr.eErrSuccess)
                 goto error;
 
-            frameBufferHandles = new GCHandle[framePoolSize];
-            framePoolHandles = new GCHandle[framePoolSize];
-            frames = new tFrame[framePoolSize];
+            frameBufferHandles = new GCHandle[FRAME_POOL_SIZE];
+            framePoolHandles = new GCHandle[FRAME_POOL_SIZE];
+            frames = new tFrame[FRAME_POOL_SIZE];
 
             uint bufferSize = 0;
             error = Pv.AttrUint32Get(this.camera.Value, "TotalBytesPerFrame", ref bufferSize);
@@ -217,7 +217,7 @@ namespace EERIL.ControlSystem.Avt
             GCHandle bufferHandle, frameHandle;
             tFrame frame;
             IntPtr framePointer;
-            for (int count = framePoolSize - 1; count >= 0; count--)
+            for (int count = FRAME_POOL_SIZE - 1; count >= 0; count--)
             {
                 buffer = new byte[bufferSize];
                 bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
@@ -279,12 +279,12 @@ namespace EERIL.ControlSystem.Avt
         public bool WriteBytesToSerial(byte[] buffer)
         {
             heartbeatTimer.Change(100, 100);
-            return camera.HasValue ? CameraSerial.WriteBytesToSerialIo(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength)) : false;
+            return camera.HasValue && CameraSerial.WriteBytesToSerialIo(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength));
         }
 
         public bool ReadBytesFromSerial(byte[] buffer, ref uint recieved)
         {
-            return camera.HasValue ? CameraSerial.ReadBytesFromSerialIO(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength), ref recieved) : false;
+            return camera.HasValue && CameraSerial.ReadBytesFromSerialIO(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength), ref recieved);
         }
 
         public void Open()
