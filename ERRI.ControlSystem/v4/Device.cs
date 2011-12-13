@@ -37,6 +37,8 @@ namespace EERIL.ControlSystem.v4 {
 
 		private byte thrust;
 
+	    private byte illumination;
+
 		private PowerConfigurations powerConfiguration;
 
 		public event DeviceFrameReadyHandler FrameReady;
@@ -203,25 +205,29 @@ namespace EERIL.ControlSystem.v4 {
             }
 		}
 
-        public bool IsImuActive
-        {
-            get
-            {
-                return isImuActive;
-            }
+	    public byte Illumination
+	    {
+	        get { return illumination; }
             set
             {
-                if (!camera.WriteBytesToSerial(new byte[] { 0x69, (byte)(value ? 0x10 : 0x00), 0x0D }))
+                if (!camera.WriteBytesToSerial(new byte[] { 0x69, value, 0x0D }))
                 {
-                    throw new Exception("Failed to transmit IMU activation.");
-                }
-                isImuActive = value;
+                    throw new Exception("Failed to transmit illumination.");
+                } 
+                illumination = value;
             }
-        }
+	    }
 
 		public PowerConfigurations PowerConfiguration {
 			get { return powerConfiguration; }
-			set { powerConfiguration = value; }
+            set
+            {
+                if (!camera.WriteBytesToSerial(new byte[] { 0x70, (byte)value, 0x0D }))
+                {
+                    throw new Exception("Failed to transmit power configuration.");
+                }
+                powerConfiguration = value;
+            }
 		}
 
 		ICamera Camera {

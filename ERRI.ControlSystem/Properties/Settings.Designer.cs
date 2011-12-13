@@ -178,5 +178,17 @@ namespace EERIL.ControlSystem.Properties {
                 this["FinRange"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("155")]
+        public byte illumination {
+            get {
+                return ((byte)(this["illumination"]));
+            }
+            set {
+                this["illumination"] = value;
+            }
+        }
     }
 }

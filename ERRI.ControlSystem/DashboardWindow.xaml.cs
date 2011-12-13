@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -73,7 +74,6 @@ namespace EERIL.ControlSystem {
 				deviceManager.ActiveDevice = deployment.Devices[0];
 				deviceManager.ActiveDevice.MessageReceived += ActiveDeviceMessageReceived;
 			}
-            imuButton.DataContext = false;
 			controllerAxisChangedHandler = ControllerAxisChanged;
 			controllerConnectionChangedHandler = ControllerConnectionChanged;
             bitmapFrameCapturedHandler = VideoDisplayWindowBitmapFrameCaptured;
@@ -84,7 +84,13 @@ namespace EERIL.ControlSystem {
             RightFinOffsetSlider.ValueChanged += RightFinOffsetSliderValueChanged;
             BottomFinOffsetSlider.ValueChanged += BottomFinOffsetSliderValueChanged;
             LeftFinOffsetSlider.ValueChanged += LeftFinOffsetSliderValueChanged;
+            illuminationSlider.ValueChanged += IlluminationSliderValueChanged;
 		}
+
+        void IlluminationSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.Illumination = Convert.ToByte(e.NewValue);
+        }
 
         void YawOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -183,18 +189,19 @@ namespace EERIL.ControlSystem {
             (Application.Current as App).MainWindow.Show();
 		}
 
-        private void ImuButtonClick(object sender, RoutedEventArgs e)
-        {
-            IDevice device = deviceManager.ActiveDevice;
-            device.IsImuActive = !device.IsImuActive;
-            imuButton.Content = device.IsImuActive ? "IMU is Active" : "Activate IMU";
-            //imuButton.IsEnabled = false;
-        }
-
         private void RecordVideoButtonClick(object sender, RoutedEventArgs e)
         {
             VideoDisplay.RecordVideoStream = !VideoDisplay.RecordVideoStream;
             recordVideoButton.Content = VideoDisplay.RecordVideoStream ? "Video is Recording" : "Record Video";
+        }
+
+        private void PowerComboBoxSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            Control selected = (e.AddedItems[0] as Control);
+            if (deviceManager != null && selected != null)
+            {
+                deviceManager.ActiveDevice.PowerConfiguration = (PowerConfigurations) Byte.Parse(selected.Tag as String);
+            }
         }
 	}
 }

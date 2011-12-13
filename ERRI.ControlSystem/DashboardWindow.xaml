@@ -11,6 +11,19 @@
                 <chartingToolkit:LineSeries Name="horizontalAngleSeries" Title="Horizontal Angle" />
             </chartingToolkit:Chart.Series>
         </chartingToolkit:Chart-->
+            <StackPanel Name="PowerPanel" Width="200" Orientation="Horizontal">
+                <Label Name="powerLabel" Content="State:" Height="28" />
+                <ComboBox Name="PowerComboBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="PowerComboBoxSelectionChanged">
+                    <ComboBoxItem Content="Full" Tag="0" IsSelected="True" />
+                    <ComboBoxItem Content="No Buoyancy" Tag="1" />
+                    <ComboBoxItem Content="Sleep" Tag="2" />
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Name="IlluminationPanel" Width="200" Orientation="Horizontal">
+            <Label Name="illuminationLabel" Content="State:" Height="28" />
+            <Slider Height="23" Name="illuminationSlider" Width="145" Minimum="0" Maximum="255" Value="{Binding Source={x:Static properties:Settings.Default},
+                               Path=illumination}" />
+        </StackPanel>
         <StackPanel Height="100" Name="ControllerPanel" Width="200">
             <StackPanel Name="statePanel" Width="200" Orientation="Horizontal">
                 <Label Name="stateLabel" Content="State:" Height="28" />
@@ -49,7 +62,6 @@
                                Path=LeftFinOffset}" />
             </StackPanel>
         </StackPanel>
-        <Button Height="23" Name="imuButton" Width="120" Content="Activate IMU" Click="ImuButtonClick" />
         <Button Height="23" Name="recordVideoButton" Width="120" Content="Record Video" Click="RecordVideoButtonClick" />
         <Label Name="serialDataLabel">Serial Data:</Label>
         <TextBox Name="serialData" VerticalAlignment="Stretch" Height="160" Width="847" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" />

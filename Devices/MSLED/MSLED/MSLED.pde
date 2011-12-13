@@ -30,13 +30,15 @@ const int RIGHT_FIN_PIN = 46,
    IMU_READ_FIRMWARE_VERSION_COMMAND_CODE = 0xE9,
    IMU_READ_SENSOR_DATA_COMMAND_CODE = 0xCC,
    IMU_CONTINUOUS_COMMAND_CODE = 0xC4,
-   //IMU_MODE_COMMAND_CODE = 0xD4,
+   IMU_MODE_COMMAND_CODE = 0xD4,
    IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE = 0xFA;//,
    //IMU_DEVICE_RESET_COMMAND_CODE = 0xFE;
    
 const byte IMU_CONTINUOUS_COMMAND[] = {IMU_CONTINUOUS_COMMAND_CODE, 0xC1, 0x29, IMU_READ_SENSOR_DATA_COMMAND_CODE},
-  IMU_STOP_CONTINUOUS_MODE_COMMAND[] = {IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE, 0x75, 0xB4};
-  //IMU_CONTINUOUS_MODE_COMMAND[] = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x2},
+  IMU_STOP_CONTINUOUS_MODE_COMMAND[] = {IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE, 0x75, 0xB4},
+  IMU_CONTINUOUS_MODE_COMMAND[] = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x2},
+  IMU_SLEEP_MODE_COMMAND[] = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x4},
+  IMU_DEEP_SLEEP_MODE_COMMAND[] = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x5};
   //IMU_DEVICE_RESET_COMMAND[] = {IMU_DEVICE_RESET_COMMAND_CODE, 0x9E, 0x3A};//,
 
 unsigned long lastRamp = 0, lastSensor = 0, time, lastCommand = 0, heartbeatThreshhold = 150;
@@ -80,6 +82,8 @@ void setup(){
    neutralize();
    
    power(0);
+   
+   analogWrite(LED_DIMMER_PIN, 155);
    
    sensorBuffer[0] = 'b';
    thrustBuffer[0] = 't';
@@ -141,13 +145,7 @@ void loop(){
          }
          break;
        case 'i':
-         imu = buffer[1] > 0;
-         if(imu){
-           Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
-           Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
-         } else {
-           Serial2.write(IMU_STOP_CONTINUOUS_MODE_COMMAND, 3);
-         }
+         illumination(buffer[1]);
          break;
        case 'l':
          logger = buffer[1] > 0;
@@ -246,18 +244,26 @@ void neutralize(){
    horizontal(90);
 }
 
+void illumination(byte illum){
+  analogWrite(LED_DIMMER_PIN, illum);
+ log('i', false);
+ log(illum);
+}
+
 void vertical(int pos){
  verticalFinPos = pos;
  topFin.write(180 - (pos + topFinOffset));
  bottomFin.write(pos + bottomFinOffset);
- log('v' + String(pos));
+ log('v', false);
+ log(pos);
 }
 
 void horizontal(int pos){
  horizontalFinPos = pos;
  rightFin.write(pos + leftFinOffset);
  leftFin.write(180 - (pos + rightFinOffset));
- log('h' + String(pos));
+ log('h', false);
+ log(pos);
 }
 
 void thrust(int speed){
@@ -283,6 +289,10 @@ void power(int config){
      digitalWrite(HORIZONTAL_POWER, HIGH);
      digitalWrite(FIBER_TRANS_POWER, HIGH);
      digitalWrite(LED_POWER, HIGH);
+     imu = true;
+     Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
+     Serial2.write(IMU_CONTINUOUS_MODE_COMMAND, 4);
+     Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
       //PORTJ = PORTJ | BUOYANCY_ENABLE; // sets PJ6 HIGH while leaving all other port J pins unchanged
       break;
    case 1: //All peripherals on except the buoyancy motor
@@ -290,6 +300,10 @@ void power(int config){
      digitalWrite(HORIZONTAL_POWER, HIGH);
      digitalWrite(FIBER_TRANS_POWER, HIGH);
      digitalWrite(LED_POWER, HIGH);
+     imu = true;
+     Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
+     Serial2.write(IMU_CONTINUOUS_MODE_COMMAND, 4);
+     Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
       //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
       break;
    case 2:
@@ -298,7 +312,11 @@ void power(int config){
      digitalWrite(VERTICAL_POWER, LOW);
      digitalWrite(HORIZONTAL_POWER, LOW);
      digitalWrite(FIBER_TRANS_POWER, LOW);
+     imu = false;
+     Serial2.write(IMU_STOP_CONTINUOUS_MODE_COMMAND, 3);
+     Serial2.write(IMU_SLEEP_MODE_COMMAND, 4);
      //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
+     break;
  }
    
  log('p' + config);

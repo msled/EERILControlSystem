@@ -33,7 +33,7 @@ namespace EERIL.ControlSystem {
         byte LeftFinOffset { get; set; }
 		byte Thrust { get; set; }
         bool Turbo { get; set; }
-        bool IsImuActive { get; set; }
+        byte Illumination { get; set; }
 		PowerConfigurations PowerConfiguration { get; set; }
 		void StartVideoCapture(uint timeout);
 		void StopVideoCapture();
