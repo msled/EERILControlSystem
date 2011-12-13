@@ -241,7 +241,7 @@ void loop(){
 
 void neutralize(){
    //Neutral
-   thrust(0x34);
+   thrust(90);
    vertical(90);
    horizontal(90);
 }
