@@ -106,5 +106,89 @@ namespace EERIL.ControlSystem.Properties {
                 this["HeadsUpDisplayLocation"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double YawOffset {
+            get {
+                return ((double)(this["YawOffset"]));
+            }
+            set {
+                this["YawOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public byte TopFinOffset {
+            get {
+                return ((byte)(this["TopFinOffset"]));
+            }
+            set {
+                this["TopFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public byte RightFinOffset {
+            get {
+                return ((byte)(this["RightFinOffset"]));
+            }
+            set {
+                this["RightFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public byte BottomFinOffset {
+            get {
+                return ((byte)(this["BottomFinOffset"]));
+            }
+            set {
+                this["BottomFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
+        public byte LeftFinOffset {
+            get {
+                return ((byte)(this["LeftFinOffset"]));
+            }
+            set {
+                this["LeftFinOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("64")]
+        public byte FinRange {
+            get {
+                return ((byte)(this["FinRange"]));
+            }
+            set {
+                this["FinRange"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("155")]
+        public byte illumination {
+            get {
+                return ((byte)(this["illumination"]));
+            }
+            set {
+                this["illumination"] = value;
+            }
+        }
     }
 }

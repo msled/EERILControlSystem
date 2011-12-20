@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace EERIL.ControlSystem {
+﻿namespace EERIL.ControlSystem {
 	public enum PowerConfigurations : byte {
-		Full,
-		Minimal,
-		Autonomous
+		Full = 0,
+        NoBuoyancy = 1,
+		Sleep = 2
 	}
 }

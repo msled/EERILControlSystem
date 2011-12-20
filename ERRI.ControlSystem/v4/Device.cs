@@ -18,9 +18,8 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly ICamera camera;
 		private string displayName = null;
 		private readonly Thread serialMonitorThread;
-		private readonly MemoryMappedFile file;
-        private readonly EERIL.ControlSystem.Properties.Settings settings = EERIL.ControlSystem.Properties.Settings.Default;
-		private List<byte> buffer = new List<byte>();
+        private readonly Settings settings = Settings.Default;
+		private readonly List<byte> buffer = new List<byte>();
         private bool isImuActive = false;
 		private byte horizontalFinPosition;
 
@@ -34,11 +33,15 @@ namespace EERIL.ControlSystem.v4 {
 
         private byte leftFinOffset = 0;
 
+	    private byte finRange;
+
 		private byte thrust;
+
+	    private byte illumination;
 
 		private PowerConfigurations powerConfiguration;
 
-		public event FrameReadyHandler FrameReady;
+		public event DeviceFrameReadyHandler FrameReady;
 
 		public event DeviceMessageHandler MessageReceived;
 
@@ -100,7 +103,9 @@ namespace EERIL.ControlSystem.v4 {
 
 		public byte HorizontalFinPosition {
 			get { return horizontalFinPosition; }
-			set {
+			set
+			{
+			    value = EnforceFinRange(value);
 				if(!camera.WriteBytesToSerial(new byte[] { 0x68, value, 0x0D }))
 				{
 				    throw new Exception("Failed to transmit horizontal fin position to device.");
@@ -111,7 +116,9 @@ namespace EERIL.ControlSystem.v4 {
 
 		public byte VerticalFinPosition {
 			get { return verticalFinPosition; }
-			set {
+            set
+            {
+                value = EnforceFinRange(value);
                 if (!camera.WriteBytesToSerial(new byte[] { 0x76, value, 0x0D }))
                 {
                     throw new Exception("Failed to transmit vertical fin position to device.");
@@ -172,17 +179,25 @@ namespace EERIL.ControlSystem.v4 {
             }
         }
 
+	    public byte FinRange
+	    {
+	        get { return finRange; }
+	        set
+	        {
+	            finRange = value;
+	            HorizontalFinPosition = horizontalFinPosition;
+	            VerticalFinPosition = verticalFinPosition;
+	        }
+	    }
+
+	    public bool Turbo { get;
+            set;
+        }
+
 		public byte Thrust {
 			get { return thrust; }
 			set {
-                byte throttled = Convert.ToByte((value / 18) + 48);
-
-                if (throttled > 52)
-                    throttled--;
-                else if (throttled < 52)
-                    throttled++;
-
-                if (!camera.WriteBytesToSerial(new byte[] { 0x74, throttled, 0x0D }))
+                if (!camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte(Turbo ? value : (value - 90) / 2 + 90), 0x0D }))
                 {
                     throw new Exception("Failed to transmit thrust to device.");
                 }
@@ -190,25 +205,29 @@ namespace EERIL.ControlSystem.v4 {
             }
 		}
 
-        public bool IsImuActive
-        {
-            get
-            {
-                return isImuActive;
-            }
+	    public byte Illumination
+	    {
+	        get { return illumination; }
             set
             {
-                if (!camera.WriteBytesToSerial(new byte[] { 0x69, (byte)(value ? 0x10 : 0x00), 0x0D }))
+                if (!camera.WriteBytesToSerial(new byte[] { 0x69, value, 0x0D }))
                 {
-                    throw new Exception("Failed to transmit IMU activation.");
-                }
-                isImuActive = value;
+                    throw new Exception("Failed to transmit illumination.");
+                } 
+                illumination = value;
             }
-        }
+	    }
 
 		public PowerConfigurations PowerConfiguration {
 			get { return powerConfiguration; }
-			set { powerConfiguration = value; }
+            set
+            {
+                if (!camera.WriteBytesToSerial(new byte[] { 0x70, (byte)value, 0x0D }))
+                {
+                    throw new Exception("Failed to transmit power configuration.");
+                }
+                powerConfiguration = value;
+            }
 		}
 
 		ICamera Camera {
@@ -222,15 +241,32 @@ namespace EERIL.ControlSystem.v4 {
 		}
 
 		public Device(ICamera camera) {
-			this.camera = camera;
-			this.camera.FrameReady += CameraFrameReady;
-			file = MemoryMappedFile.CreateOrOpen(camera.SerialString + "_" + DateTime.Now,
-                                                 EERIL.ControlSystem.Properties.Settings.Default.SerialMappedFileCapacity);
+            this.camera = camera;
+            this.camera.FrameReady += CameraFrameReady;
 			serialMonitorThread = new Thread(MonitorSerialCommunication);
             serialMonitorThread.Name = "Serial Communication Monitor";
             serialMonitorThread.IsBackground = true;
             serialMonitorThread.Priority = ThreadPriority.BelowNormal;
 		}
+
+        private byte EnforceFinRange(byte value)
+        {
+            int adjustedValue = value - 90,
+                invertedRange;
+            byte result;
+            if (adjustedValue > FinRange)
+            {
+                result = (byte)(FinRange + 90);
+            }
+            else if (adjustedValue < (invertedRange = FinRange * -1))
+            {
+                result = (byte)(invertedRange + 90);
+            } else
+            {
+                result = value;
+            }
+            return result;
+        }
 
 		private void CameraFrameReady(object sender, IFrame frame) {
 			OnFrameReady(frame);
@@ -238,9 +274,9 @@ namespace EERIL.ControlSystem.v4 {
 
 		protected void OnFrameReady(IFrame frame) {
 			if (FrameReady != null) {
-				FrameReadyHandler eventHandler = FrameReady;
+				DeviceFrameReadyHandler eventHandler = FrameReady;
 				Delegate[] delegates = eventHandler.GetInvocationList();
-				foreach (FrameReadyHandler handler in delegates) {
+				foreach (DeviceFrameReadyHandler handler in delegates) {
 					DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
 					if (dispatcherObject != null && !dispatcherObject.CheckAccess()) {
 						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, this, frame);
@@ -258,9 +294,9 @@ namespace EERIL.ControlSystem.v4 {
 				foreach (DeviceMessageHandler handler in delegates) {
 					DispatcherObject dispatcherObject = handler.Target as DispatcherObject;
 					if (dispatcherObject != null && !dispatcherObject.CheckAccess()) {
-						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, message);
+						dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, this, message);
 					} else
-						handler(message);
+						handler(this, message);
 				}
 			}
 		}
@@ -290,8 +326,6 @@ namespace EERIL.ControlSystem.v4 {
 		private void MonitorSerialCommunication() {
 			byte[] buffer = new byte[settings.SerialReceiveInputBufferSize];
 			uint length = 0;
-            using (FileStream fileStream = File.Create(@"C:\MSLEDLogs\" + DateTime.Now.Ticks.ToString() + ".stream"))
-            {
                 while (true)
                 {
                     lock (buffer)
@@ -299,12 +333,10 @@ namespace EERIL.ControlSystem.v4 {
                         if (camera.ReadBytesFromSerial(buffer, ref length) && length > 0)
                         {
                             ParseSerial(buffer, length);
-                            fileStream.Write(buffer, 0, Convert.ToInt32(length));
                         }
                     }
                     Thread.Yield();
                 }
-            }
 		}
 
 		private void ParseSerial(byte[] array, uint length) {

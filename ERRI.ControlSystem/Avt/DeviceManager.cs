@@ -41,14 +41,13 @@ namespace EERIL.ControlSystem.Avt
 
 		void CameraManagerCameraDisconnected(ICamera camera)
 		{
-		    foreach(IDevice device in devices.Select(d => d.Id == camera.Reference ? d : null))
+		    foreach (IDevice device in devices.Select(d => d.Id == camera.Reference ? d : null).Where(device => device != null))
 		    {
-		        if(device != null)
-                    devices.Remove(device);
+		        devices.Remove(device);
 		    }
 		}
 
-		public DeviceManager() {
+	    public DeviceManager() {
 			cameraManager = new Avt.GigEVision();
 
 			cameraManager.CameraConnected +=new CameraConnectionHandler(CameraManagerCameraConnected);

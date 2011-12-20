@@ -38,13 +38,15 @@ namespace EERIL.ControlSystem {
         private BitmapFrame bitmapFrame = null;
         private readonly TriggerStateChangedHandler triggerStateChangedHandler;
         private readonly ButtonStateChangedHandler buttonStateChangedHandler;
-        private byte[] m11Buffer = new byte[4], 
-            m12Buffer = new byte[4], 
-            m13Buffer = new byte[4], 
-            m23Buffer = new byte[4], 
-            m33Buffer = new byte[4],
-            batteryBuffer = new byte[2];
-		public DashboardWindow Dashboard {
+        private readonly byte[] m11Buffer = new byte[4];
+	    private readonly byte[] m12Buffer = new byte[4];
+	    private readonly byte[] m13Buffer = new byte[4];
+	    private readonly byte[] m23Buffer = new byte[4];
+	    private readonly byte[] m33Buffer = new byte[4];
+
+        public bool RecordVideoStream { get; set; }
+
+	    public DashboardWindow Dashboard {
 			get;
 			set;
 		}
@@ -58,6 +60,18 @@ namespace EERIL.ControlSystem {
 			get;
 			set;
 		}
+
+        public double YawOffset
+        {
+            get
+            {
+                return headsUpDisplay.YawOffset;
+            }
+            set
+            {
+                headsUpDisplay.YawOffset = value;
+            }
+        }
 
         public Controller Controller
         {
@@ -120,6 +134,8 @@ namespace EERIL.ControlSystem {
                 deviceManager.ActiveDevice = deployment.Devices[0];
                 deviceManager.ActiveDevice.MessageReceived += new DeviceMessageHandler(ActiveDeviceMessageReceived);
             }
+
+		    headsUpDisplay.YawOffset = Settings.Default.YawOffset;
 		    this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate
 		                                                                                                             {
 				if (deployment.Devices.Count > 0) {
@@ -128,7 +144,13 @@ namespace EERIL.ControlSystem {
                     device.Open();
                     try
                     {
-					    deviceManager.ActiveDevice.StartVideoCapture(1000);
+                        IDevice activeDevice = deviceManager.ActiveDevice;
+                        deviceManager.ActiveDevice.StartVideoCapture(1000);
+                        activeDevice.FinRange = Settings.Default.FinRange;
+                        activeDevice.TopFinOffset = Settings.Default.TopFinOffset;
+                        activeDevice.RightFinOffset = Settings.Default.RightFinOffset;
+                        activeDevice.BottomFinOffset = Settings.Default.BottomFinOffset;
+                        activeDevice.LeftFinOffset = Settings.Default.LeftFinOffset;
                     } catch (Exception ex)
                     {
                         StringBuilder message = new StringBuilder(ex.ToString());
@@ -150,11 +172,14 @@ namespace EERIL.ControlSystem {
         {
             switch (trigger)
             {
-                case Trigger.Right:
+                case Trigger.Left:
                     if (pressed)
                     {
                         captureFrame = true;
                     }
+                    break;
+                case Trigger.Right:
+                    deviceManager.ActiveDevice.Turbo = pressed;
                     break;
             }
         }
@@ -171,23 +196,25 @@ namespace EERIL.ControlSystem {
             }
 		}
 
-        void ActiveDeviceMessageReceived(byte[] message)
+        void ActiveDeviceMessageReceived(object sender, byte[] message)
         {
             switch (message[0])
             {
                 case 0x74:
                     if (message.Length < 2)
                         break;
-                    headsUpDisplay.Thrust = message[1] - 52;
+                    headsUpDisplay.Thrust = message[1] - 90;
                     break;
                 case 0x62:
-                    if (message.Length < 5)
+                    if (message.Length < 17)
                         break;
-                    headsUpDisplay.Current = BitConverter.ToUInt16(message, 1);
-                    headsUpDisplay.Voltage = BitConverter.ToUInt16(message, 3);
+                    headsUpDisplay.Current = BitConverter.ToSingle(message, 1);
+                    headsUpDisplay.Voltage = BitConverter.ToSingle(message, 5);
+                    headsUpDisplay.Humidity = BitConverter.ToSingle(message, 9);
+                    headsUpDisplay.Temperature = BitConverter.ToSingle(message, 13);
                     break;
                 case 0xCC:
-                    if (!verifyChecksum(message))
+                    if (!VerifyChecksum(message))
                         break;
                     uint timer = BitConverter.ToUInt32(message, 73);
                     /*headsUpDisplay.Acceleration = new Point3D(){
@@ -245,13 +272,14 @@ namespace EERIL.ControlSystem {
                     m33Buffer[2] = message[70];
                     m33Buffer[3] = message[69];
                     //This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
-                    headsUpDisplay.Roll = Math.Atan2(BitConverter.ToSingle(m23Buffer, 0), BitConverter.ToSingle(m33Buffer, 0)) * -1;
+                    // This is temporarily not wrong, but should be made wrong again, because of strange behavior of the IMU in Antarctica.
+                    headsUpDisplay.Roll = Math.Atan2(BitConverter.ToSingle(m23Buffer, 0), BitConverter.ToSingle(m33Buffer, 0));
                     //Did I mention ^ that stuff is backwards.
                     break;
             }
         }
 
-        private bool verifyChecksum(byte[] message){
+        private static bool VerifyChecksum(byte[] message){
             bool result = false;
             if (message.Length > 2)
             {
@@ -277,15 +305,17 @@ namespace EERIL.ControlSystem {
                 OnBitmapFrameCaptured(bitmapFrame);
                 captureFrame = false;
             }
-            frame.Dispose();
-            GC.Collect(1);
-            Thread.Yield();
+            if(RecordVideoStream)
+            {
+                Deployment.RecordFrame(sender as IDevice, frame);
+            }
+		    frame.Dispose();
 		}
 
 		private void WindowClosed(object sender, EventArgs e) {
             Dashboard.Dispatcher.Invoke(
                 DispatcherPriority.Normal,
-                new Action( () => { Dashboard.Close(); } ));
+                new Action( () => Dashboard.Close()));
 		}
 	}
 }

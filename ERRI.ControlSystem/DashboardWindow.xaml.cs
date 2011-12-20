@@ -1,19 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Microsoft.Xna.Framework.Input;
-using EERIL.ControlSystem;
 using System.Windows.Threading;
-using System.IO;
 
 namespace EERIL.ControlSystem {
 	/// <summary>
@@ -23,6 +12,7 @@ namespace EERIL.ControlSystem {
 		private Controller controller = null;
 		private IDeviceManager deviceManager;
         private VideoDisplayWindow videoDisplayWindow = null;
+        private readonly Properties.Settings settings = Properties.Settings.Default;
 		private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
 		private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
         private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
@@ -82,47 +72,57 @@ namespace EERIL.ControlSystem {
 			deviceManager = (Application.Current as App).DeviceManager;
 			if (deployment.Devices.Count > 0) {
 				deviceManager.ActiveDevice = deployment.Devices[0];
-				deviceManager.ActiveDevice.MessageReceived += new DeviceMessageHandler(ActiveDeviceMessageReceived);
+				deviceManager.ActiveDevice.MessageReceived += ActiveDeviceMessageReceived;
 			}
-            imuButton.DataContext = false;
-			controllerAxisChangedHandler = new ControllerAxisChangedHandler(ControllerAxisChanged);
-			controllerConnectionChangedHandler = new ControllerConnectionChangedHandler(ControllerConnectionChanged);
-            bitmapFrameCapturedHandler = new BitmapFrameCapturedHandler(VideoDisplayWindowBitmapFrameCaptured);
+			controllerAxisChangedHandler = ControllerAxisChanged;
+			controllerConnectionChangedHandler = ControllerConnectionChanged;
+            bitmapFrameCapturedHandler = VideoDisplayWindowBitmapFrameCaptured;
 			this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString());
-            TopFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(TopFinOffsetSlider_ValueChanged);
-            RightFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(RightFinOffsetSlider_ValueChanged);
-            BottomFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(BottomFinOffsetSlider_ValueChanged);
-            LeftFinOffsetSlider.ValueChanged += new RoutedPropertyChangedEventHandler<double>(LeftFinOffsetSlider_ValueChanged);
-			/*dashboardChart.DataContext = new KeyValuePair<DateTime, int>[] { 
-				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 30, 24, DateTimeKind.Utc), 12), 
-				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 30, 34, DateTimeKind.Utc), 23), 
-				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 30, 44, DateTimeKind.Utc), 12), 
-				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 30, 54, DateTimeKind.Utc), 32), 
-				new KeyValuePair<DateTime, int>(new DateTime(2011, 12, 25, 18, 31, 4, DateTimeKind.Utc), 15)
-			};*/
+            YawOffsetSlider.ValueChanged += YawOffsetSliderValueChanged;
+            FinRangeSlider.ValueChanged += FinRangeSliderValueChanged;
+            TopFinOffsetSlider.ValueChanged += TopFinOffsetSliderValueChanged;
+            RightFinOffsetSlider.ValueChanged += RightFinOffsetSliderValueChanged;
+            BottomFinOffsetSlider.ValueChanged += BottomFinOffsetSliderValueChanged;
+            LeftFinOffsetSlider.ValueChanged += LeftFinOffsetSliderValueChanged;
+            illuminationSlider.ValueChanged += IlluminationSliderValueChanged;
 		}
 
-        void LeftFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        void IlluminationSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.Illumination = Convert.ToByte(e.NewValue);
+        }
+
+        void YawOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            videoDisplayWindow.YawOffset = e.NewValue;
+        }
+
+        void FinRangeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.FinRange = Convert.ToByte(e.NewValue);
+        }
+
+        void LeftFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             deviceManager.ActiveDevice.LeftFinOffset = Convert.ToByte(e.NewValue);
         }
 
-        void BottomFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        void BottomFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             deviceManager.ActiveDevice.BottomFinOffset = Convert.ToByte(e.NewValue);
         }
 
-        void RightFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        void RightFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             deviceManager.ActiveDevice.RightFinOffset = Convert.ToByte(e.NewValue);
         }
 
-        void TopFinOffsetSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        void TopFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(e.NewValue);
         }
 
-        void ActiveDeviceMessageReceived(byte[] message)
+        void ActiveDeviceMessageReceived(object sender, byte[] message)
         {
 			//serialData.Text += message;
 		}
@@ -178,23 +178,30 @@ namespace EERIL.ControlSystem {
 			}
 		}
 
-		private void Window_Closed(object sender, EventArgs e) {
+		private void WindowClosed(object sender, EventArgs e) {
             if (VideoDisplay.IsVisible)
             {
                 VideoDisplay.Dispatcher.Invoke(
                     DispatcherPriority.Normal,
-                    new Action(() => { VideoDisplay.Close(); }));
+                    new Action(() => VideoDisplay.Close()));
             }
             deviceManager.ActiveDevice.Close();
             (Application.Current as App).MainWindow.Show();
 		}
 
-        private void imuButton_Click(object sender, RoutedEventArgs e)
+        private void RecordVideoButtonClick(object sender, RoutedEventArgs e)
         {
-            IDevice device = deviceManager.ActiveDevice;
-            device.IsImuActive = !device.IsImuActive;
-            imuButton.Content = "IMU " + (device.IsImuActive ? "On" : "Off");
-            //imuButton.IsEnabled = false;
+            VideoDisplay.RecordVideoStream = !VideoDisplay.RecordVideoStream;
+            recordVideoButton.Content = VideoDisplay.RecordVideoStream ? "Video is Recording" : "Record Video";
+        }
+
+        private void PowerComboBoxSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            Control selected = (e.AddedItems[0] as Control);
+            if (deviceManager != null && selected != null)
+            {
+                deviceManager.ActiveDevice.PowerConfiguration = (PowerConfigurations) Byte.Parse(selected.Tag as String);
+            }
         }
 	}
 }

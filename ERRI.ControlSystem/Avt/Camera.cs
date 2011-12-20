@@ -17,10 +17,11 @@ namespace EERIL.ControlSystem.Avt
         private GCHandle[] frameBufferHandles;
         private GCHandle[] framePoolHandles;
         private tFrame[] frames;
+        private const int FRAME_POOL_SIZE = 10;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
-        private Timer heartbeatTimer;
-        private byte[] heartbeat = new byte[]{0xA6, 0x0D};
+        private readonly Timer heartbeatTimer;
+        private readonly byte[] heartbeat = new byte[]{0xA6, 0x0D};
 
         public event FrameReadyHandler FrameReady;
 
@@ -204,9 +205,9 @@ namespace EERIL.ControlSystem.Avt
             if (error != tErr.eErrSuccess)
                 goto error;
 
-            frameBufferHandles = new GCHandle[10];
-            framePoolHandles = new GCHandle[10];
-            frames = new tFrame[10];
+            frameBufferHandles = new GCHandle[FRAME_POOL_SIZE];
+            framePoolHandles = new GCHandle[FRAME_POOL_SIZE];
+            frames = new tFrame[FRAME_POOL_SIZE];
 
             uint bufferSize = 0;
             error = Pv.AttrUint32Get(this.camera.Value, "TotalBytesPerFrame", ref bufferSize);
@@ -216,7 +217,7 @@ namespace EERIL.ControlSystem.Avt
             GCHandle bufferHandle, frameHandle;
             tFrame frame;
             IntPtr framePointer;
-            for (int count = 9; count >= 0; count--)
+            for (int count = FRAME_POOL_SIZE - 1; count >= 0; count--)
             {
                 buffer = new byte[bufferSize];
                 bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
@@ -236,18 +237,21 @@ namespace EERIL.ControlSystem.Avt
                 if(error != tErr.eErrSuccess)
                     goto error;
             }
+            error = Pv.AttrFloat32Set(this.camera.Value, "FrameRate", 15);
+            if (error != tErr.eErrSuccess)
+                goto error;
+            error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "FixedRate");
+            if (error != tErr.eErrSuccess)
+                goto error;
             error = Pv.AttrEnumSet(this.camera.Value, "AcquisitionMode", "Continuous");
             if (error != tErr.eErrSuccess)
                 goto error;
-            Pv.CommandRun(this.camera.Value, "AcquisitionStart");
+            error = Pv.CommandRun(this.camera.Value, "AcquisitionStart");
             if (error != tErr.eErrSuccess)
                 goto error;
-
             return;
         error:
             EndCapture();
-            Pv.CaptureQueueClear(this.camera.Value);
-            Pv.CommandRun(this.camera.Value, "AcquisitionStop");
 
             throw new PvException(error);
         }
@@ -258,6 +262,7 @@ namespace EERIL.ControlSystem.Avt
             {
                 throw new PvException(tErr.eErrUnavailable);
             }
+            Pv.CaptureQueueClear(this.camera.Value);
             foreach (GCHandle handle in framePoolHandles)
             {
                 handle.Free();
@@ -274,12 +279,12 @@ namespace EERIL.ControlSystem.Avt
         public bool WriteBytesToSerial(byte[] buffer)
         {
             heartbeatTimer.Change(100, 100);
-            return camera.HasValue ? CameraSerial.WriteBytesToSerialIo(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength)) : false;
+            return camera.HasValue && CameraSerial.WriteBytesToSerialIo(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength));
         }
 
         public bool ReadBytesFromSerial(byte[] buffer, ref uint recieved)
         {
-            return camera.HasValue ? CameraSerial.ReadBytesFromSerialIO(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength), ref recieved) : false;
+            return camera.HasValue && CameraSerial.ReadBytesFromSerialIO(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength), ref recieved);
         }
 
         public void Open()
