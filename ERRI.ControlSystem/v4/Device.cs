@@ -95,12 +95,6 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
-		public uint ColorCode {
-			get {
-				return this.camera.ColorCode;
-			}
-		}
-
 		public byte HorizontalFinPosition {
 			get { return horizontalFinPosition; }
 			set

@@ -65,7 +65,7 @@ namespace EERIL.ControlSystem.Avt
             get { return cameraInfo.UniqueId; }
         }
 
-        public string SerialString
+        public string SerialString // serial number
         {
             get { return cameraInfo.SerialString; }
         }
@@ -160,7 +160,8 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                Pv.AttrEnumGet(camera.Value, "PixelFormat", buffer, 1000, ref read);
+                Pv.AttrEnumGet(camera.Value, "PixelFormat", buffer, 16, ref read);
+                value = (Avt.ImageFormat) Enum.Parse(typeof(Avt.ImageFormat), buffer.ToString(), true);
                 return value;
             }
             set
@@ -170,23 +171,6 @@ namespace EERIL.ControlSystem.Avt
                     throw new PvException(tErr.eErrUnavailable);
                 }
                 Pv.AttrUint32Set(camera.Value, "PixelFormat", (uint)value);
-            }
-        }
-
-        public uint ColorCode
-        {
-            get
-            {
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                //TODO: Return property value.
-                return 0;
-            }
-            set
-            {
-                //Todo: store value.
             }
         }
 

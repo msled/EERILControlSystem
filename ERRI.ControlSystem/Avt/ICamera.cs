@@ -15,7 +15,6 @@ namespace EERIL.ControlSystem.Avt {
         uint ImageHeight { get; set; }
         uint ImageWidth { get; set; }
         ImageFormat ImageFormat { get; set; }
-        uint ColorCode { get; set; }
 	    void BeginCapture();
 	    void EndCapture();
 	    bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);

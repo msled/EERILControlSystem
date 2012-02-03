@@ -22,7 +22,6 @@ namespace EERIL.ControlSystem {
 		uint ImageHeight { get; }
 		uint ImageWidth { get; }
 		uint ImageDepth { get; }
-		uint ColorCode { get; }
 		PixelFormat PixelFormat { get; }
 		byte HorizontalFinPosition { get; set; }
         byte VerticalFinPosition { get; set; }
