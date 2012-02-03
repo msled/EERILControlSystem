@@ -11,6 +11,7 @@ using System.Drawing.Imaging;
 using EERIL.ControlSystem.Properties;
 using System.Runtime.CompilerServices;
 using System.IO;
+using PvNET;
 
 namespace EERIL.ControlSystem.v4 {
 	[ControlSystem.Device("MsledOS", OsVersion = new double[] { 4 })]
@@ -22,30 +23,19 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly List<byte> buffer = new List<byte>();
         private bool isImuActive = false;
 		private byte horizontalFinPosition;
-
-		private byte verticalFinPosition;
-        
+        private byte verticalFinPosition;
         private byte topFinOffset = 0;
-
         private byte rightFinOffset = 0;
-
         private byte bottomFinOffset = 0;
-
         private byte leftFinOffset = 0;
-
 	    private byte finRange;
-
 		private byte thrust;
-
 	    private byte illumination;
-
 		private PowerConfigurations powerConfiguration;
-
 		public event DeviceFrameReadyHandler FrameReady;
-
 		public event DeviceMessageHandler MessageReceived;
 
-	    public uint Id
+        public uint Id
 	    {
             get { return camera.Reference; }
 	    }
@@ -83,15 +73,22 @@ namespace EERIL.ControlSystem.v4 {
 
 		public uint ImageDepth {
 			get {
-                //Todo: return valid value;
-                return 0;// camera.ImageDepth;
+                return this.camera.ImageDepth;
 			}
 		}
 
-		public PixelFormat PixelFormat {
+        public float BytesPerPixel
+        {
+            get
+            {
+                return this.camera.BytesPerPixel;
+            }
+        }
+
+        public tImageFormat ImageFormat
+        {
 			get {
-                //Todo: return valid value.
-                return PixelFormat.DontCare;// camera.GrabPixelFormat();
+                return this.camera.ImageFormat;
 			}
 		}
 
@@ -297,6 +294,7 @@ namespace EERIL.ControlSystem.v4 {
 
 		public void StartVideoCapture(uint timeout) {
             this.camera.Open();
+            this.camera.AdjustPacketSize();
             this.camera.BeginCapture();
 		}
 

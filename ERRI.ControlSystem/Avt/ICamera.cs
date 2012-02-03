@@ -1,25 +1,32 @@
 ﻿using System;
+using PvNET;
+
 namespace EERIL.ControlSystem.Avt {
-	public delegate void FrameReadyHandler(object sender, IFrame frame);
-	public interface ICamera {
-		event FrameReadyHandler FrameReady;
-		string DisplayName { get; }
-		uint InterfaceId { get; }
-	    uint Reference { get; }
-        Interface InterfaceType { get; }
-		uint PartNumber { get; }
-		uint PartVersion { get; }
-		uint PermittedAccess { get; }
-		string SerialString { get; }
-		uint UniqueId { get; }
+    public delegate void FrameReadyHandler(object sender, IFrame frame);
+    public interface ICamera {
+        event FrameReadyHandler FrameReady;
+        string DisplayName { get; }
+        uint InterfaceId { get; }
+        uint Reference { get; }
+        tInterface InterfaceType { get; }
+        uint PartNumber { get; }
+        uint PartVersion { get; }
+        uint PermittedAccess { get; }
+        string SerialString { get; }
+        uint UniqueId { get; }
+        float Temperature { get; }
         uint ImageHeight { get; set; }
         uint ImageWidth { get; set; }
-        ImageFormat ImageFormat { get; set; }
-	    void BeginCapture();
-	    void EndCapture();
-	    bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);
-	    bool WriteBytesToSerial(byte[] buffer);
-		void Open();
-		void Close();
-	}
+        uint ImageDepth { get; }
+        float BytesPerPixel { get; }
+        ColorTransformation ColorTransformation { get; set; }
+        tImageFormat ImageFormat { get; set; }
+        void BeginCapture();
+        void EndCapture();
+        bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);
+        bool WriteBytesToSerial(byte[] buffer);
+        void Open();
+        void AdjustPacketSize();
+        void Close();
+    }
 }

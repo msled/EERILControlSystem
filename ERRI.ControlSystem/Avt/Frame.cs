@@ -22,83 +22,97 @@ namespace EERIL.ControlSystem.Avt
         private tFrame frame;
         private byte[] buffer;
 
-        public byte[] Buffer {
-            get {
+        public byte[] Buffer
+        {
+            get
+            {
                 byte[] returnBuffer = new byte[frame.ImageBufferSize];
                 Array.Copy(buffer, returnBuffer, Convert.ToInt32(frame.ImageBufferSize));
                 return returnBuffer;
             }
         }
 
-        public uint Size {
+        public uint Size
+        {
             get
             {
                 return frame.ImageSize;
             }
         }
 
-        public uint AncillarySize {
+        public uint AncillarySize
+        {
             get
             {
                 return frame.AncillarySize;
             }
         }
 
-        public uint Width {
+        public uint Width
+        {
             get
             {
                 return frame.Width;
             }
         }
 
-        public uint Height {
+        public uint Height
+        {
             get
             {
                 return frame.Height;
             }
         }
 
-        public uint RegionX {
+        public uint RegionX
+        {
             get
             {
                 return frame.RegionX;
             }
         }
 
-        public uint RegionY {
+        public uint RegionY
+        {
             get
             {
                 return frame.RegionY;
             }
         }
 
-        public ImageFormat Format {
+        public tImageFormat Format
+        {
             get
             {
-                return (ImageFormat)frame.Format;
+                return (tImageFormat)frame.Format;
             }
         }
 
-        public uint BitDepth {
-            get{
+        public uint BitDepth
+        {
+            get
+            {
                 return frame.BitDepth;
             }
         }
 
-        public BayerPattern BayerPattern {
+        public tBayerPattern BayerPattern
+        {
             get
             {
-                return (BayerPattern)frame.BayerPattern;
+                return (tBayerPattern)frame.BayerPattern;
             }
         }
 
-        public uint FrameCount {
+        public uint FrameCount
+        {
             get
             {
                 return frame.FrameCount;
             }
         }
-        public long Timestamp {
+        public long Timestamp
+        {
             get
             {
                 return (Convert.ToInt64(frame.TimestampHi) >> 32) + frame.TimestampLo;
@@ -123,7 +137,7 @@ namespace EERIL.ControlSystem.Avt
         {
             Bitmap bitmap = ToBitmap();
             IntPtr hbitmap = bitmap.GetHbitmap();
-            BitmapSource source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap, 
+            BitmapSource source = Imaging.CreateBitmapSourceFromHBitmap(hbitmap,
                 IntPtr.Zero,
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
@@ -142,7 +156,7 @@ namespace EERIL.ControlSystem.Avt
 
         ~Frame()
         {
-            if(!disposed)
+            if (!disposed)
             {
                 Dispose();
             }
@@ -150,7 +164,7 @@ namespace EERIL.ControlSystem.Avt
 
         public void Dispose()
         {
-            if(!disposed)
+            if (!disposed)
             {
                 camera.ReleaseFrame(framePointer);
                 disposed = true;
