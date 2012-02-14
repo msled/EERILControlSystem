@@ -20,7 +20,9 @@ namespace EERIL.ControlSystem.Avt {
         uint ImageDepth { get; }
         float BytesPerPixel { get; }
         ColorTransformation ColorTransformation { get; set; }
+        DSP DSP { get; set; }
         tImageFormat ImageFormat { get; set; }
+        EdgeFilter EdgeFilter { get; set; }
         void BeginCapture();
         void EndCapture();
         bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);
