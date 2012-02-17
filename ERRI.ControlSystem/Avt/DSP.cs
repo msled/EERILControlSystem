@@ -5,14 +5,14 @@ using System.Text;
 
 namespace EERIL.ControlSystem.Avt
 {
-   class DSP
+   public class DSP
     {
         public uint bottom;
         public uint left;
         public uint right;
         public uint top;
 
-        public void DSP() {
+        public DSP() {
             bottom = 4294967295;
             left = 4294967295;
             right = 4294967295;

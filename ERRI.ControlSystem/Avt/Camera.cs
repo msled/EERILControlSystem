@@ -140,7 +140,10 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                Pv.AttrUint32Set(camera.Value, "Height", value);
+                if (value >= 1)
+                {
+                    Pv.AttrUint32Set(camera.Value, "Height", value);
+                }
             }
         }
 
@@ -162,7 +165,10 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                Pv.AttrUint32Set(camera.Value, "Width", value);
+                if (value >= 1)
+                {
+                    Pv.AttrUint32Set(camera.Value, "Width", value);
+                }
             }
         }
 
@@ -281,7 +287,6 @@ namespace EERIL.ControlSystem.Avt
             get
             {
                 ColorTransformation value = new ColorTransformation();
-                float[][] values = value.getValues();
                 StringBuilder buffer = new StringBuilder(16);
                 uint read = 0;
                 if (!camera.HasValue)
@@ -290,15 +295,15 @@ namespace EERIL.ControlSystem.Avt
                 }
                 Pv.AttrEnumGet(camera.Value, "ColorTransformationMode", buffer, 16, ref read);
                 value.mode = (ColorTransformationMode)Enum.Parse(typeof(ColorTransformationMode), buffer.ToString(), true);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRR", ref values[0][0]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRG", ref values[0][1]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRB", ref values[0][2]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGR", ref values[1][0]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGG", ref values[1][1]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGB", ref values[1][2]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBR", ref values[2][0]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBG", ref values[2][1]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBB", ref values[2][2]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRR", ref value.values[0][0]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRG", ref value.values[0][1]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRB", ref value.values[0][2]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGR", ref value.values[1][0]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGG", ref value.values[1][1]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGB", ref value.values[1][2]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBR", ref value.values[2][0]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBG", ref value.values[2][1]);
+                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBB", ref value.values[2][2]);
                 return value;
             }
             set
@@ -307,17 +312,43 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                float[][] values = value.getValues();
                 Pv.AttrUint32Set(camera.Value, "ColorTransformationMode", (uint)value.mode);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRR", values[0][0]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRG", values[0][1]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRB", values[0][2]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGR", values[1][0]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGG", values[1][1]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGB", values[1][2]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBR", values[2][0]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBG", values[2][1]);
-                Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBB", values[2][2]);
+                if (value.values[0][0] >= 0.0 && value.values[0][0] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRR", value.values[0][0]);
+                }
+                if (value.values[0][1] >= 0.0 && value.values[0][1] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRG", value.values[0][1]);
+                }
+                if (value.values[0][2] >= 0.0 && value.values[0][2] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRB", value.values[0][2]);
+                }
+                if (value.values[1][0] >= 0.0 && value.values[1][0] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGR", value.values[1][0]);
+                }
+                if (value.values[1][1] >= 0.0 && value.values[1][1] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGG", value.values[1][1]);
+                }
+                if (value.values[1][2] >= 0.0 && value.values[1][2] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGB", value.values[1][2]);
+                }
+                if (value.values[2][0] >= 0.0 && value.values[2][0] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBR", value.values[2][0]);
+                }
+                if (value.values[2][1] >= 0.0 && value.values[2][1] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBG", value.values[2][1]);
+                }
+                if (value.values[2][2] >= 0.0 && value.values[2][2] <= 2.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBB", value.values[2][2]);
+                }
             }
         }
 
@@ -330,10 +361,10 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                Pv.AttrUint32Set(camera.Value, "DSPSubregionBottom", value.bottom);
-                Pv.AttrUint32Set(camera.Value, "DSPSubregionLeft", value.left);
-                Pv.AttrUint32Set(camera.Value, "DSPSubregionRight", value.right);
-                Pv.AttrUint32Set(camera.Value, "DSPSubregionTop", value.top);
+                Pv.AttrUint32Get(camera.Value, "DSPSubregionBottom", ref value.bottom);
+                Pv.AttrUint32Get(camera.Value, "DSPSubregionLeft", ref value.left);
+                Pv.AttrUint32Get(camera.Value, "DSPSubregionRight", ref value.right);
+                Pv.AttrUint32Get(camera.Value, "DSPSubregionTop", ref value.top);
                 return value;
             }
             set
@@ -342,10 +373,22 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                Pv.AttrUint32Get(camera.Value, "DSPSubregionBottom", ref value.bottom);
-                Pv.AttrUint32Get(camera.Value, "DSPSubregionLeft", ref value.left);
-                Pv.AttrUint32Get(camera.Value, "DSPSubregionRight", ref value.right);
-                Pv.AttrUint32Get(camera.Value, "DSPSubregionTop", ref value.top);
+                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                {
+                    Pv.AttrUint32Set(camera.Value, "DSPSubregionBottom", value.bottom);
+                }
+                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                {
+                    Pv.AttrUint32Set(camera.Value, "DSPSubregionLeft", value.left);
+                }
+                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                {
+                    Pv.AttrUint32Set(camera.Value, "DSPSubregionRight", value.right);
+                }
+                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                {
+                    Pv.AttrUint32Set(camera.Value, "DSPSubregionTop", value.top);
+                }
             }
         }
 
@@ -371,6 +414,184 @@ namespace EERIL.ControlSystem.Avt
                     throw new PvException(tErr.eErrUnavailable);
                 }
                 Pv.AttrEnumSet(camera.Value, "EdgeFilter", value.ToString());
+            }
+        }
+
+        public float Gamma
+        {
+            get
+            {
+                float value = 0;
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+                Pv.AttrFloat32Get(camera.Value, "Gamma", ref value);
+                return value;
+            }
+            set
+            {
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+                if (value >= 0.25 && value <= 3.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "Gamma", value);
+                }
+            }
+        }
+
+        public float Hue
+        {
+            get
+            {
+                float value = 0;
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+                Pv.AttrFloat32Get(camera.Value, "Hue", ref value);
+                return value;
+            }
+            set
+            {
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+                if (value >= -40.0 && value <= 40.0)
+                {
+                    Pv.AttrFloat32Set(camera.Value, "Hue", value);
+                }
+            }
+        }
+
+        public Gain Gain
+        {
+            get
+            {
+                StringBuilder buffer = new StringBuilder(16);
+                Gain value = new Gain();
+                uint read = 0;
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+
+                Pv.AttrEnumGet(camera.Value, "GainMode", buffer, 16, ref read);
+                value.mode = (GainMode)Enum.Parse(typeof(GainMode), buffer.ToString(), true);
+                Pv.AttrUint32Get(camera.Value, "GainAutoAdjustTol", ref value.tolerance);
+                Pv.AttrUint32Get(camera.Value, "GainAutoMax", ref value.max);
+                Pv.AttrUint32Get(camera.Value, "GainAutoMin", ref value.min);
+                Pv.AttrUint32Get(camera.Value, "GainAutoOutliers", ref value.outliers);
+                Pv.AttrUint32Get(camera.Value, "GainAutoRate", ref value.rate);
+                Pv.AttrUint32Get(camera.Value, "GainAutoTarget", ref value.target);
+                Pv.AttrUint32Get(camera.Value, "GainValue", ref value.value);
+                return value;
+            }
+            set
+            {
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+
+                Pv.AttrEnumSet(camera.Value, "GainMode", value.mode.ToString());
+                if (value.tolerance >= 0 && value.tolerance <= 50)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainAutoAdjustTol", value.tolerance);
+                }
+                if (value.max >= 0)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainAutoMax", value.max);
+                }
+                if (value.min >= 0)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainAutoMin", value.min);
+                }
+                if (value.outliers >= 0 && value.outliers <= 1000)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainAutoOutliers", value.outliers);
+                }
+                if (value.rate >= 1 && value.rate <= 100)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainAutoRate", value.rate);
+                }
+                if (value.target >= 0 && value.target <= 100)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainAutoTarget", value.target);
+                }
+                if (value.value >= 0)
+                {
+                    Pv.AttrUint32Set(camera.Value, "GainValue", value.value);
+                }
+            }
+        }
+
+        public Exposure Exposure
+        {
+            get
+            {
+                StringBuilder buffer = new StringBuilder(16);
+                Exposure value = new Exposure();
+                uint read = 0;
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+
+                Pv.AttrEnumGet(camera.Value, "ExposureAutoAlg", buffer, 16, ref read);
+                value.algorithm = (ExposureAlgorithm)Enum.Parse(typeof(ExposureAlgorithm), buffer.ToString(), true);
+                buffer.Clear();
+                Pv.AttrEnumGet(camera.Value, "ExposureMode", buffer, 16, ref read);
+                value.mode = (ExposureMode)Enum.Parse(typeof(ExposureMode), buffer.ToString(), true);
+                Pv.AttrUint32Get(camera.Value, "ExposureAutoAdjustTol", ref value.tolerance);
+                Pv.AttrUint32Get(camera.Value, "ExposureAutoMax", ref value.max);
+                Pv.AttrUint32Get(camera.Value, "ExposureAutoMin", ref value.min);
+                Pv.AttrUint32Get(camera.Value, "ExposureAutoOutliers", ref value.outliers);
+                Pv.AttrUint32Get(camera.Value, "ExposureAutoRate", ref value.rate);
+                Pv.AttrUint32Get(camera.Value, "ExposureAutoTarget", ref value.target);
+                Pv.AttrUint32Get(camera.Value, "ExposureValue", ref value.value);
+                return value;
+            }
+            set
+            {
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+
+                Pv.AttrEnumSet(camera.Value, "ExposureAutoAlg", value.algorithm.ToString());
+                Pv.AttrEnumSet(camera.Value, "ExposureMode", value.mode.ToString());
+                if (value.tolerance >= 0 && value.tolerance <= 50)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureAutoAdjustTol", value.tolerance);
+                }
+                if (value.max >= 0 && value.max <= 60000000)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureAutoMax", value.max);
+                }
+                if (value.min >= 0 && value.min <= 60000000)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureAutoMin", value.min);
+                }
+                if (value.outliers >= 0 && value.outliers <= 1000)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureAutoOutliers", value.outliers);
+                }
+                if (value.rate >= 1 && value.rate <= 100)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureAutoRate", value.rate);
+                }
+                if (value.target >= 0 && value.target <= 100)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureAutoTarget", value.target);
+                }
+                if (value.value >= 0 && value.value <= 60000000)
+                {
+                    Pv.AttrUint32Set(camera.Value, "ExposureValue", value.value);
+                }
             }
         }
 
@@ -494,7 +715,11 @@ namespace EERIL.ControlSystem.Avt
             {
                 throw new PvException(tErr.eErrUnavailable);
             }
-            Pv.CaptureAdjustPacketSize(cameraInfo.UniqueId, MAX_PACKET_SIZE);
+            tErr err = Pv.CaptureAdjustPacketSize(cameraInfo.UniqueId, MAX_PACKET_SIZE);
+            if (err != tErr.eErrSuccess)
+            {
+                throw new PvException(err);
+            }
         }
 
         public void Close()
