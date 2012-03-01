@@ -595,7 +595,7 @@ namespace EERIL.ControlSystem.Avt
             }
         }
 
-        public void BeginCapture()
+        public void BeginCapture(tImageFormat fmt)
         {
             tErr error;
             if (!camera.HasValue)
@@ -603,9 +603,9 @@ namespace EERIL.ControlSystem.Avt
                 error = tErr.eErrUnavailable;
                 throw new PvException(error);
             }
-            //error = Pv.AttrEnumSet(this.camera.Value, "PixelFormat", "Rgb24");
-            //if (error != tErr.eErrSuccess)
-            //    goto error;
+
+            this.ImageFormat = fmt;
+
             error = Pv.CaptureStart(this.camera.Value);
             if (error != tErr.eErrSuccess)
                 goto error;

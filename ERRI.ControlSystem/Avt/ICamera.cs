@@ -27,7 +27,7 @@ namespace EERIL.ControlSystem.Avt {
         Exposure Exposure { get; set; }
         float Gamma { get; set; }
         float Hue { get; set; }
-        void BeginCapture();
+        void BeginCapture(tImageFormat fmt);
         void EndCapture();
         bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);
         bool WriteBytesToSerial(byte[] buffer);

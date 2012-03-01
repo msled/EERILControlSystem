@@ -295,7 +295,7 @@ namespace EERIL.ControlSystem.v4 {
 		public void StartVideoCapture(uint timeout) {
             this.camera.Open();
             this.camera.AdjustPacketSize();
-            this.camera.BeginCapture();
+            this.camera.BeginCapture(tImageFormat.eFmtRgb24);
 		}
 
 		public void StopVideoCapture() {

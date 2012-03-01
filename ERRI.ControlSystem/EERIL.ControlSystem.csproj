@@ -87,7 +87,11 @@
     <Compile Include="Avt\CameraSerial.cs" />
     <Compile Include="Avt\ColorTransformation.cs" />
     <Compile Include="Avt\DeviceManager.cs" />
+    <Compile Include="Avt\DSP.cs" />
+    <Compile Include="Avt\EdgeFilter.cs" />
+    <Compile Include="Avt\Exposure.cs" />
     <Compile Include="Avt\Frame.cs" />
+    <Compile Include="Avt\Gain.cs" />
     <Compile Include="Avt\GigEVision.cs" />
     <Compile Include="Avt\ICamera.cs" />
     <Compile Include="Avt\IFrame.cs" />
