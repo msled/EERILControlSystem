@@ -290,7 +290,7 @@ namespace EERIL.ControlSystem.Avt
                             lPos++;
                             
                             // take care of the padding in the destination bitmap
-                            if ((lOffset % (frame.Width * 3)) == 0)
+                            if ((lPos % (frame.Width * 3)) == 0)
                                 lPos += (UInt32)data.Stride - (frame.Width * 3);
                         }
                         return true;
