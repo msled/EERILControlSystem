@@ -14,19 +14,11 @@ namespace EERIL.ControlSystem.Avt {
         uint PermittedAccess { get; }
         string SerialString { get; }
         uint UniqueId { get; }
-        float Temperature { get; }
-        uint ImageHeight { get; set; }
-        uint ImageWidth { get; set; }
-        uint ImageDepth { get; }
-        float BytesPerPixel { get; }
-        ColorTransformation ColorTransformation { get; set; }
         DSP DSP { get; set; }
-        tImageFormat ImageFormat { get; set; }
-        EdgeFilter EdgeFilter { get; set; }
+        ImageFormat ImageFormat { get; set; }
         Gain Gain { get; set; }
         Exposure Exposure { get; set; }
-        float Gamma { get; set; }
-        float Hue { get; set; }
+        WhiteBalance WhiteBalance { get; set; }
         void BeginCapture(tImageFormat fmt);
         void EndCapture();
         bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);

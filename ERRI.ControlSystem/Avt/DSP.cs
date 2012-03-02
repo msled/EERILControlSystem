@@ -14,9 +14,9 @@ namespace EERIL.ControlSystem.Avt
 
         public DSP() {
             bottom = 4294967295;
-            left = 4294967295;
+            left = 0;
             right = 4294967295;
-            top = 4294967295;
+            top = 0;
         }
     }
 }

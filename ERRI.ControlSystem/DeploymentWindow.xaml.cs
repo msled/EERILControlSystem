@@ -50,23 +50,23 @@ namespace EERIL.ControlSystem {
 			IDeployment deployment = mission.Deployments.Create(DateTime.Parse(this.dateTimeTextBox.Text), new TextRange(this.notesRichTextBox.Document.ContentStart, this.notesRichTextBox.Document.ContentEnd).Text, Devices);
 
 
-            Controller controller = new Controller(ControllerIndex.One);
-            DashboardWindow dashboardWindow = new DashboardWindow(mission, deployment);
-            VideoDisplayWindow videoDisplayWindow;
-            Thread videoDisplayThread = new Thread(new ParameterizedThreadStart(delegate (Object args){
-                Object[] argArray = args as Object[];
-                videoDisplayWindow = new VideoDisplayWindow(argArray[0] as IMission, argArray[1] as IDeployment);
-                videoDisplayWindow.Controller = controller;
-                videoDisplayWindow.Dashboard = dashboardWindow;
-                dashboardWindow.VideoDisplay = videoDisplayWindow;
-			    videoDisplayWindow.Show();
-                System.Windows.Threading.Dispatcher.Run();
-            }));
+			Controller controller = new Controller(ControllerIndex.One);
+			DashboardWindow dashboardWindow = new DashboardWindow(mission, deployment);
+			VideoDisplayWindow videoDisplayWindow;
+			Thread videoDisplayThread = new Thread(new ParameterizedThreadStart(delegate (Object args){
+				Object[] argArray = args as Object[];
+				videoDisplayWindow = new VideoDisplayWindow(argArray[0] as IMission, argArray[1] as IDeployment);
+				videoDisplayWindow.Controller = controller;
+				videoDisplayWindow.Dashboard = dashboardWindow;
+				dashboardWindow.VideoDisplay = videoDisplayWindow;
+				videoDisplayWindow.Show();
+				System.Windows.Threading.Dispatcher.Run();
+			}));
 
-            videoDisplayThread.SetApartmentState(ApartmentState.STA);
-            videoDisplayThread.IsBackground = true;
-            videoDisplayThread.Start(new Object[] { mission, deployment, this.Owner });
-            dashboardWindow.Controller = controller;
+			videoDisplayThread.SetApartmentState(ApartmentState.STA);
+			videoDisplayThread.IsBackground = true;
+			videoDisplayThread.Start(new Object[] { mission, deployment, this.Owner });
+			dashboardWindow.Controller = controller;
 			dashboardWindow.Show();
 
 			showOwner = false;

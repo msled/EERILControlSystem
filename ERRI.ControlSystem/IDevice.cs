@@ -20,10 +20,11 @@ namespace EERIL.ControlSystem {
         IList<ISensor> Sensors { get; }
         uint Id { get; }
         string DisplayName { get; }
-        uint ImageHeight { get; }
-        uint ImageWidth { get; }
-        uint ImageDepth { get; }
-        tImageFormat ImageFormat { get; }
+        float BytesPerPixel { get; }
+        uint ImageHeight { get; set; }
+        uint ImageWidth { get; set; }
+        uint ImageDepth { get;}
+        tImageFormat PixelFormat { get; set; }
         byte HorizontalFinPosition { get; set; }
         byte VerticalFinPosition { get; set; }
         byte FinRange { get; set; }

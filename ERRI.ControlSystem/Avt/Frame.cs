@@ -278,6 +278,23 @@ namespace EERIL.ControlSystem.Avt
 
                         return true;
                     }
+                case tImageFormat.eFmtBgr24:
+                    {
+                        UInt32 lPos = 0;
+                        byte* lDst = (byte*)data.Scan0;
+
+                        while (lPos < frame.ImageBufferSize)
+                        {
+                            lDst[lPos] = buffer[lPos];
+
+                            lPos++;
+                            
+                            // take care of the padding in the destination bitmap
+                            if ((lOffset % (frame.Width * 3)) == 0)
+                                lPos += (UInt32)data.Stride - (frame.Width * 3);
+                        }
+                        return true;
+                    }
                 case tImageFormat.eFmtRgb24:
                     {
                         UInt32 lOffset = 0;
@@ -297,7 +314,6 @@ namespace EERIL.ControlSystem.Avt
                             if ((lOffset % (frame.Width * 3)) == 0)
                                 lPos += (UInt32)data.Stride - (frame.Width * 3);
                         }
-
                         return true;
                     }
                 case tImageFormat.eFmtRgb48:

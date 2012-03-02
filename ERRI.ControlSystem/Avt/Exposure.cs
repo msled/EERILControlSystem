@@ -31,17 +31,18 @@ namespace EERIL.ControlSystem.Avt
         public uint target;
         public uint value;
 
-        public Exposure() // TODO: Need to change default values to match camera defaults
+        public Exposure(
+            )
         {
             algorithm = ExposureAlgorithm.Mean;
             mode = ExposureMode.Manual;
-            tolerance = 0;
-            max = 0;
-            min = 0;
+            tolerance = 5;
+            max = 500000;
+            min = 8;
             outliers = 0;
-            rate = 0;
-            target = 0;
-            value = 0;
+            rate = 100;
+            target = 50;
+            value = 15000;
         }
     }
 }

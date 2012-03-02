@@ -18,7 +18,6 @@ namespace EERIL.ControlSystem.Avt
         private GCHandle[] framePoolHandles;
         private tFrame[] frames;
         private const int FRAME_POOL_SIZE = 10;
-        private const int FULL_BIT_DEPTH = 12; // ADC max res. = 12 for Prosilica GC1380
         private const UInt32 MAX_PACKET_SIZE = 16456;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
@@ -108,160 +107,11 @@ namespace EERIL.ControlSystem.Avt
             get { return camera.Value; }
         }
 
-        public float Temperature
+        public ImageFormat ImageFormat
         {
             get
             {
-                float value = 0;
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrFloat32Get(camera.Value, "DeviceTemperatureMainboard", ref value);
-                return value;
-            }
-        }
-
-        public uint ImageHeight
-        {
-            get
-            {
-                uint value = 0;
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrUint32Get(camera.Value, "Height", ref value);
-                return value;
-            }
-            set
-            {
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                if (value >= 1)
-                {
-                    Pv.AttrUint32Set(camera.Value, "Height", value);
-                }
-            }
-        }
-
-        public uint ImageWidth
-        {
-            get
-            {
-                uint value = 0;
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrUint32Get(camera.Value, "Width", ref value);
-                return value;
-            }
-            set
-            {
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                if (value >= 1)
-                {
-                    Pv.AttrUint32Set(camera.Value, "Width", value);
-                }
-            }
-        }
-
-        public uint ImageDepth
-        {
-            get
-            {
-                uint value = 0;
-                switch (ImageFormat)
-                {
-                    case tImageFormat.eFmtMono8:
-                    case tImageFormat.eFmtBayer8:
-                    case tImageFormat.eFmtRgb24:
-                    case tImageFormat.eFmtBgr24:
-                    case tImageFormat.eFmtYuv411:
-                    case tImageFormat.eFmtYuv422:
-                    case tImageFormat.eFmtYuv444:
-                    case tImageFormat.eFmtRgba32:
-                    case tImageFormat.eFmtBgra32:
-                        value = 8;
-                        break;
-
-                    case tImageFormat.eFmtMono12Packed:
-                    case tImageFormat.eFmtBayer12Packed:
-                        value = 12;
-                        break;
-
-                    case tImageFormat.eFmtMono16:
-                    case tImageFormat.eFmtBayer16:
-                    case tImageFormat.eFmtRgb48:
-                        value = FULL_BIT_DEPTH; // depends on hardware
-                        break;
-
-                    default:
-                        value = 0;
-                        break;
-                }
-                return value;
-            }
-        }
-
-        public float BytesPerPixel
-        {
-            get
-            {
-                float value = 0;
-                switch (ImageFormat)
-                {
-                    case tImageFormat.eFmtMono8:
-                    case tImageFormat.eFmtBayer8:
-                        value = 1;
-                        break;
-
-                    case tImageFormat.eFmtYuv411:
-                    case tImageFormat.eFmtMono12Packed:
-                    case tImageFormat.eFmtBayer12Packed:
-                        value = 1;
-                        break;
-
-                    case tImageFormat.eFmtMono16:
-                    case tImageFormat.eFmtBayer16:
-                    case tImageFormat.eFmtYuv422:
-                        value = 2;
-                        break;
-
-                    case tImageFormat.eFmtRgb24:
-                    case tImageFormat.eFmtBgr24:
-                    case tImageFormat.eFmtYuv444:
-                        value = 3;
-                        break;
-
-                    case tImageFormat.eFmtRgba32:
-                    case tImageFormat.eFmtBgra32:
-                        value = 4;
-                        break;
-
-                    case tImageFormat.eFmtRgb48:
-                        value = 6;
-                        break;
-
-                    default:
-                        value = 0;
-                        break;
-                }
-                return value;
-            }
-        }
-
-        public tImageFormat ImageFormat
-        {
-            get
-            {
-                tImageFormat value = 0;
+                ImageFormat value = new ImageFormat();
                 StringBuilder buffer = new StringBuilder(16);
                 uint read = 0;
                 if (!camera.HasValue)
@@ -269,7 +119,12 @@ namespace EERIL.ControlSystem.Avt
                     throw new PvException(tErr.eErrUnavailable);
                 }
                 Pv.AttrEnumGet(camera.Value, "PixelFormat", buffer, 16, ref read);
-                value = (tImageFormat)Enum.Parse(typeof(tImageFormat), buffer.ToString().Substring(4, buffer.Length - 4), true); // parse without "eFmt" in positions 0-3
+                value.pixelformat = (tImageFormat)Enum.Parse(typeof(tImageFormat), buffer.Insert(0, "eFmt").ToString(), true); // prepend "eFmt" in positions 0-3
+                Pv.AttrUint32Get(camera.Value, "Height", ref value.height);
+                Pv.AttrUint32Get(camera.Value, "RegionX", ref value.regionx);
+                Pv.AttrUint32Get(camera.Value, "RegionY", ref value.regiony);
+                Pv.AttrUint32Get(camera.Value, "Width", ref value.width);
+                Pv.AttrUint32Get(camera.Value, "TotalBytesPerFrame", ref value.bytesperframe);
                 return value;
             }
             set
@@ -278,76 +133,22 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                Pv.AttrUint32Set(camera.Value, "PixelFormat", (uint)value);
-            }
-        }
-
-        public ColorTransformation ColorTransformation
-        {
-            get
-            {
-                ColorTransformation value = new ColorTransformation();
-                StringBuilder buffer = new StringBuilder(16);
-                uint read = 0;
-                if (!camera.HasValue)
+                Pv.AttrEnumSet(camera.Value, "PixelFormat", value.pixelformat.ToString().Substring(4)); // remove "eFmt" in position 0-3
+                if (value.height >= 1)
                 {
-                    throw new PvException(tErr.eErrUnavailable);
+                    Pv.AttrUint32Set(camera.Value, "Height", value.height);
                 }
-                Pv.AttrEnumGet(camera.Value, "ColorTransformationMode", buffer, 16, ref read);
-                value.mode = (ColorTransformationMode)Enum.Parse(typeof(ColorTransformationMode), buffer.ToString(), true);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRR", ref value.values[0][0]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRG", ref value.values[0][1]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueRB", ref value.values[0][2]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGR", ref value.values[1][0]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGG", ref value.values[1][1]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueGB", ref value.values[1][2]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBR", ref value.values[2][0]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBG", ref value.values[2][1]);
-                Pv.AttrFloat32Get(camera.Value, "ColorTransformationValueBB", ref value.values[2][2]);
-                return value;
-            }
-            set
-            {
-                if (!camera.HasValue)
+                if (value.regionx >= 0)
                 {
-                    throw new PvException(tErr.eErrUnavailable);
+                    Pv.AttrUint32Set(camera.Value, "RegionX", value.regionx);
                 }
-                Pv.AttrUint32Set(camera.Value, "ColorTransformationMode", (uint)value.mode);
-                if (value.values[0][0] >= 0.0 && value.values[0][0] <= 2.0)
+                if (value.regiony >= 0)
                 {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRR", value.values[0][0]);
+                    Pv.AttrUint32Set(camera.Value, "RegionY", value.regiony);
                 }
-                if (value.values[0][1] >= 0.0 && value.values[0][1] <= 2.0)
+                if (value.width >= 1)
                 {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRG", value.values[0][1]);
-                }
-                if (value.values[0][2] >= 0.0 && value.values[0][2] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueRB", value.values[0][2]);
-                }
-                if (value.values[1][0] >= 0.0 && value.values[1][0] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGR", value.values[1][0]);
-                }
-                if (value.values[1][1] >= 0.0 && value.values[1][1] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGG", value.values[1][1]);
-                }
-                if (value.values[1][2] >= 0.0 && value.values[1][2] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueGB", value.values[1][2]);
-                }
-                if (value.values[2][0] >= 0.0 && value.values[2][0] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBR", value.values[2][0]);
-                }
-                if (value.values[2][1] >= 0.0 && value.values[2][1] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBG", value.values[2][1]);
-                }
-                if (value.values[2][2] >= 0.0 && value.values[2][2] <= 2.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "ColorTransformationValueBB", value.values[2][2]);
+                    Pv.AttrUint32Set(camera.Value, "Width", value.width);
                 }
             }
         }
@@ -388,81 +189,6 @@ namespace EERIL.ControlSystem.Avt
                 if (value.bottom >= 0 && value.bottom <= 4294967295)
                 {
                     Pv.AttrUint32Set(camera.Value, "DSPSubregionTop", value.top);
-                }
-            }
-        }
-
-        public EdgeFilter EdgeFilter
-        {
-            get
-            {
-                EdgeFilter value = EdgeFilter.Off;
-                StringBuilder buffer = new StringBuilder(16);
-                uint read = 0;
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrEnumGet(camera.Value, "EdgeFilter", buffer, 16, ref read);
-                value = (EdgeFilter)Enum.Parse(typeof(EdgeFilter), buffer.ToString(), true);
-                return value;
-            }
-            set
-            {
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrEnumSet(camera.Value, "EdgeFilter", value.ToString());
-            }
-        }
-
-        public float Gamma
-        {
-            get
-            {
-                float value = 0;
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrFloat32Get(camera.Value, "Gamma", ref value);
-                return value;
-            }
-            set
-            {
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                if (value >= 0.25 && value <= 3.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "Gamma", value);
-                }
-            }
-        }
-
-        public float Hue
-        {
-            get
-            {
-                float value = 0;
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                Pv.AttrFloat32Get(camera.Value, "Hue", ref value);
-                return value;
-            }
-            set
-            {
-                if (!camera.HasValue)
-                {
-                    throw new PvException(tErr.eErrUnavailable);
-                }
-                if (value >= -40.0 && value <= 40.0)
-                {
-                    Pv.AttrFloat32Set(camera.Value, "Hue", value);
                 }
             }
         }
@@ -525,6 +251,53 @@ namespace EERIL.ControlSystem.Avt
                 if (value.value >= 0)
                 {
                     Pv.AttrUint32Set(camera.Value, "GainValue", value.value);
+                }
+            }
+        }
+
+        public WhiteBalance WhiteBalance
+        {
+            get
+            {
+                StringBuilder buffer = new StringBuilder(16);
+                WhiteBalance value = new WhiteBalance();
+                uint read = 0;
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+
+                Pv.AttrEnumGet(camera.Value, "WhitebalMode", buffer, 16, ref read);
+                value.mode = (WhiteBalanceMode)Enum.Parse(typeof(WhiteBalanceMode), buffer.ToString(), true);
+                Pv.AttrUint32Get(camera.Value, "WhitebalAutoAdjustTol", ref value.tolerance);
+                Pv.AttrUint32Get(camera.Value, "WhitebalAutoRate", ref value.rate);
+                Pv.AttrUint32Get(camera.Value, "WhitebalValueRed", ref value.red);
+                Pv.AttrUint32Get(camera.Value, "WhitebalValueBlue", ref value.blue);
+                return value;
+            }
+            set
+            {
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+
+                Pv.AttrEnumSet(camera.Value, "WhitebalMode", value.mode.ToString());
+                if (value.tolerance >= 0 && value.tolerance <= 50)
+                {
+                    Pv.AttrUint32Set(camera.Value, "WhitebalAutoAdjustTol", value.tolerance);
+                }          
+                if (value.rate >= 1 && value.rate <= 100)
+                {
+                    Pv.AttrUint32Set(camera.Value, "WhitebalAutoRate", value.rate);
+                }
+                if (value.red >= 0)
+                {
+                    Pv.AttrUint32Set(camera.Value, "WhitebalValueRed", value.red);
+                }
+                if (value.blue >= 0)
+                {
+                    Pv.AttrUint32Set(camera.Value, "WhitebalValueBlue", value.blue);
                 }
             }
         }
@@ -604,7 +377,9 @@ namespace EERIL.ControlSystem.Avt
                 throw new PvException(error);
             }
 
-            this.ImageFormat = fmt;
+            ImageFormat i = this.ImageFormat;
+            i.pixelformat = fmt;
+            this.ImageFormat = i;
 
             error = Pv.CaptureStart(this.camera.Value);
             if (error != tErr.eErrSuccess)
@@ -715,7 +490,7 @@ namespace EERIL.ControlSystem.Avt
             {
                 throw new PvException(tErr.eErrUnavailable);
             }
-            tErr err = Pv.CaptureAdjustPacketSize(cameraInfo.UniqueId, MAX_PACKET_SIZE);
+            tErr err = Pv.CaptureAdjustPacketSize(camera.Value, MAX_PACKET_SIZE);
             if (err != tErr.eErrSuccess)
             {
                 throw new PvException(err);
