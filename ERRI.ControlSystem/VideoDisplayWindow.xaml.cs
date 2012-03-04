@@ -284,7 +284,7 @@ namespace EERIL.ControlSystem {
 			if (message.Length > 2)
 			{
 				int checksum = 0, messageChecksum = 0;
-				for (int i = 0, l = message.Length; i < l - 2; i++)
+                for (int i = 0; i < message.Length - 2; i++)
 				{
 					checksum += message[i];
 				}

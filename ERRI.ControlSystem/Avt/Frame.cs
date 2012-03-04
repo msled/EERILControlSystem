@@ -123,7 +123,7 @@ namespace EERIL.ControlSystem.Avt
         {
             Bitmap bitmap = new Bitmap((int)frame.Width, (int)frame.Height, PixelFormat.Format24bppRgb);
             Rectangle rect = new Rectangle(new Point(0, 0), new Size((int)frame.Width, (int)frame.Height));
-            BitmapData data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            BitmapData data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
             if (!Frame2Data(ref frame, ref buffer, ref data))
             {

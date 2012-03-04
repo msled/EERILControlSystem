@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:local="clr-namespace:EERIL.ControlSystem"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Video Display" Height="489" Width="612" Closed="WindowClosed" Background="White">
+        Title="Video Display" Height="489" Width="612" Closed="WindowClosed" Background="White" WindowStartupLocation="CenterScreen" SizeToContent="WidthAndHeight">
         <Grid Name="canvas" Background="Black">
-        <Image Name="videoImage" Width="{Binding ActualWidth, ElementName=canvas}" Stretch="None" />
+        <Image Name="videoImage" Width="{Binding ActualWidth, ElementName=canvas}" Stretch="None" IsHitTestVisible="False" />
         <my:HeadsUpDisplay Name="headsUpDisplay" Width="{Binding ActualWidth, ElementName=canvas}" Height="{Binding ActualHeight, ElementName=canvas}" />
         </Grid>
 </Window>
