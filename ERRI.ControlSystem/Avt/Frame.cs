@@ -194,12 +194,13 @@ namespace EERIL.ControlSystem.Avt
                         UInt32 lOffset = 0;
                         UInt32 lPos = 0;
                         byte* lDst = (byte*)data.Scan0;
+                        byte* lSrc = (byte*)frame.ImageBuffer;
 
                         while (lOffset < frame.ImageBufferSize)
                         {
-                            lDst[lPos] = buffer[lOffset];
-                            lDst[lPos + 1] = buffer[lOffset];
-                            lDst[lPos + 2] = buffer[lOffset];
+                            lDst[lPos] = lSrc[lOffset];
+                            lDst[lPos + 1] = lSrc[lOffset];
+                            lDst[lPos + 2] = lSrc[lOffset];
 
                             lOffset++;
                             lPos += 3;
@@ -282,13 +283,14 @@ namespace EERIL.ControlSystem.Avt
                     {
                         UInt32 lPos = 0;
                         byte* lDst = (byte*)data.Scan0;
+                        byte* lSrc = (byte*)frame.ImageBuffer;
 
-                        while (lPos < frame.ImageBufferSize)
+                        while (lPos < (frame.ImageBufferSize / sizeof(long)))
                         {
-                            lDst[lPos] = buffer[lPos];
+                            // copy the data
+                            lDst[lPos] = lSrc[lPos];
 
-                            lPos++;
-                            
+                            lPos += 1;
                             // take care of the padding in the destination bitmap
                             if ((lPos % (frame.Width * 3)) == 0)
                                 lPos += (UInt32)data.Stride - (frame.Width * 3);
@@ -300,13 +302,14 @@ namespace EERIL.ControlSystem.Avt
                         UInt32 lOffset = 0;
                         UInt32 lPos = 0;
                         byte* lDst = (byte*)data.Scan0;
+                        byte* lSrc = (byte*)frame.ImageBuffer;
 
                         while (lOffset < frame.ImageBufferSize)
                         {
                             // copy the data
-                            lDst[lPos] = buffer[lOffset + 2];
-                            lDst[lPos + 1] = buffer[lOffset + 1];
-                            lDst[lPos + 2] = buffer[lOffset];
+                            lDst[lPos] = lSrc[lOffset + 2];
+                            lDst[lPos + 1] = lSrc[lOffset + 1];
+                            lDst[lPos + 2] = lSrc[lOffset];
 
                             lOffset += 3;
                             lPos += 3;

@@ -56,8 +56,11 @@ namespace EERIL.DeviceControls
         private FormattedText thrustFormattedText;
         private float voltage;
         private FormattedText voltageFormattedText;
+        private float fps;
+        private FormattedText fpsFormattedText;
         private double yawOffset;
         private byte Scale { get; set; }
+       
 
         public double Roll
         {
@@ -145,6 +148,16 @@ namespace EERIL.DeviceControls
             }
         }
 
+        public float FPS
+        {
+            get { return fps; }
+            set
+            {
+                fps = value;
+                InvalidateVisual();
+            }
+        }
+
         protected override void OnRender(DrawingContext context)
         {
             base.OnRender(context);
@@ -156,6 +169,7 @@ namespace EERIL.DeviceControls
             RenderGauge(context, Math.Round(Temperature, 2), 1, temperatureFormattedText);
             RenderGauge(context, Math.Round(Humidity, 2), 2, humidityFormattedText);
             RenderGauge(context, Thrust, 5, thrustFormattedText);
+            RenderGauge(context, Math.Round(FPS, 2), 6, fpsFormattedText);
             RenderGauge(context, Math.Round(Voltage, 2), 8, voltageFormattedText);
             RenderGauge(context, Math.Round(Current, 2), 9, currentFormattedText);
             RenderCompass(context);
@@ -326,6 +340,11 @@ namespace EERIL.DeviceControls
                                       {
                                           TextAlignment = TextAlignment.Center
                                       };
+            fpsFormattedText = new FormattedText("FPS", CultureInfo.CurrentUICulture,
+                                                    FlowDirection.LeftToRight, new Typeface("Courier"), fontSize, brush)
+            {
+                TextAlignment = TextAlignment.Center
+            };
             falseHorizon = new GeometryGroup
                                {
                                    Children = new GeometryCollection

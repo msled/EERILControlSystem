@@ -166,6 +166,7 @@ namespace EERIL.ControlSystem {
 				}
 				return null;
 			}), null);
+
 		}
 
 		void ControllerTriggerStateChanged(Trigger trigger, bool pressed)
@@ -284,7 +285,7 @@ namespace EERIL.ControlSystem {
 			if (message.Length > 2)
 			{
 				int checksum = 0, messageChecksum = 0;
-                for (int i = 0; i < message.Length - 2; i++)
+				for (int i = 0; i < message.Length - 2; i++)
 				{
 					checksum += message[i];
 				}
@@ -297,6 +298,10 @@ namespace EERIL.ControlSystem {
 
 		void DeviceFrameReady(object sender, IFrame frame)
 		{
+			System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+			watch.Reset();
+			watch.Start();
+
 			BitmapSource source = frame.ToBitmapSource();
 			videoImage.Source = source;
 			if (captureFrame)
@@ -310,6 +315,8 @@ namespace EERIL.ControlSystem {
 				Deployment.RecordFrame(sender as IDevice, frame);
 			}
 			frame.Dispose();
+			watch.Stop();
+			headsUpDisplay.FPS = ((1000 / watch.ElapsedMilliseconds) + headsUpDisplay.FPS) / 2;
 		}
 
 		private void WindowClosed(object sender, EventArgs e) {
