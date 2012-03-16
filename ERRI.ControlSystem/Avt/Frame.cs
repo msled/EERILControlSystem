@@ -285,7 +285,7 @@ namespace EERIL.ControlSystem.Avt
                         byte* lDst = (byte*)data.Scan0;
                         byte* lSrc = (byte*)frame.ImageBuffer;
 
-                        while (lPos < (frame.ImageBufferSize / sizeof(long)))
+                        while (lPos < frame.ImageBufferSize)
                         {
                             // copy the data
                             lDst[lPos] = lSrc[lPos];
