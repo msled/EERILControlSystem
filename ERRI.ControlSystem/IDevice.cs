@@ -24,6 +24,7 @@ namespace EERIL.ControlSystem {
         uint ImageHeight { get; set; }
         uint ImageWidth { get; set; }
         uint ImageDepth { get;}
+        float FrameRate { get; set; }
         tImageFormat PixelFormat { get; set; }
         byte HorizontalFinPosition { get; set; }
         byte VerticalFinPosition { get; set; }

@@ -41,10 +41,10 @@ namespace EERIL.ControlSystem {
 			this.Close();
 		}
 
-        private void beginButton_Click(object sender, RoutedEventArgs e)
-        {
-            ITest test = testTreeView.SelectedItem as ITest;
-            test.Begin();
-        }
+		private void beginButton_Click(object sender, RoutedEventArgs e)
+		{
+			ITest test = testTreeView.SelectedItem as ITest;
+			test.Begin();
+		}
 	}
 }

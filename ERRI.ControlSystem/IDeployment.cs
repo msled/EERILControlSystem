@@ -9,6 +9,7 @@ namespace EERIL.ControlSystem {
 		DateTime DateTime { get; }
 		string Notes { get; set; }
 		IList<IDevice> Devices { get; }
-	    void RecordFrame(IDevice device, IFrame frame);
+		void RecordFrame(IDevice device, IFrame frame);
+		void Dispose();
 	}
 }

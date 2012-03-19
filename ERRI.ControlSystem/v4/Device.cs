@@ -93,6 +93,18 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
+		public float FrameRate
+		{
+			get
+			{
+				return this.camera.FrameRate;
+			}
+			set
+			{
+				this.camera.FrameRate = value;
+			}
+		}
+
 		public tImageFormat PixelFormat
 		{
 			get {
@@ -261,7 +273,7 @@ namespace EERIL.ControlSystem.v4 {
 			{
 				result = (byte)(FinRange + 90);
 			}
-			else if (adjustedValue < (invertedRange = FinRange * -1))
+			else if (adjustedValue < (invertedRange = FinRange * -1))   
 			{
 				result = (byte)(invertedRange + 90);
 			} else

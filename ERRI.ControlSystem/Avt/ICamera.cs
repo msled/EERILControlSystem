@@ -14,6 +14,7 @@ namespace EERIL.ControlSystem.Avt {
         uint PermittedAccess { get; }
         string SerialString { get; }
         uint UniqueId { get; }
+        float FrameRate { get; set; }
         DSP DSP { get; set; }
         ImageFormat ImageFormat { get; set; }
         Gain Gain { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Media.Imaging;
 using PvNET;
 
@@ -16,6 +17,7 @@ namespace EERIL.ControlSystem.Avt {
         uint Size { get; }
         long Timestamp { get; }
         uint Width { get; }
+        Bitmap ToBitmap();
         BitmapSource ToBitmapSource();
     }
 }

@@ -16,6 +16,7 @@ namespace EERIL.ControlSystem.Avt
         [DllImport("gdi32.dll")]
         private static extern bool DeleteObject(IntPtr hObject);
 
+        private Bitmap bitmap;
         private readonly IntPtr framePointer;
         private readonly Camera camera;
         private bool disposed;
@@ -121,15 +122,18 @@ namespace EERIL.ControlSystem.Avt
 
         public Bitmap ToBitmap()
         {
-            Bitmap bitmap = new Bitmap((int)frame.Width, (int)frame.Height, PixelFormat.Format24bppRgb);
-            Rectangle rect = new Rectangle(new Point(0, 0), new Size((int)frame.Width, (int)frame.Height));
-            BitmapData data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
-
-            if (!Frame2Data(ref frame, ref buffer, ref data))
+            if (bitmap == null)
             {
-                throw new PvException(tErr.eErrWrongType);
+                bitmap = new Bitmap((int)frame.Width, (int)frame.Height, PixelFormat.Format24bppRgb);
+                Rectangle rect = new Rectangle(new Point(0, 0), new Size((int)frame.Width, (int)frame.Height));
+                BitmapData data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
+
+                if (!Frame2Data(ref frame, ref buffer, ref data))
+                {
+                    throw new PvException(tErr.eErrWrongType);
+                }
+                bitmap.UnlockBits(data);
             }
-            bitmap.UnlockBits(data);
             return bitmap;
         }
 
@@ -142,7 +146,6 @@ namespace EERIL.ControlSystem.Avt
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
             DeleteObject(hbitmap);
-            bitmap.Dispose();
             return source;
         }
 
@@ -167,6 +170,10 @@ namespace EERIL.ControlSystem.Avt
             if (!disposed)
             {
                 camera.ReleaseFrame(framePointer);
+                if (bitmap != null)
+                {
+                    bitmap.Dispose();
+                }
                 disposed = true;
             }
         }

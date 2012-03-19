@@ -136,7 +136,7 @@ namespace EERIL.ControlSystem {
 			}
 
 			headsUpDisplay.YawOffset = Settings.Default.YawOffset;
-			this.Dispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate
+			this.Dispatcher.BeginInvoke(DispatcherPriority.Render, new DispatcherOperationCallback(delegate
 																													 {
 				if (deployment.Devices.Count > 0) {
 					IDevice device = deployment.Devices[0];
@@ -320,6 +320,7 @@ namespace EERIL.ControlSystem {
 		}
 
 		private void WindowClosed(object sender, EventArgs e) {
+			Deployment.Dispose();
 			Dashboard.Dispatcher.Invoke(
 				DispatcherPriority.Normal,
 				new Action( () => Dashboard.Close()));

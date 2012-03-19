@@ -107,6 +107,28 @@ namespace EERIL.ControlSystem.Avt
             get { return camera.Value; }
         }
 
+        public float FrameRate
+        {
+            get
+            {
+                float value = 0;
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+                Pv.AttrFloat32Get(camera.Value, "FrameRate", ref value);
+                return value;
+            }
+            set
+            {
+                if (!camera.HasValue)
+                {
+                    throw new PvException(tErr.eErrUnavailable);
+                }
+                Pv.AttrFloat32Set(camera.Value, "FrameRate", value);
+            }
+        }
+
         public ImageFormat ImageFormat
         {
             get
@@ -286,7 +308,7 @@ namespace EERIL.ControlSystem.Avt
                 if (value.tolerance >= 0 && value.tolerance <= 50)
                 {
                     Pv.AttrUint32Set(camera.Value, "WhitebalAutoAdjustTol", value.tolerance);
-                }          
+                }
                 if (value.rate >= 1 && value.rate <= 100)
                 {
                     Pv.AttrUint32Set(camera.Value, "WhitebalAutoRate", value.rate);
@@ -377,9 +399,7 @@ namespace EERIL.ControlSystem.Avt
                 throw new PvException(error);
             }
 
-            ImageFormat i = this.ImageFormat;
-            i.pixelformat = fmt;
-            this.ImageFormat = i;
+            this.ImageFormat.pixelformat = fmt;
 
             error = Pv.CaptureStart(this.camera.Value);
             if (error != tErr.eErrSuccess)
@@ -417,9 +437,7 @@ namespace EERIL.ControlSystem.Avt
                 if (error != tErr.eErrSuccess)
                     goto error;
             }
-            error = Pv.AttrFloat32Set(this.camera.Value, "FrameRate", 15);
-            if (error != tErr.eErrSuccess)
-                goto error;
+            this.FrameRate = 15;
             error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "FixedRate");
             if (error != tErr.eErrSuccess)
                 goto error;
