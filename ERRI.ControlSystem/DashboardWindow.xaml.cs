@@ -52,7 +52,7 @@ namespace EERIL.ControlSystem {
 
 		void VideoDisplayWindowBitmapFrameCaptured(BitmapFrame frame)
 		{
-			throw new NotImplementedException();
+			return;
 		}
 
 		private IDeployment Deployment {

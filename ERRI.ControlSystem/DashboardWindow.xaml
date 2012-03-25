@@ -20,7 +20,7 @@
                 </ComboBox>
             </StackPanel>
             <StackPanel Name="IlluminationPanel" Width="200" Orientation="Horizontal">
-            <Label Name="illuminationLabel" Content="State:" Height="28" />
+            <Label Name="illuminationLabel" Content="Illumination:" Height="28" />
             <Slider Height="23" Name="illuminationSlider" Width="145" Minimum="0" Maximum="255" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=illumination}" />
         </StackPanel>

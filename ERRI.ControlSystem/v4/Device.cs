@@ -22,8 +22,8 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly Settings settings = Settings.Default;
 		private readonly List<byte> buffer = new List<byte>();
 		private bool isImuActive = false;
-		private byte horizontalFinPosition;
-		private byte verticalFinPosition;
+		private byte horizontalFinPosition = 90;
+		private byte verticalFinPosition = 90;
 		private byte topFinOffset = 0;
 		private byte rightFinOffset = 0;
 		private byte bottomFinOffset = 0;

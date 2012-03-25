@@ -194,6 +194,18 @@ namespace EERIL.ControlSystem {
 						headsUpDisplay.Visibility = headsUpDisplay.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
 					}
 					break;
+				case Button.A:
+					if (pressed)
+					{
+						deviceManager.ActiveDevice.Illumination = 255;
+					}
+					break;
+				case Button.B:
+					if (pressed)
+					{
+						deviceManager.ActiveDevice.Illumination = 128;
+					}
+					break;
 			}
 		}
 
