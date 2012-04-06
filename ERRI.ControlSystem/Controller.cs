@@ -16,7 +16,7 @@ namespace EERIL.ControlSystem
     public delegate void TriggerStateChangedHandler(Trigger trigger, bool pressed);
     public enum Button
     {
-        Y, A, B
+        X, Y, A, B
     }
     public enum Trigger
     {

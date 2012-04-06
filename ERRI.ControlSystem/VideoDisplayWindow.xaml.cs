@@ -203,7 +203,7 @@ namespace EERIL.ControlSystem {
 				case Button.B:
 					if (pressed)
 					{
-						deviceManager.ActiveDevice.Illumination = 128;
+						deviceManager.ActiveDevice.Illumination = 0;
 					}
 					break;
 			}

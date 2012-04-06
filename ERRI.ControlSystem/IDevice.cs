@@ -28,6 +28,7 @@ namespace EERIL.ControlSystem {
         tImageFormat PixelFormat { get; set; }
         byte HorizontalFinPosition { get; set; }
         byte VerticalFinPosition { get; set; }
+        byte FocusPosition { get; set; }
         byte FinRange { get; set; }
         byte TopFinOffset { get; set; }
         byte RightFinOffset { get; set; }

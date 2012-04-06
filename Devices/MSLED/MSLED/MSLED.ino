@@ -6,48 +6,59 @@ const long IMU_BAUD = 115200, SURFACE_BAUD = 115200, LOGGER_BAUD = 115200;
 
 //Note that if the Buoyancy motor is ever changed from PJ6, changing BUOYANCY_ENABLE may affect all DDRJ and PORTJ entries which will include some serial ports. If it is moved to a standard arduino pin, DDRJ and PORTJ entries may be removed.
 const int VERSION_MAJOR     = 4,
-          VERSION_MINOR     = 0,
-          
-          //BUOYANCY_ENABLE   = B01000000, // sets DDRJ6 HIGH
-          //V5_FLAG           = B10111111, // sets PORTJ5
-          //IMU_BUFFER_LENGTH = 25,
-          
-          BUFFER_LENGTH     = 10,
-          
-          TEMPERATURE_POWER = 5,  // PE3, 5
-          FIBER_TRANS_POWER = 10, // PB4, 23
-          LED_POWER         = 13, // PB7, 26
-          VERTICAL_POWER    = 26, // PA4, 74
-          HORIZONTAL_POWER  = 27, // PA5, 73
-          //BUOYANCY_POWER  = PJ6
-          //OLOG_RESET      = PJ2
-                    
-          BUOYANCY_PIN      = 2,  // PE4, 6
-          LED_DIMMER_PIN    = 9,  // PH6, 18
-          BOTTOM_FIN_PIN    = 11, // PB5, 24
-          THRUST_PIN        = 12, // PB6, 25
-          LEFT_FIN_PIN      = 44, // PL5, 40
-          TOP_FIN_PIN       = 45, // PL4, 39
-          RIGHT_FIN_PIN     = 46, // PL3, 38
-          
-          TEMPERATURE_PIN   = A5, // (59) PF5, 92
-          HUMIDITY_PIN      = A6, // (60) PF6, 91
-          CURRENT_PIN       = A7, // (61) PF7, 90
-          VOLTAGE_PIN       = A15,// (69) PK7, 82
+VERSION_MINOR     = 0,
 
-          IMU_READ_FIRMWARE_VERSION_COMMAND_CODE = 0xE9,
-          IMU_READ_SENSOR_DATA_COMMAND_CODE      = 0xCC,
-          IMU_CONTINUOUS_COMMAND_CODE            = 0xC4,
-          IMU_MODE_COMMAND_CODE                  = 0xD4,
-          IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE  = 0xFA;
-          //IMU_DEVICE_RESET_COMMAND_CODE        = 0xFE;
+//BUOYANCY_ENABLE   = B01000000, // sets DDRJ6 HIGH
+//V5_FLAG           = B10111111, // sets PORTJ5
+//IMU_BUFFER_LENGTH = 25,
 
-const byte IMU_CONTINUOUS_COMMAND[]             = {IMU_CONTINUOUS_COMMAND_CODE, 0xC1, 0x29, IMU_READ_SENSOR_DATA_COMMAND_CODE},
-            IMU_STOP_CONTINUOUS_MODE_COMMAND[]  = {IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE, 0x75, 0xB4},
-            IMU_CONTINUOUS_MODE_COMMAND[]       = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x2},
-            IMU_SLEEP_MODE_COMMAND[]            = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x4},
-            IMU_DEEP_SLEEP_MODE_COMMAND[]       = {IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x5};
-          //IMU_DEVICE_RESET_COMMAND[]          = {IMU_DEVICE_RESET_COMMAND_CODE, 0x9E, 0x3A};
+BUFFER_LENGTH     = 10,
+
+TEMPERATURE_POWER = 5,  // PE3, 5
+FIBER_TRANS_POWER = 10, // PB4, 23
+LED_POWER         = 13, // PB7, 26
+VERTICAL_POWER    = 26, // PA4, 74
+HORIZONTAL_POWER  = 27, // PA5, 73
+//FOCUS_POWER      = ?
+//BUOYANCY_POWER  = PJ6
+//OLOG_RESET      = PJ2
+
+BUOYANCY_PIN      = 2,  // PE4, 6
+LED_DIMMER_PIN    = 9,  // PH6, 18
+BOTTOM_FIN_PIN    = 11, // PB5, 24
+THRUST_PIN        = 12, // PB6, 25
+LEFT_FIN_PIN      = 44, // PL5, 40
+TOP_FIN_PIN       = 45, // PL4, 39
+RIGHT_FIN_PIN     = 46, // PL3, 38
+//FOCUS_PIN        = ?
+
+TEMPERATURE_PIN   = A5, // (59) PF5, 92
+HUMIDITY_PIN      = A6, // (60) PF6, 91
+CURRENT_PIN       = A7, // (61) PF7, 90
+VOLTAGE_PIN       = A15,// (69) PK7, 82
+
+IMU_READ_FIRMWARE_VERSION_COMMAND_CODE = 0xE9,
+IMU_READ_SENSOR_DATA_COMMAND_CODE      = 0xCC,
+IMU_CONTINUOUS_COMMAND_CODE            = 0xC4,
+IMU_MODE_COMMAND_CODE                  = 0xD4,
+IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE  = 0xFA;
+//IMU_DEVICE_RESET_COMMAND_CODE        = 0xFE;
+
+const byte IMU_CONTINUOUS_COMMAND[]             = {
+  IMU_CONTINUOUS_COMMAND_CODE, 0xC1, 0x29, IMU_READ_SENSOR_DATA_COMMAND_CODE}
+,
+IMU_STOP_CONTINUOUS_MODE_COMMAND[]  = {
+  IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE, 0x75, 0xB4}
+,
+IMU_CONTINUOUS_MODE_COMMAND[]       = {
+  IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x2}
+,
+IMU_SLEEP_MODE_COMMAND[]            = {
+  IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x4}
+,
+IMU_DEEP_SLEEP_MODE_COMMAND[]       = {
+  IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x5};
+//IMU_DEVICE_RESET_COMMAND[]          = {IMU_DEVICE_RESET_COMMAND_CODE, 0x9E, 0x3A};
 
 unsigned long lastRamp = 0, lastSensor = 0, time, lastCommand = 0, heartbeatThreshhold = 150;
 
@@ -61,7 +72,7 @@ byte imuBuffer[128], sensorBuffer[17], thrustBuffer[3];
 
 boolean imu = false, logger = false, imuLog = true, sensorDataRead = false, ramping = false;
 
-Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster;
+Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster, focus;
 
 union f2ba{
   byte array[4];
@@ -81,11 +92,13 @@ void setup(){
   rightFin.attach(RIGHT_FIN_PIN);
   bottomFin.attach(BOTTOM_FIN_PIN);
   leftFin.attach(LEFT_FIN_PIN);
+  focus.attach(FOCUS_PIN);
   pinMode(LED_POWER, OUTPUT);
   pinMode(VERTICAL_POWER, OUTPUT);
   pinMode(HORIZONTAL_POWER, OUTPUT);
   pinMode(FIBER_TRANS_POWER, OUTPUT);
   pinMode(LED_DIMMER_PIN, OUTPUT);
+  pinMode(FOCUS_POWER, OUTPUT);
 
   neutralize();
 
@@ -98,7 +111,7 @@ void setup(){
   //buoyancyPlunger.attach(BUOYANCY_PIN);
   //DDRJ = DDRJ | BUOYANCY_ENABLE; // sets PJ6 to OUTPUT while leaving all other Port J pinModes unchanged.
   //DDRJ = DDRJ & V5_FLAG; // sets PJ6 to input while leaving all other Port J pinModes unchanged
-  
+
   wdt_enable(WDTO_8S); // enable watchdog timer for 8s interval
 }
 
@@ -129,6 +142,9 @@ void loop(){
         break;
       case 'b':
         buoyancy(buffer[1]);
+        break;
+      case 'f':
+        focus(buffer[1]);
         break;
       case 'a':
         switch(buffer[1]){
@@ -273,6 +289,11 @@ void horizontal(int pos){
   log(pos);
 }
 
+void focus(int pos){
+  focus.write(pos);
+  log('f' + String(pos));
+}
+
 void thrust(int speed){
   currentThrust += (speed < currentThrust) ? -1 : 1;
   targetThrust = speed;
@@ -297,6 +318,7 @@ void power(int config){
     digitalWrite(HORIZONTAL_POWER, HIGH);
     digitalWrite(FIBER_TRANS_POWER, HIGH);
     digitalWrite(LED_POWER, HIGH);
+    digitalWrite(FOCUS_POWER, HIGH);
     imu = true;
     Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
     Serial2.write(IMU_CONTINUOUS_MODE_COMMAND, 4);
@@ -311,6 +333,7 @@ void power(int config){
     digitalWrite(HORIZONTAL_POWER, HIGH);
     digitalWrite(FIBER_TRANS_POWER, HIGH);
     digitalWrite(LED_POWER, HIGH);
+    digitalWrite(FOCUS_POWER, HIGH);
     imu = true;
     Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
     Serial2.write(IMU_CONTINUOUS_MODE_COMMAND, 4);
@@ -321,11 +344,11 @@ void power(int config){
     break;
   case 2:
     digitalWrite(TEMPERATURE_POWER, HIGH);
-    digitalWrite(FIBER_TRANS_POWER, LOW);
     digitalWrite(LED_POWER, LOW);
     digitalWrite(VERTICAL_POWER, LOW);
     digitalWrite(HORIZONTAL_POWER, LOW);
-    digitalWrite(FIBER_TRANS_POWER, LOW);
+    digitalWrite(FIBER_TRANS_POWER, HIGH);
+    digitalWrite(FOCUS_POWER, LOW);
     imu = false;
     Serial2.write(IMU_STOP_CONTINUOUS_MODE_COMMAND, 3);
     Serial2.write(IMU_SLEEP_MODE_COMMAND, 4);
@@ -400,4 +423,5 @@ void log(String data, boolean terminate){
     }
   }
 }
+
 

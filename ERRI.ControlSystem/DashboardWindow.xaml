@@ -11,7 +11,7 @@
                 <chartingToolkit:LineSeries Name="horizontalAngleSeries" Title="Horizontal Angle" />
             </chartingToolkit:Chart.Series>
         </chartingToolkit:Chart-->
-            <StackPanel Name="PowerPanel" Width="200" Orientation="Horizontal">
+            <StackPanel Name="PowerPanel" Width="250" Orientation="Horizontal">
                 <Label Name="powerLabel" Content="State:" Height="28" />
                 <ComboBox Name="PowerComboBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="PowerComboBoxSelectionChanged">
                     <ComboBoxItem Content="Full" Tag="0" IsSelected="True" />
@@ -19,13 +19,13 @@
                     <ComboBoxItem Content="Sleep" Tag="2" />
                 </ComboBox>
             </StackPanel>
-            <StackPanel Name="IlluminationPanel" Width="200" Orientation="Horizontal">
+            <StackPanel Name="IlluminationPanel" Width="250" Orientation="Horizontal">
             <Label Name="illuminationLabel" Content="Illumination:" Height="28" />
             <Slider Height="23" Name="illuminationSlider" Width="145" Minimum="0" Maximum="255" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=illumination}" />
         </StackPanel>
-        <StackPanel Height="100" Name="ControllerPanel" Width="200">
-            <StackPanel Name="statePanel" Width="200" Orientation="Horizontal">
+        <StackPanel Height="100" Name="ControllerPanel" Width="250">
+            <StackPanel Name="statePanel" Width="250" Orientation="Horizontal">
                 <Label Name="stateLabel" Content="State:" Height="28" />
                 <Label Name="state" Content="Disconnected" Height="28" />
             </StackPanel>

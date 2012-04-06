@@ -21,9 +21,9 @@ namespace EERIL.ControlSystem.v4 {
 		private readonly Thread serialMonitorThread;
 		private readonly Settings settings = Settings.Default;
 		private readonly List<byte> buffer = new List<byte>();
-		private bool isImuActive = false;
 		private byte horizontalFinPosition = 90;
 		private byte verticalFinPosition = 90;
+        private byte focusPosition = 90;
 		private byte topFinOffset = 0;
 		private byte rightFinOffset = 0;
 		private byte bottomFinOffset = 0;
@@ -141,6 +141,19 @@ namespace EERIL.ControlSystem.v4 {
 				verticalFinPosition = value;
 			}
 		}
+
+        public byte FocusPosition
+        {
+            get { return focusPosition; }
+            set
+            {
+                if (!camera.WriteBytesToSerial(new byte[] { 0x66, value, 0x0D }))
+                {
+                    throw new Exception("Failed to transmit focusposition to device.");
+                }
+                focusPosition = value;
+            }
+        }
 
 		public byte TopFinOffset
 		{
