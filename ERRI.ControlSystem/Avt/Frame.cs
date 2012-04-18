@@ -16,6 +16,7 @@ namespace EERIL.ControlSystem.Avt
         [DllImport("gdi32.dll")]
         private static extern bool DeleteObject(IntPtr hObject);
 
+        private Bitmap bitmap;
         private readonly IntPtr framePointer;
         private readonly Camera camera;
         private bool disposed;
@@ -121,15 +122,18 @@ namespace EERIL.ControlSystem.Avt
 
         public Bitmap ToBitmap()
         {
-            Bitmap bitmap = new Bitmap((int)frame.Width, (int)frame.Height, PixelFormat.Format24bppRgb);
-            Rectangle rect = new Rectangle(new Point(0, 0), new Size((int)frame.Width, (int)frame.Height));
-            BitmapData data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
-
-            if (!Frame2Data(ref frame, ref buffer, ref data))
+            if (bitmap == null)
             {
-                throw new PvException(tErr.eErrWrongType);
+                bitmap = new Bitmap((int)frame.Width, (int)frame.Height, PixelFormat.Format24bppRgb);
+                Rectangle rect = new Rectangle(new Point(0, 0), new Size((int)frame.Width, (int)frame.Height));
+                BitmapData data = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
+
+                if (!Frame2Data(ref frame, ref buffer, ref data))
+                {
+                    throw new PvException(tErr.eErrWrongType);
+                }
+                bitmap.UnlockBits(data);
             }
-            bitmap.UnlockBits(data);
             return bitmap;
         }
 
@@ -142,7 +146,6 @@ namespace EERIL.ControlSystem.Avt
                 Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
             DeleteObject(hbitmap);
-            bitmap.Dispose();
             return source;
         }
 
@@ -167,6 +170,10 @@ namespace EERIL.ControlSystem.Avt
             if (!disposed)
             {
                 camera.ReleaseFrame(framePointer);
+                if (bitmap != null)
+                {
+                    bitmap.Dispose();
+                }
                 disposed = true;
             }
         }
@@ -194,12 +201,13 @@ namespace EERIL.ControlSystem.Avt
                         UInt32 lOffset = 0;
                         UInt32 lPos = 0;
                         byte* lDst = (byte*)data.Scan0;
+                        byte* lSrc = (byte*)frame.ImageBuffer;
 
                         while (lOffset < frame.ImageBufferSize)
                         {
-                            lDst[lPos] = buffer[lOffset];
-                            lDst[lPos + 1] = buffer[lOffset];
-                            lDst[lPos + 2] = buffer[lOffset];
+                            lDst[lPos] = lSrc[lOffset];
+                            lDst[lPos + 1] = lSrc[lOffset];
+                            lDst[lPos + 2] = lSrc[lOffset];
 
                             lOffset++;
                             lPos += 3;
@@ -278,18 +286,37 @@ namespace EERIL.ControlSystem.Avt
 
                         return true;
                     }
+                case tImageFormat.eFmtBgr24:
+                    {
+                        UInt32 lPos = 0;
+                        byte* lDst = (byte*)data.Scan0;
+                        byte* lSrc = (byte*)frame.ImageBuffer;
+
+                        while (lPos < frame.ImageBufferSize)
+                        {
+                            // copy the data
+                            lDst[lPos] = lSrc[lPos];
+
+                            lPos += 1;
+                            // take care of the padding in the destination bitmap
+                            if ((lPos % (frame.Width * 3)) == 0)
+                                lPos += (UInt32)data.Stride - (frame.Width * 3);
+                        }
+                        return true;
+                    }
                 case tImageFormat.eFmtRgb24:
                     {
                         UInt32 lOffset = 0;
                         UInt32 lPos = 0;
                         byte* lDst = (byte*)data.Scan0;
+                        byte* lSrc = (byte*)frame.ImageBuffer;
 
                         while (lOffset < frame.ImageBufferSize)
                         {
                             // copy the data
-                            lDst[lPos] = buffer[lOffset + 2];
-                            lDst[lPos + 1] = buffer[lOffset + 1];
-                            lDst[lPos + 2] = buffer[lOffset];
+                            lDst[lPos] = lSrc[lOffset + 2];
+                            lDst[lPos + 1] = lSrc[lOffset + 1];
+                            lDst[lPos + 2] = lSrc[lOffset];
 
                             lOffset += 3;
                             lPos += 3;
@@ -297,7 +324,6 @@ namespace EERIL.ControlSystem.Avt
                             if ((lOffset % (frame.Width * 3)) == 0)
                                 lPos += (UInt32)data.Stride - (frame.Width * 3);
                         }
-
                         return true;
                     }
                 case tImageFormat.eFmtRgb48:

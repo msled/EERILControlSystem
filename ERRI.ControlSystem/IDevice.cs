@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Drawing;
@@ -11,19 +12,15 @@ using System.Windows.Media.Imaging;
 using PvNET;
 
 namespace EERIL.ControlSystem {
-    public delegate void DeviceFrameReadyHandler(object sender, IFrame frame);
     public delegate void DeviceMessageHandler(object sender, byte[] message);
     public interface IDevice : IDisposable {
-        event DeviceFrameReadyHandler FrameReady;
         event DeviceMessageHandler MessageReceived;
         IList<ITest> Tests { get; }
         IList<ISensor> Sensors { get; }
+        IList<ICamera> Cameras { get; }
+        ICamera PrimaryCamera { get; }
         uint Id { get; }
         string DisplayName { get; }
-        uint ImageHeight { get; }
-        uint ImageWidth { get; }
-        uint ImageDepth { get; }
-        tImageFormat ImageFormat { get; }
         byte HorizontalFinPosition { get; set; }
         byte VerticalFinPosition { get; set; }
         byte FinRange { get; set; }
@@ -35,10 +32,7 @@ namespace EERIL.ControlSystem {
         bool Turbo { get; set; }
         byte Illumination { get; set; }
         PowerConfigurations PowerConfiguration { get; set; }
-        void StartVideoCapture(uint timeout);
-        void StopVideoCapture();
-        void PrepareForGrab(ref uint dcamMode, ref uint colorCode, ref uint width, ref uint height);
-        void GetImage(Bitmap bitmap, uint timeout);
+        void CalibrateIMU();
         void Open();
         void Close();
     }

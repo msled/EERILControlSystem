@@ -54,6 +54,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AForge.Video">
+      <HintPath>.\AForge.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video.VFW">
+      <HintPath>.\AForge.Video.VFW.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="PvNET, Version=1.26.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -64,9 +70,11 @@
       <HintPath>Lib\Splicer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -78,6 +86,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WPFToolkit.Extended">
+      <HintPath>Lib\WPFToolkit.Extended.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -85,13 +96,24 @@
     </Compile>
     <Compile Include="Avt\Camera.cs" />
     <Compile Include="Avt\CameraSerial.cs" />
-    <Compile Include="Avt\ColorTransformation.cs" />
     <Compile Include="Avt\DeviceManager.cs" />
+    <Compile Include="Avt\ImageFormat.cs" />
+    <Compile Include="ConnectionInteruptedException.cs" />
+    <Compile Include="ConnectionLostDialog.xaml.cs">
+      <DependentUpon>ConnectionLostDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="GainMode.cs" />
+    <Compile Include="IDeviceMetadata.cs" />
+    <Compile Include="Mock\MockCamera2.cs" />
     <Compile Include="Avt\Frame.cs" />
+    <Compile Include="ExposureAlgorithm.cs" />
+    <Compile Include="ExposureMode.cs" />
     <Compile Include="Avt\GigEVision.cs" />
-    <Compile Include="Avt\ICamera.cs" />
-    <Compile Include="Avt\IFrame.cs" />
+    <Compile Include="ICamera.cs" />
+    <Compile Include="IFrame.cs" />
     <Compile Include="Avt\PvException.cs" />
+    <Compile Include="Mock\MockCamera.cs" />
+    <Compile Include="Mock\MockDevice.cs" />
     <Compile Include="CommunicationProtocols.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="DashboardWindow.xaml.cs">
@@ -128,6 +150,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="TerminateDeploymentException.cs" />
     <Compile Include="TestWindow.xaml.cs" />
     <Compile Include="Test\IOperation.cs" />
     <Compile Include="Test\ITest.cs" />
@@ -135,6 +158,7 @@
     <Compile Include="v4\Device.cs" />
     <Compile Include="v4\PowerTest.cs" />
     <Compile Include="VideoDisplayWindow.xaml.cs" />
+    <Compile Include="WhiteBalanceMode.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -151,6 +175,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="ConnectionLostDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DashboardWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using EERIL.ControlSystem.Mock;
 
 namespace EERIL.ControlSystem {
 	/// <summary>
@@ -31,6 +32,11 @@ namespace EERIL.ControlSystem {
 			foreach (IDevice device in deviceList.SelectedItems) {
 				devices.Add(device);
 			}
+
+            if(devices.Count < 1)
+            {
+                devices.Add(new MockDevice());
+            }
 
 			DeploymentWindow deploymentWindow = new DeploymentWindow(devices);
 			deploymentWindow.Owner = this;

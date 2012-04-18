@@ -16,7 +16,7 @@ namespace EERIL.ControlSystem
     public delegate void TriggerStateChangedHandler(Trigger trigger, bool pressed);
     public enum Button
     {
-        Y
+        X, Y, A, B
     }
     public enum Trigger
     {
@@ -51,6 +51,22 @@ namespace EERIL.ControlSystem
             get
             {
                 return state.Buttons.Y == ButtonState.Pressed;
+            }
+        }
+
+        public bool A
+        {
+            get
+            {
+                return state.Buttons.A == ButtonState.Pressed;
+            }
+        }
+
+        public bool B
+        {
+            get
+            {
+                return state.Buttons.B == ButtonState.Pressed;
             }
         }
 
@@ -156,7 +172,7 @@ namespace EERIL.ControlSystem
         private void ControllerMonitor()
         {
             byte leftX = 0, leftY = 0, rightX = 0, rightY = 0;
-            bool y = false, rightTrigger = false, leftTrigger = false;
+            bool y = false, a = false, b = false, rightTrigger = false, leftTrigger = false;
             while (run)
             {
                 state = GamePad.GetState(playerIndex);
@@ -195,6 +211,16 @@ namespace EERIL.ControlSystem
                     {
                         y = Y;
                         OnButtonStateChanged(Button.Y, y);
+                    }
+                    if (a != A)
+                    {
+                        a = A;
+                        OnButtonStateChanged(Button.A, a);
+                    }
+                    if (b != B)
+                    {
+                        b = B;
+                        OnButtonStateChanged(Button.B, b);
                     }
                     if (rightTrigger != RightTrigger)
                     {

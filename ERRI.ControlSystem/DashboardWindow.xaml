@@ -1,69 +1,111 @@
-﻿<Window x:Class="EERIL.ControlSystem.DashboardWindow"
+﻿<Window xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"  x:Class="EERIL.ControlSystem.DashboardWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:properties="clr-namespace:EERIL.ControlSystem.Properties"
-        Title="Dashboard" Height="472" Width="870" Closed="WindowClosed">
-    <StackPanel>
-        <!--chartingToolkit:Chart x:Name="dashboardChart">
-            <chartingToolkit:Chart.Series>
-                <chartingToolkit:LineSeries Name="verticalAngleSeries" Title="Vertical Angle" DependentValuePath="Value"
-                    IndependentValuePath="Key" ItemsSource="{Binding}"/>
-                <chartingToolkit:LineSeries Name="horizontalAngleSeries" Title="Horizontal Angle" />
-            </chartingToolkit:Chart.Series>
-        </chartingToolkit:Chart-->
-            <StackPanel Name="PowerPanel" Width="200" Orientation="Horizontal">
-                <Label Name="powerLabel" Content="State:" Height="28" />
-                <ComboBox Name="PowerComboBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SelectionChanged="PowerComboBoxSelectionChanged">
+        Title="Dashboard" Height="472" Width="870" Closed="WindowClosed" xmlns:my="clr-namespace:EERIL.ControlSystem">
+    <Grid Name="dashboardGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="228" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Name="serialRow" Height="Auto"/>
+        </Grid.RowDefinitions>
+        <DockPanel Name="RightContentPanel" LastChildFill="True" Grid.RowSpan="3" Grid.Column="1"  DockPanel.Dock="Right" Grid.ColumnSpan="2" Margin="5,0">
+            <ToggleButton Name="recordVideoToggleButton" DockPanel.Dock="Top" Height="23" HorizontalAlignment="Stretch" Content="Record Video" Margin="0, 5, 0, 0" Checked="RecordVideoToggleButtonChecked" Unchecked="RecordVideoToggleButtonUnchecked" HorizontalContentAlignment="Center" Padding="1" />
+            <StackPanel Name="powerPanel" DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,5, 0, 0">
+                <Label Name="powerLabel" Content="Power Level:" Height="28" />
+                <ComboBox Name="powerComboBox" HorizontalAlignment="Stretch" Width="142" SelectionChanged="PowerComboBoxSelectionChanged" Height="23">
                     <ComboBoxItem Content="Full" Tag="0" IsSelected="True" />
                     <ComboBoxItem Content="No Buoyancy" Tag="1" />
                     <ComboBoxItem Content="Sleep" Tag="2" />
                 </ComboBox>
             </StackPanel>
-            <StackPanel Name="IlluminationPanel" Width="200" Orientation="Horizontal">
-            <Label Name="illuminationLabel" Content="State:" Height="28" />
-            <Slider Height="23" Name="illuminationSlider" Width="145" Minimum="0" Maximum="255" Value="{Binding Source={x:Static properties:Settings.Default},
-                               Path=illumination}" />
-        </StackPanel>
-        <StackPanel Height="100" Name="ControllerPanel" Width="200">
-            <StackPanel Name="statePanel" Width="200" Orientation="Horizontal">
+            <StackPanel Name="illuminationPanel" DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,5,0,0">
+                <Label Name="illuminationLabel" Content="Illumination:" Height="28" />
+                <Slider Height="23" Name="illuminationSlider" Minimum="0" Maximum="255" Width="142" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static properties:Settings.Default},
+                                   Path=illumination}" />
+            </StackPanel>
+            <Label DockPanel.Dock="Top" Margin="0,5, 0, 0">Controller</Label>
+            <StackPanel Name="statePanel"  DockPanel.Dock="Top" Orientation="Horizontal">
                 <Label Name="stateLabel" Content="State:" Height="28" />
                 <Label Name="state" Content="Disconnected" Height="28" />
             </StackPanel>
-        </StackPanel>
-        <StackPanel Name="OffsetPanel" Width="250">
-            <StackPanel Name="HeadingOffsetPanel" Orientation="Horizontal">
-                <Label Content="Heading Offset:" Height="28" Width="105" />
-                <Slider Height="23" Name="YawOffsetSlider" Width="145" Minimum="-5" Maximum="5" Value="{Binding Source={x:Static properties:Settings.Default},
+            <Label DockPanel.Dock="Top" Margin="0,5, 0, 0">Notes</Label>
+            <TextBox Name="notesTextBox" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AcceptsReturn="True" />
+        </DockPanel>
+        <TabControl Name="primaryTabControl" Grid.Row="0" Grid.Column="0">
+            <TabItem Header="Dashboard" Name="dashboardTabItem">
+            </TabItem>
+            <TabItem Header="Devices" Name="devicesTabItem">
+                <DockPanel Name="devicesDockPanel" LastChildFill="True">
+                    <TreeView Name="devicesTreeView" DockPanel.Dock="Left" Width="200" ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=my:DashboardWindow, AncestorLevel=1}, Path=Deployment.Devices, Mode=OneWay}" SelectedItemChanged="DevicesTreeViewSelectedItemChanged">
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Cameras}">
+                                <TextBlock Text="{Binding DisplayName}"/>
+                                <HierarchicalDataTemplate.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding DisplayName}"/>
+                                    </DataTemplate>
+                                </HierarchicalDataTemplate.ItemTemplate>
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                    <xctk:PropertyGrid Name="devicePropertyGrid" SelectedObject="{Binding ElementName=devicesTreeView, Path=SelectedValue}" Visibility="Hidden" />
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Physical Device Calibrations" Name="calibrationsTabItem">
+                <StackPanel Name="OffsetPanel" Width="250">
+                    <StackPanel Name="HeadingOffsetPanel" Orientation="Horizontal">
+                        <Label Content="Heading Offset:" Height="28" Width="105" />
+                        <Slider Height="23" Name="YawOffsetSlider" Width="145" Minimum="-5" Maximum="5" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=YawOffset}" />
-            </StackPanel>
-            <StackPanel Name="FinRangePanel" Orientation="Horizontal">
-                <Label Content="Fin Range:" Height="28" Width="105" />
-                <Slider Height="23" Name="FinRangeSlider" Width="145" Minimum="0" Maximum="90" Value="{Binding Source={x:Static properties:Settings.Default},
+                    </StackPanel>
+                    <StackPanel Name="PitchOffsetPanel" Orientation="Horizontal">
+                        <Label Content="Pitch Offset:" Height="28" Width="105" />
+                        <Slider Height="23" Name="PitchOffsetSlider" Width="145" Minimum="-5" Maximum="5" Value="{Binding Source={x:Static properties:Settings.Default},
+                               Path=PitchOffset}" />
+                    </StackPanel>
+                    <StackPanel Name="FinRangePanel" Orientation="Horizontal">
+                        <Label Content="Fin Range:" Height="28" Width="105" />
+                        <Slider Height="23" Name="FinRangeSlider" Width="145" Minimum="0" Maximum="90" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=FinRange}" IsMoveToPointEnabled="False" IsSnapToTickEnabled="False" IsSelectionRangeEnabled="False" />
-            </StackPanel>
-            <StackPanel Name="TopFinOffsetPanel" Orientation="Horizontal">
-                <Label Content="Top Fin Offset:" Height="28" Width="105" />
-                <Slider Height="23" Name="TopFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
+                    </StackPanel>
+                    <StackPanel Name="TopFinOffsetPanel" Orientation="Horizontal">
+                        <Label Content="Top Fin Offset:" Height="28" Width="105" />
+                        <Slider Height="23" Name="TopFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=TopFinOffset}" />
-            </StackPanel>
-            <StackPanel Name="RightFinOffsetPanel" Orientation="Horizontal">
-                <Label Content="Right Fin Offset:" Height="28" Width="105" />
-                <Slider Height="23" Name="RightFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
+                    </StackPanel>
+                    <StackPanel Name="RightFinOffsetPanel" Orientation="Horizontal">
+                        <Label Content="Right Fin Offset:" Height="28" Width="105" />
+                        <Slider Height="23" Name="RightFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=RightFinOffset}" />
-            </StackPanel>
-            <StackPanel Name="BottomFinOffsetPanel" Orientation="Horizontal">
-                <Label Content="Bottom Fin Offset:" Height="28" Width="105" />
-                <Slider Height="23" Name="BottomFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
+                    </StackPanel>
+                    <StackPanel Name="BottomFinOffsetPanel" Orientation="Horizontal">
+                        <Label Content="Bottom Fin Offset:" Height="28" Width="105" />
+                        <Slider Height="23" Name="BottomFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=BottomFinOffset}" />
-            </StackPanel>
-            <StackPanel Name="LeftFinOffsetPanel" Orientation="Horizontal">
-                <Label Content="Left Fin Offset:" Height="28" Width="105" />
-                <Slider Height="23" Name="LeftFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
+                    </StackPanel>
+                    <StackPanel Name="LeftFinOffsetPanel" Orientation="Horizontal">
+                        <Label Content="Left Fin Offset:" Height="28" Width="105" />
+                        <Slider Height="23" Name="LeftFinOffsetSlider" Width="145" Minimum="0" Maximum="180" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=LeftFinOffset}" />
-            </StackPanel>
-        </StackPanel>
-        <Button Height="23" Name="recordVideoButton" Width="120" Content="Record Video" Click="RecordVideoButtonClick" />
-        <Label Name="serialDataLabel">Serial Data:</Label>
-        <TextBox Name="serialData" VerticalAlignment="Stretch" Height="160" Width="847" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" />
-    </StackPanel>
+                    </StackPanel>
+                    <Button Name="calibrateImuButton" Content="Calibrate IMU" Click="CalibrateImuButtonClick"/>
+                </StackPanel>
+            </TabItem>
+                    </TabControl>
+        <GridSplitter
+                Grid.Row="1"
+                Grid.Column="0"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Center"
+              ShowsPreview="True"
+              Height="5" MouseDoubleClick="GridSplitterMouseDoubleClick" DragDelta="GridSplitterDragDelta" />
+            <ScrollViewer Name="serialScrollViewer" Grid.Row="2" Grid.Column="0">
+            <TextBlock Name="serialTextBlock" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Visible"/>
+            </ScrollViewer>
+        </Grid>
 </Window>

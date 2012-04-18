@@ -1,0 +1,9 @@
+﻿<Window x:Class="EERIL.ControlSystem.ConnectionLostDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Connection Lost..." Height="147" Width="416">
+    <Grid>
+        <Label Content="Connection to the device has been lost. Trying to reconnect..." Height="29" HorizontalAlignment="Left" Margin="31,12,0,0" Name="label1" VerticalAlignment="Top" />
+        <Button Name="terminateDeploymentButton" Content="Terminate Deployment" Height="29" Width="150" Margin="122,59,122,21" Click="terminateDeploymentButton_Click" />
+    </Grid>
+</Window>

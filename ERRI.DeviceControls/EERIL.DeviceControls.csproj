@@ -49,11 +49,20 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HeadsUpDisplay.cs">
+    <Compile Include="AccelerationBasedLocation.cs" />
+    <Compile Include="AccelerationSample.cs" />
+    <Compile Include="GraphBoard.cs" />
+    <Compile Include="HeadUpControls\Gauge.cs" />
+    <Compile Include="HeadUpControls\GaugeCluster.cs" />
+    <Compile Include="HeadUpControls\HeadUpControl.cs" />
+    <Compile Include="HeadUpControls\TextualGauge.cs" />
+    <Compile Include="HeadUpDisplay.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeadUpDisplay2.cs" />
+    <Compile Include="ITemporalGraph.cs" />
     <Compile Include="OrientationMatrix.cs" />
     <Compile Include="Point3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -78,6 +87,13 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

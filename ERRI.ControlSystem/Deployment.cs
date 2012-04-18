@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -10,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Media.Imaging;
 using System.Xml;
 using EERIL.ControlSystem.Avt;
+using AForge.Video.VFW;
 
 namespace EERIL.ControlSystem
 {
@@ -20,7 +23,7 @@ namespace EERIL.ControlSystem
         private const string VIDEOS_DIRECTORY = "Videos";
 
         private DirectoryInfo videoDirectory;
-        private readonly IDictionary<IDevice, Stream> videoStreams = new ConcurrentDictionary<IDevice, Stream>();
+        private readonly IDictionary<IDevice, AVIWriter> videoWriters = new ConcurrentDictionary<IDevice, AVIWriter>();
         private DirectoryInfo imageDirectory;
         private DirectoryInfo serialDataDirectory;
         private readonly IDictionary<IDevice, Stream> serialLogStreams = new ConcurrentDictionary<IDevice, Stream>();
@@ -63,8 +66,10 @@ namespace EERIL.ControlSystem
             deployment.Save();
             foreach (IDevice device in devices)
             {
-                deployment.serialLogStreams.Add(device, File.Create(Path.Combine(deployment.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString() + ".stream"), 1024));
-                deployment.videoStreams.Add(device, File.Create(Path.Combine(deployment.videoDirectory.FullName, DateTime.Now.Ticks.ToString() + ".video"), 1392640));
+                deployment.serialLogStreams.Add(device, File.Create(Path.Combine(deployment.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".stream"), 1024));
+                AVIWriter aw = new AVIWriter {FrameRate = 15};
+                aw.Open(Path.Combine(deployment.videoDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".avi"), 1360, 1024);
+                deployment.videoWriters.Add(device, aw);
                 device.MessageReceived += deployment.DeviceMessageReceived;
             }
             return deployment;
@@ -72,13 +77,13 @@ namespace EERIL.ControlSystem
 
         public void RecordFrame(IDevice device, IFrame frame)
         {
-            videoStreams[device].Write(frame.Buffer, 0, frame.Buffer.Length);
+            videoWriters[device].AddFrame(frame.ToBitmap());
         }
 
         void DeviceMessageReceived(object sender, byte[] message)
         {
             IDevice device = sender as IDevice;
-            if (sender != null)
+            if (device != null)
             {
                 this.serialLogStreams[device].Write(message, 0, message.Length);
             }
@@ -88,7 +93,7 @@ namespace EERIL.ControlSystem
         {
             XmlWriter xmlWriter = XmlWriter.Create(Path.Combine(this.Directory.FullName, "Meta.xml"));
             xmlWriter.WriteStartElement("Deployment");
-            xmlWriter.WriteElementString("DateTime", this.DateTime.ToString());
+            xmlWriter.WriteElementString("DateTime", this.DateTime.ToString(CultureInfo.InvariantCulture));
             xmlWriter.WriteElementString("Notes", Notes);
             xmlWriter.Close();
         }
@@ -107,6 +112,10 @@ namespace EERIL.ControlSystem
 
         public void Dispose()
         {
+            foreach (IDevice device in Devices)
+            {
+                videoWriters[device].Dispose();
+            }
             foreach (Stream stream in this.serialLogStreams.Values)
             {
                 stream.Dispose();

@@ -13,8 +13,8 @@ using System.ComponentModel;
 namespace EERIL.ControlSystem.Avt
 {
 	class DeviceManager : IDeviceManager {
-		private GigEVision cameraManager;
-		private IDevice activeDevice = null;
+		private readonly GigEVision cameraManager;
+		private IDevice activeDevice;
 		private readonly ThreadObservableCollection<IDevice> devices = new ThreadObservableCollection<IDevice>();
 
 		public IList<IDevice> Devices {
@@ -35,13 +35,13 @@ namespace EERIL.ControlSystem.Avt
 			}
 		}
 
-		void  CameraManagerCameraConnected(ICamera camera) {
+		void  CameraManagerCameraConnected(Camera camera) {
 			devices.Add(new v4.Device(camera));
 		}
 
-		void CameraManagerCameraDisconnected(ICamera camera)
-		{
-		    foreach (IDevice device in devices.Select(d => d.Id == camera.Reference ? d : null).Where(device => device != null))
+		void CameraManagerCameraDisconnected(Camera camera) {
+		    IDevice[] deviceArray = devices.Select(d => d.Id == camera.Reference ? d : null).Where(device => device != null).ToArray();
+            foreach (IDevice device in deviceArray)
 		    {
 		        devices.Remove(device);
 		    }
@@ -50,8 +50,8 @@ namespace EERIL.ControlSystem.Avt
 	    public DeviceManager() {
 			cameraManager = new Avt.GigEVision();
 
-			cameraManager.CameraConnected +=new CameraConnectionHandler(CameraManagerCameraConnected);
-			cameraManager.CameraDisconnected += new CameraConnectionHandler(CameraManagerCameraDisconnected);
+			cameraManager.CameraConnected +=CameraManagerCameraConnected;
+			cameraManager.CameraDisconnected += CameraManagerCameraDisconnected;
 		}
 
 		#region INotifyPropertyChanged Members
