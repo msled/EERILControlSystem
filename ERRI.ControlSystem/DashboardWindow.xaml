@@ -24,9 +24,14 @@
                 </ComboBox>
             </StackPanel>
             <StackPanel Name="illuminationPanel" DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,5,0,0">
-                <Label Name="illuminationLabel" Content="Illumination:" Height="28" />
+                <Label Name="illuminationLabel" Content="Illumination:" Height="28" Width="105" />
                 <Slider Height="23" Name="illuminationSlider" Minimum="0" Maximum="255" Width="142" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static properties:Settings.Default},
-                                   Path=illumination}" />
+                                    Path=illumination}" />
+            </StackPanel>
+            <StackPanel Name="focusPanel"  DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,5,0,0">
+                <Label Name="focusLabel" Content="Focus:" Height="28" Width="105"/>
+                <Slider Height="23" Name="focusSlider" Minimum="46" Maximum="58" Width="142" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static properties:Settings.Default},
+                                    Path=focus}" />
             </StackPanel>
             <Label DockPanel.Dock="Top" Margin="0,5, 0, 0">Controller</Label>
             <StackPanel Name="statePanel"  DockPanel.Dock="Top" Orientation="Horizontal">

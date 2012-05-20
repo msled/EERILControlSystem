@@ -9,10 +9,8 @@ using System.IO;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Documents;
-using System.Windows.Media.Imaging;
 using System.Xml;
 using EERIL.ControlSystem.Avt;
-using AForge.Video.VFW;
 
 namespace EERIL.ControlSystem
 {
@@ -23,7 +21,7 @@ namespace EERIL.ControlSystem
         private const string VIDEOS_DIRECTORY = "Videos";
 
         private DirectoryInfo videoDirectory;
-        private readonly IDictionary<IDevice, AVIWriter> videoWriters = new ConcurrentDictionary<IDevice, AVIWriter>();
+        private readonly IDictionary<IDevice, AviWriter> videoWriters = new ConcurrentDictionary<IDevice, AviWriter>();
         private DirectoryInfo imageDirectory;
         private DirectoryInfo serialDataDirectory;
         private readonly IDictionary<IDevice, Stream> serialLogStreams = new ConcurrentDictionary<IDevice, Stream>();
@@ -67,9 +65,7 @@ namespace EERIL.ControlSystem
             foreach (IDevice device in devices)
             {
                 deployment.serialLogStreams.Add(device, File.Create(Path.Combine(deployment.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".stream"), 1024));
-                AVIWriter aw = new AVIWriter {FrameRate = 15};
-                aw.Open(Path.Combine(deployment.videoDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".avi"), 1360, 1024);
-                deployment.videoWriters.Add(device, aw);
+                deployment.videoWriters.Add(device, new AviWriter(Path.Combine(deployment.videoDirectory.FullName, DateTime.Now.Ticks.ToString()), 1360, 1024));
                 device.MessageReceived += deployment.DeviceMessageReceived;
             }
             return deployment;
@@ -77,7 +73,7 @@ namespace EERIL.ControlSystem
 
         public void RecordFrame(IDevice device, IFrame frame)
         {
-            videoWriters[device].AddFrame(frame.ToBitmap());
+            videoWriters[device].AddFrame(frame);
         }
 
         void DeviceMessageReceived(object sender, byte[] message)

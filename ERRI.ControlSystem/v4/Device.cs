@@ -21,6 +21,7 @@ namespace EERIL.ControlSystem.v4 {
         private readonly List<ITest> tests = new List<ITest>();
         private byte bottomFinOffset;
         private byte finRange;
+        private byte focus;
         private byte horizontalFinPosition = 90;
         private byte illumination;
         private byte leftFinOffset;
@@ -192,6 +193,19 @@ namespace EERIL.ControlSystem.v4 {
                     throw new Exception("Failed to transmit illumination.");
                 }
                 illumination = value;
+            }
+        }
+
+        public byte Focus
+        {
+            get { return focus; }
+            set
+            {
+                if (!primaryCamera.WriteBytesToSerial(new byte[] { 0x66, value, 0x0D }))
+                {
+                    throw new Exception("Failed to transmit focus position to device.");
+                }
+                focus = value;
             }
         }
 

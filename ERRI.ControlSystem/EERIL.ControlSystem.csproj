@@ -98,6 +98,7 @@
     <Compile Include="Avt\CameraSerial.cs" />
     <Compile Include="Avt\DeviceManager.cs" />
     <Compile Include="Avt\ImageFormat.cs" />
+    <Compile Include="AviWriter.cs" />
     <Compile Include="ConnectionInteruptedException.cs" />
     <Compile Include="ConnectionLostDialog.xaml.cs">
       <DependentUpon>ConnectionLostDialog.xaml</DependentUpon>

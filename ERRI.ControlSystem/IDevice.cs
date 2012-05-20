@@ -24,6 +24,7 @@ namespace EERIL.ControlSystem {
         byte HorizontalFinPosition { get; set; }
         byte VerticalFinPosition { get; set; }
         byte FinRange { get; set; }
+        byte Focus { get; set; }
         byte TopFinOffset { get; set; }
         byte RightFinOffset { get; set; }
         byte BottomFinOffset { get; set; }

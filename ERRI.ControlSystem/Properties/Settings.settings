@@ -50,5 +50,8 @@
     <Setting Name="MessageHistoryLength" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">2000</Value>
     </Setting>
+    <Setting Name="focus" Type="System.Byte" Scope="User">
+      <Value Profile="(Default)">51</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

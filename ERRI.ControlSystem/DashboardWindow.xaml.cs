@@ -12,33 +12,33 @@ using System.Windows.Threading;
 
 namespace EERIL.ControlSystem
 {
-    internal enum MessageLevel
-    {
-        Error,
-        Normal,
-        Info
-    }
+	internal enum MessageLevel
+	{
+		Error,
+		Normal,
+		Info
+	}
 	/// <summary>
 	/// Interaction logic for Dashboard.xaml
 	/// </summary>
 	public partial class DashboardWindow : Window {
 		private Controller controller;
 		private readonly IDeviceManager deviceManager;
-	    private IMission mission;
-	    private IDeployment deployment;
+		private IMission mission;
+		private IDeployment deployment;
 		private VideoDisplayWindow videoDisplayWindow;
 		private readonly Properties.Settings settings = Properties.Settings.Default;
 		private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
 		private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
 		private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
-	    private double serialScrollViewerHeight = 0;
+		private double serialScrollViewerHeight = 0;
 
-	    public static DependencyProperty DeploymentProperty = DependencyProperty.Register("Deployment",
-	                                                                                      typeof (IDeployment),
-	                                                                                      typeof (DashboardWindow));
+		public static DependencyProperty DeploymentProperty = DependencyProperty.Register("Deployment",
+																						  typeof (IDeployment),
+																						  typeof (DashboardWindow));
 
-	    public static readonly DependencyProperty MissionProperty =
-	        DependencyProperty.Register("Mission", typeof (IMission), typeof (DashboardWindow), new PropertyMetadata(default(IMission)));
+		public static readonly DependencyProperty MissionProperty =
+			DependencyProperty.Register("Mission", typeof (IMission), typeof (DashboardWindow), new PropertyMetadata(default(IMission)));
 
 		public Controller Controller {
 			get {
@@ -79,15 +79,15 @@ namespace EERIL.ControlSystem
 		}
 
 		public IDeployment Deployment {
-            get { return GetValue(DeploymentProperty) as IDeployment; }
+			get { return GetValue(DeploymentProperty) as IDeployment; }
 			private set { SetValue(DeploymentProperty, value);}
 		}
 
-        public IMission Mission
-        {
-            get { return GetValue(MissionProperty) as IMission; }
-            set { SetValue(MissionProperty, value); }
-        }
+		public IMission Mission
+		{
+			get { return GetValue(MissionProperty) as IMission; }
+			set { SetValue(MissionProperty, value); }
+		}
 
 		public DashboardWindow(IMission mission, IDeployment deployment) {
 			InitializeComponent();
@@ -101,51 +101,57 @@ namespace EERIL.ControlSystem
 			controllerAxisChangedHandler = ControllerAxisChanged;
 			controllerConnectionChangedHandler = ControllerConnectionChanged;
 			bitmapFrameCapturedHandler = VideoDisplayWindowBitmapFrameCaptured;
-            this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString(CultureInfo.InvariantCulture));
-            YawOffsetSlider.ValueChanged += YawOffsetSliderValueChanged;
-            PitchOffsetSlider.ValueChanged += PitchOffsetSliderValueChanged;
+			this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString(CultureInfo.InvariantCulture));
+			YawOffsetSlider.ValueChanged += YawOffsetSliderValueChanged;
+			PitchOffsetSlider.ValueChanged += PitchOffsetSliderValueChanged;
 			FinRangeSlider.ValueChanged += FinRangeSliderValueChanged;
 			TopFinOffsetSlider.ValueChanged += TopFinOffsetSliderValueChanged;
 			RightFinOffsetSlider.ValueChanged += RightFinOffsetSliderValueChanged;
 			BottomFinOffsetSlider.ValueChanged += BottomFinOffsetSliderValueChanged;
 			LeftFinOffsetSlider.ValueChanged += LeftFinOffsetSliderValueChanged;
 			illuminationSlider.ValueChanged += IlluminationSliderValueChanged;
+			focusSlider.ValueChanged += focusSliderValueChanged;
 		}
 
-        private void WriteToConsole(string line, MessageLevel level = MessageLevel.Normal)
-        {
-            /*Inline inline;
-            if (level == MessageLevel.Normal)
-            {
-                inline = new Run(line);
-            }
-            else
-            {
-                inline = new Bold(new Span(new Run(line)) { Foreground = level == MessageLevel.Error ? Brushes.DarkRed : Brushes.DarkGreen });
-            }
-            serialTextBlock.ContentStart.InsertLineBreak();
-            serialTextBlock.Inlines.InsertBefore(serialTextBlock.Inlines.FirstInline, inline);
-            while (serialTextBlock.Inlines.Count > settings.MessageHistoryLength)
-            {
-                serialTextBlock.Inlines.Remove(serialTextBlock.Inlines.LastInline);
-                serialTextBlock.Inlines.Remove(serialTextBlock.Inlines.LastInline);
-            }*/
-        }
+		private void WriteToConsole(string line, MessageLevel level = MessageLevel.Normal)
+		{
+			/*Inline inline;
+			if (level == MessageLevel.Normal)
+			{
+				inline = new Run(line);
+			}
+			else
+			{
+				inline = new Bold(new Span(new Run(line)) { Foreground = level == MessageLevel.Error ? Brushes.DarkRed : Brushes.DarkGreen });
+			}
+			serialTextBlock.ContentStart.InsertLineBreak();
+			serialTextBlock.Inlines.InsertBefore(serialTextBlock.Inlines.FirstInline, inline);
+			while (serialTextBlock.Inlines.Count > settings.MessageHistoryLength)
+			{
+				serialTextBlock.Inlines.Remove(serialTextBlock.Inlines.LastInline);
+				serialTextBlock.Inlines.Remove(serialTextBlock.Inlines.LastInline);
+			}*/
+		}
+
+		void focusSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			deviceManager.ActiveDevice.Focus = Convert.ToByte(e.NewValue);
+		}
 
 		void IlluminationSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			deviceManager.ActiveDevice.Illumination = Convert.ToByte(e.NewValue);
 		}
 
-        void YawOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            videoDisplayWindow.YawOffset = e.NewValue;
-        }
+		void YawOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			videoDisplayWindow.YawOffset = e.NewValue;
+		}
 
-        void PitchOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            videoDisplayWindow.PitchOffset = e.NewValue;
-        }
+		void PitchOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			videoDisplayWindow.PitchOffset = e.NewValue;
+		}
 
 		void FinRangeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
@@ -173,7 +179,7 @@ namespace EERIL.ControlSystem
 		}
 
 		void ActiveDeviceMessageReceived(object sender, byte[] message) {
-		    WriteToConsole('>' + BitConverter.ToString(message));
+			WriteToConsole('>' + BitConverter.ToString(message));
 		}
 
 		void ControllerConnectionChanged(bool connected) {
@@ -193,7 +199,7 @@ namespace EERIL.ControlSystem
 								}
 								catch (Exception ex)
 								{
-                                    //TODO: Route to console
+									//TODO: Route to console
 									//serial.Text += ex.Message + '\n';
 								}
 								break;
@@ -203,8 +209,8 @@ namespace EERIL.ControlSystem
 									device.VerticalFinPosition = newValue;
 								}
 								catch (Exception ex)
-                                {
-                                    //TODO: Route to console
+								{
+									//TODO: Route to console
 									//serialData.Text += ex.Message + '\n';
 								}
 								break;
@@ -219,8 +225,8 @@ namespace EERIL.ControlSystem
 									device.Thrust = newValue;
 								}
 								catch (Exception ex)
-                                {
-                                    //TODO: Route to console
+								{
+									//TODO: Route to console
 									//serialData.Text += ex.Message + '\n';
 								}
 								break;
@@ -250,50 +256,50 @@ namespace EERIL.ControlSystem
 			}
 		}
 
-        private void DevicesTreeViewSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
-            devicePropertyGrid.Visibility = e.NewValue != null ? Visibility.Visible : Visibility.Hidden;
-        }
+		private void DevicesTreeViewSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
+			devicePropertyGrid.Visibility = e.NewValue != null ? Visibility.Visible : Visibility.Hidden;
+		}
 
-        private void RecordVideoToggleButtonChecked(object sender, RoutedEventArgs e)
-        {
-            VideoDisplay.RecordVideoStream = true;
-            recordVideoToggleButton.Content = "Video is Recording";
-        }
+		private void RecordVideoToggleButtonChecked(object sender, RoutedEventArgs e)
+		{
+			VideoDisplay.RecordVideoStream = true;
+			recordVideoToggleButton.Content = "Video is Recording";
+		}
 
-        private void RecordVideoToggleButtonUnchecked(object sender, RoutedEventArgs e)
-        {
-            VideoDisplay.RecordVideoStream = false;
-            recordVideoToggleButton.Content = "Record Video";
-        }
+		private void RecordVideoToggleButtonUnchecked(object sender, RoutedEventArgs e)
+		{
+			VideoDisplay.RecordVideoStream = false;
+			recordVideoToggleButton.Content = "Record Video";
+		}
 
-        private void GridSplitterMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-            if (serialScrollViewer.Visibility == Visibility.Collapsed) {
-                serialScrollViewer.Visibility = Visibility.Visible;
-                serialScrollViewer.Height = serialScrollViewerHeight;
-                serialRow.Height = GridLength.Auto;
-            }
-            else
-            {
-                serialScrollViewerHeight = serialRow.ActualHeight;
-                serialScrollViewer.Visibility = Visibility.Collapsed;
-                serialRow.Height = GridLength.Auto;
-            }
-        }
+		private void GridSplitterMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+			if (serialScrollViewer.Visibility == Visibility.Collapsed) {
+				serialScrollViewer.Visibility = Visibility.Visible;
+				serialScrollViewer.Height = serialScrollViewerHeight;
+				serialRow.Height = GridLength.Auto;
+			}
+			else
+			{
+				serialScrollViewerHeight = serialRow.ActualHeight;
+				serialScrollViewer.Visibility = Visibility.Collapsed;
+				serialRow.Height = GridLength.Auto;
+			}
+		}
 
-        private void GridSplitterDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            if (serialScrollViewer.Visibility == Visibility.Collapsed)
-            {
-                serialScrollViewer.Visibility = Visibility.Visible;
-            }
-        }
+		private void GridSplitterDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+		{
+			if (serialScrollViewer.Visibility == Visibility.Collapsed)
+			{
+				serialScrollViewer.Visibility = Visibility.Visible;
+			}
+		}
 
-        private void CalibrateImuButtonClick(object sender, RoutedEventArgs e) {
-            IDevice device = deviceManager.ActiveDevice;
-            if (device != null)
-            {
-                device.CalibrateIMU();
-            }
-        }
+		private void CalibrateImuButtonClick(object sender, RoutedEventArgs e) {
+			IDevice device = deviceManager.ActiveDevice;
+			if (device != null)
+			{
+				device.CalibrateIMU();
+			}
+		}
 	}
 }

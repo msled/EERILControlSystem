@@ -40,26 +40,29 @@ namespace EERIL.ControlSystem.Mock
         public byte Illumination { get; set; }
         [Category("State")]
         [PropertyOrder(4)]
+        public byte Focus { get; set; }
+        [Category("State")]
+        [PropertyOrder(5)]
         public PowerConfigurations PowerConfiguration { get; set; }
         [Category("State")]
         [ReadOnly(true)]
-        [PropertyOrder(5)]
+        [PropertyOrder(6)]
         public bool Turbo { get; set; }
         [Category("State")]
         [ReadOnly(true)]
-        [PropertyOrder(6)]
+        [PropertyOrder(7)]
         public byte Thrust { get; set; }
         [Category("State")]
         [ReadOnly(true)]
-        [PropertyOrder(7)]
+        [PropertyOrder(8)]
         public byte HorizontalFinPosition { get; set; }
         [Category("State")]
         [ReadOnly(true)]
-        [PropertyOrder(8)]
+        [PropertyOrder(9)]
         public byte VerticalFinPosition { get; set; }
         [Category("Calibration")]
         [DisplayName("Fin Range")]
-        [PropertyOrder(9)]
+        [PropertyOrder(10)]
         public byte FinRange { get; set; }
         [Category("Calibration")]
         [DisplayName("Top Fin Offset")]

@@ -229,7 +229,6 @@ void loop(){
           imuRecordLength = 79;
           break;
         case IMU_CONTINUOUS_COMMAND_CODE:
-          //case IMU_MODE_COMMAND_CODE:
           imuRecordLength = 4;
           break;
         default:
@@ -265,6 +264,7 @@ void neutralize(){
   thrust(90);
   vertical(90);
   horizontal(90);
+  focus(51);
 }
 
 void illumination(byte illum){
@@ -290,8 +290,17 @@ void horizontal(int pos){
 }
 
 void focus(int pos){
-  focus.write(pos);
-  log('f' + String(pos));
+  if(pos == 51) {
+    lensFocus.detach(); 
+  }
+  else {
+    if(!lensFocus.attached()) {
+      lensFocus.attach(FOCUS_PIN);
+    }
+    lensFocus.write(pos); 
+  }
+  log('f', false);
+  log(pos);
 }
 
 void thrust(int speed){

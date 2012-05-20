@@ -77,11 +77,6 @@ namespace EERIL.ControlSystem.v4
         {
             Random random = new Random();
             device.Open();
-            device.FinRange = 64;
-            device.TopFinOffset = 90;
-            device.RightFinOffset = 90;
-            device.BottomFinOffset = 90;
-            device.LeftFinOffset = 90;
             timer = new Timer(delegate(Object state)
             {
                 device.HorizontalFinPosition = Convert.ToByte(Math.Round(random.NextDouble() * 180));

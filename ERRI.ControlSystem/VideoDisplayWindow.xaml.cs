@@ -62,29 +62,29 @@ namespace EERIL.ControlSystem {
 			set;
 		}
 
-        public double YawOffset
-        {
-            get
-            {
-                return headsUpDisplay.YawOffset;
-            }
-            set
-            {
-                headsUpDisplay.YawOffset = value;
-            }
-        }
+		public double YawOffset
+		{
+			get
+			{
+				return headsUpDisplay.YawOffset;
+			}
+			set
+			{
+				headsUpDisplay.YawOffset = value;
+			}
+		}
 
-        public double PitchOffset
-        {
-            get
-            {
-                return headsUpDisplay.PitchOffset;
-            }
-            set
-            {
-                headsUpDisplay.PitchOffset = value;
-            }
-        }
+		public double PitchOffset
+		{
+			get
+			{
+				return headsUpDisplay.PitchOffset;
+			}
+			set
+			{
+				headsUpDisplay.PitchOffset = value;
+			}
+		}
 
 		public Controller Controller
 		{
@@ -153,15 +153,15 @@ namespace EERIL.ControlSystem {
 																													 {
 				if (deployment.Devices.Count > 0) {
 					IDevice device = deployment.Devices[0];
-                    ICamera primaryCamera = device.PrimaryCamera;
+					ICamera primaryCamera = device.PrimaryCamera;
 					primaryCamera.FrameReady += PrimaryCameraFrameReady;
 					device.Open();
 					try
 					{
-                        IDevice activeDevice = deviceManager.ActiveDevice;
-                        primaryCamera.Open();
-                        primaryCamera.AdjustPacketSize();
-                        primaryCamera.BeginCapture();
+						IDevice activeDevice = deviceManager.ActiveDevice;
+						primaryCamera.Open();
+						primaryCamera.AdjustPacketSize();
+						primaryCamera.BeginCapture();
 						activeDevice.FinRange = Settings.Default.FinRange;
 						activeDevice.TopFinOffset = Settings.Default.TopFinOffset;
 						activeDevice.RightFinOffset = Settings.Default.RightFinOffset;
@@ -196,7 +196,10 @@ namespace EERIL.ControlSystem {
 					}
 					break;
 				case Trigger.Right:
-					deviceManager.ActiveDevice.Turbo = pressed;
+					if (pressed)
+					{
+						deviceManager.ActiveDevice.Turbo = !deviceManager.ActiveDevice.Turbo;
+					}
 					break;
 			}
 		}
@@ -246,12 +249,12 @@ namespace EERIL.ControlSystem {
 					if (!VerifyChecksum(message))
 						break;
 					uint timer = BitConverter.ToUInt32(message, 73);
-			        headsUpDisplay.AccelerationSamples.TryAdd(new AccelerationSample {
-			                                                                               Timestamp = timer,
-                                                                                           X = BitConverter.ToSingle(message, 1),
-                                                                                           Y = BitConverter.ToSingle(message, 4),
-                                                                                           Z = BitConverter.ToSingle(message, 9)
-			                                                                           });
+					headsUpDisplay.AccelerationSamples.TryAdd(new AccelerationSample {
+																						   Timestamp = timer,
+																						   X = BitConverter.ToSingle(message, 1),
+																						   Y = BitConverter.ToSingle(message, 4),
+																						   Z = BitConverter.ToSingle(message, 9)
+																					   });
 					/*headsUpDisplay.Acceleration = new Point3D(){
 						X = BitConverter.ToSingle(message, 1),
 						Y = BitConverter.ToSingle(message, 4),
