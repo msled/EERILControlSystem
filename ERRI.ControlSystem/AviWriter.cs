@@ -24,8 +24,8 @@ namespace EERIL.ControlSystem
             else
             {
                 path += ".avi";
-                videoWriter = new AVIWriter();
-                videoWriter.FrameRate = 15;
+                videoWriter = new AVIWriter("wmv3");
+                videoWriter.FrameRate = 12;
                 videoWriter.Open(path, width, height);
             }
         }
@@ -37,6 +37,7 @@ namespace EERIL.ControlSystem
             }
             else
             {
+                
                 videoWriter.AddFrame(frame.ToBitmap());
             }
         }
