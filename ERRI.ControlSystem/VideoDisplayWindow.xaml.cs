@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows;
@@ -19,6 +18,7 @@ using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Threading;
 using EERIL.DeviceControls;
+using Microsoft.Xna.Framework.Input;
 
 namespace EERIL.ControlSystem {
 	public delegate void BitmapFrameCapturedHandler(BitmapFrame frame);
@@ -29,7 +29,7 @@ namespace EERIL.ControlSystem {
 	{
 		public event BitmapFrameCapturedHandler BitmapFrameCaptured;
 		private readonly IDeviceManager deviceManager;
-		private const byte AXIS_ANGLE_DIVISOR = byte.MaxValue/180;
+		private const byte axisAngleDivisor = byte.MaxValue/180;
 		private Controller controller;
 		[return: MarshalAs(UnmanagedType.U1)]
 		[DllImport("gdi32.dll")]
@@ -74,17 +74,17 @@ namespace EERIL.ControlSystem {
 			}
 		}
 
-		public double PitchOffset
-		{
-			get
-			{
-				return headsUpDisplay.PitchOffset;
-			}
-			set
-			{
-				headsUpDisplay.PitchOffset = value;
-			}
-		}
+        public double PitchOffset
+        {
+            get
+            {
+                return headsUpDisplay.PitchOffset;
+            }
+            set
+            {
+                headsUpDisplay.PitchOffset = value;
+            }
+        }
 
 		public Controller Controller
 		{
@@ -102,7 +102,7 @@ namespace EERIL.ControlSystem {
 				controller = value;
 				if (controller != null)
 				{
-					controller.TriggerStateChanged += triggerStateChangedHandler;
+					controller.TriggerStateChanged += triggerStateChangedHandler;                                       
 					controller.ButtonStateChanged += buttonStateChangedHandler;
 				}
 			}
@@ -131,7 +131,7 @@ namespace EERIL.ControlSystem {
 			InitializeComponent();
 			Mission = mission;
 			Deployment = deployment;
-			Title = String.Format("Video - {0} > {1}", mission.Name, deployment.DateTime.ToString(CultureInfo.InvariantCulture));
+			Title = String.Format("Video - {0} > {1}", mission.Name, deployment.DateTime.ToString());
 			var app = Application.Current as App;
 			if (app == null)
 			{
@@ -153,15 +153,12 @@ namespace EERIL.ControlSystem {
 																													 {
 				if (deployment.Devices.Count > 0) {
 					IDevice device = deployment.Devices[0];
-					ICamera primaryCamera = device.PrimaryCamera;
-					primaryCamera.FrameReady += PrimaryCameraFrameReady;
+					device.FrameReady += DeviceFrameReady;
 					device.Open();
 					try
 					{
 						IDevice activeDevice = deviceManager.ActiveDevice;
-						primaryCamera.Open();
-						primaryCamera.AdjustPacketSize();
-						primaryCamera.BeginCapture();
+						deviceManager.ActiveDevice.StartVideoCapture(1000);
 						activeDevice.FinRange = Settings.Default.FinRange;
 						activeDevice.TopFinOffset = Settings.Default.TopFinOffset;
 						activeDevice.RightFinOffset = Settings.Default.RightFinOffset;
@@ -196,13 +193,14 @@ namespace EERIL.ControlSystem {
 					}
 					break;
 				case Trigger.Right:
-					if (pressed)
-					{
-						deviceManager.ActiveDevice.Turbo = !deviceManager.ActiveDevice.Turbo;
-					}
+                    if (pressed)
+                    {
+                        deviceManager.ActiveDevice.Turbo = !deviceManager.ActiveDevice.Turbo;
+                    }
 					break;
 			}
 		}
+
 
 		void ControllerButtonStateChanged(Button button, bool pressed) {
 			switch (button)
@@ -210,8 +208,8 @@ namespace EERIL.ControlSystem {
 				case Button.Y:
 					if (pressed)
 					{
-						headsUpDisplay.Visibility = headsUpDisplay.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
-					}
+                       headsUpDisplay.Visibility = headsUpDisplay.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+                    }
 					break;
 				case Button.A:
 					if (pressed)
@@ -225,9 +223,43 @@ namespace EERIL.ControlSystem {
 						deviceManager.ActiveDevice.Illumination = 0;
 					}
 					break;
-			}
-		}
+                case Button.LB:
+                    if (pressed)
+                    {
+                        deviceManager.ActiveDevice.FocusPosition = 60;
 
+                    }
+                    else
+                        deviceManager.ActiveDevice.FocusPosition = 51;
+                    break;
+               case Button.RB:
+                    if (pressed)
+                    {
+                        deviceManager.ActiveDevice.FocusPosition = 42;
+                    }
+                    else
+                        deviceManager.ActiveDevice.FocusPosition = 51;
+                    break;
+                case Button.DU:
+                    if (pressed)
+                    {
+                        deviceManager.ActiveDevice.BuoyancyPosition = 86;
+                    }
+                    else
+                        deviceManager.ActiveDevice.BuoyancyPosition = 81;
+                    break;
+                case Button.DD:
+                    if (pressed)
+                    {
+                        deviceManager.ActiveDevice.BuoyancyPosition = 76;
+                    }
+                    else
+                        deviceManager.ActiveDevice.BuoyancyPosition = 81;
+                    break;                    
+
+            }
+		}
+        
 		void ActiveDeviceMessageReceived(object sender, byte[] message)
 		{
 			switch (message[0])
@@ -235,7 +267,7 @@ namespace EERIL.ControlSystem {
 				case 0x74:
 					if (message.Length < 2)
 						break;
-					headsUpDisplay.Thrust = message[1] - 90;
+					headsUpDisplay.Thrust = message[1]-90;
 					break;
 				case 0x62:
 					if (message.Length < 17)
@@ -249,12 +281,6 @@ namespace EERIL.ControlSystem {
 					if (!VerifyChecksum(message))
 						break;
 					uint timer = BitConverter.ToUInt32(message, 73);
-					headsUpDisplay.AccelerationSamples.TryAdd(new AccelerationSample {
-																						   Timestamp = timer,
-																						   X = BitConverter.ToSingle(message, 1),
-																						   Y = BitConverter.ToSingle(message, 4),
-																						   Z = BitConverter.ToSingle(message, 9)
-																					   });
 					/*headsUpDisplay.Acceleration = new Point3D(){
 						X = BitConverter.ToSingle(message, 1),
 						Y = BitConverter.ToSingle(message, 4),
@@ -299,7 +325,7 @@ namespace EERIL.ControlSystem {
 					m13Buffer[2] = message[46];
 					m13Buffer[3] = message[45];
 					//This is wrong :). Because of the direction the sensor is mounted, we have to invert these values. Again, this is backward.
-					headsUpDisplay.Pitch = Math.Asin(BitConverter.ToSingle(m13Buffer, 0) * -1) * -1;
+					headsUpDisplay.Pitch = Math.Asin(BitConverter.ToSingle(m13Buffer, 0)) * 2.3;
 					m23Buffer[0] = message[60];
 					m23Buffer[1] = message[59];
 					m23Buffer[2] = message[58];
@@ -333,7 +359,7 @@ namespace EERIL.ControlSystem {
 			return result;
 		}
 
-		void PrimaryCameraFrameReady(object sender, IFrame frame)
+		void DeviceFrameReady(object sender, IFrame frame)
 		{
 			System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 			watch.Reset();

@@ -13,11 +13,8 @@ namespace EERIL.ControlSystem.Avt
             get;
             private set;
         }
-
-        public tErr Error { get; private set; }
-
-        internal PvException(tErr error) {
-            Error = error;
+        internal PvException(tErr error)
+        {
             switch (error)
             {
                 case tErr.eErrAccessDenied:

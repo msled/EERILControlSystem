@@ -1,7 +1,8 @@
 ﻿<Window x:Class="EERIL.ControlSystem.DeploymentWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Deployment" Height="278" Width="500" WindowStartupLocation="CenterOwner" Topmost="False" MinWidth="500" MinHeight="278" Closed="WindowClosed" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Title="MSLED Deployment Panel" Height="278" Width="500" WindowStartupLocation="CenterOwner" Topmost="False" MinWidth="500" MinHeight="278" Closed="WindowClosed" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+    
     <DockPanel LastChildFill="True" Height="238" Width="476">
         <DockPanel Name="controlPanel" DockPanel.Dock="Left" Width="200" LastChildFill="True" Margin="12,12,0,12">
             <Label DockPanel.Dock="Top" Content="Mission" Name="missionLabel">
@@ -10,7 +11,7 @@
                 <TextBox Height="23" Name="addMissionTextBox" Width="125" />
                 <Button Content="Add Mission" Height="23" Name="addMissionButton" Width="75" Click="addMissionButton_Click" />
             </StackPanel>
-            <ListBox Name="missionList" ItemsSource="{Binding Missions, Source={RelativeSource FindAncestor, AncestorType=Application}, Mode=OneWay}" SelectedIndex="0" DisplayMemberPath="Name" SelectionMode="Single" SelectionChanged="MissionListSelectionChanged" />
+            <ListBox Name="missionList" ItemsSource="{Binding Missions, Source={RelativeSource FindAncestor, AncestorType=Application}, Mode=OneWay}" DisplayMemberPath="Name" SelectionMode="Single" SelectionChanged="MissionListSelectionChanged" />
         </DockPanel>
         <StackPanel Margin="12">
             <Label Content="Date/Time" Height="28" Name="dateTimeLabel" />
@@ -18,7 +19,7 @@
             <Label Content="Notes" Height="28" Name="notesLabel" />
             <RichTextBox Height="100" Name="notesRichTextBox" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
             <StackPanel Name="deploymentButtonPanel" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Button Content="Deploy" Height="23" Name="deployButton" Width="75" Click="DeployButtonClick" Margin="12, 12, 0, 0" HorizontalAlignment="Right" IsEnabled="False" IsDefault="True" />
+                <Button Content="Deploy" Height="23" Name="deployButton" Width="75" Click="deployButton_Click" Margin="12, 12, 0, 0" HorizontalAlignment="Right" IsEnabled="False" IsDefault="True" />
                 <Button Content="Cancel" Height="23" Name="cancelButton" Width="75" Margin="12, 12, 0, 0" HorizontalAlignment="Right" IsEnabled="True" IsDefault="False" IsCancel="True" Click="CancelButtonClick" />
             </StackPanel>
         </StackPanel>

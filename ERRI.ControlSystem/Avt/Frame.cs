@@ -31,6 +31,10 @@ namespace EERIL.ControlSystem.Avt
                 Array.Copy(buffer, returnBuffer, Convert.ToInt32(frame.ImageBufferSize));
                 return returnBuffer;
             }
+            set
+            {
+                
+            }
         }
 
         public uint Size

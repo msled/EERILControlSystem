@@ -1,14 +1,16 @@
 #include <avr/power.h>
 #include <avr/wdt.h>
 #include <Servo.h>
+#include <SoftwareSerial.h>
 
-const long IMU_BAUD = 115200, SURFACE_BAUD = 115200, LOGGER_BAUD = 115200;
+const long IMU_BAUD = 115200, SURFACE_BAUD = 115200, LOGGER_BAUD = 115200, CTD_BAUD = 4800;
 
-//Note that if the Buoyancy motor is ever changed from PJ6, changing BUOYANCY_ENABLE may affect all DDRJ and PORTJ entries which will include some serial ports. If it is moved to a standard arduino pin, DDRJ and PORTJ entries may be removed.
+//Note that if the Buoyancy motor is ever changed from PJ6, changing BUOYANCY_ENABLE may affect all DDRJ and PORTJ entries which will
+//include some serial ports. If it is moved to a standard arduino pin, DDRJ and PORTJ entries may be removed.
 const int VERSION_MAJOR     = 4,
 VERSION_MINOR     = 0,
 
-//BUOYANCY_ENABLE   = B01000000, // sets DDRJ6 HIGH
+BUOYANCY_ENABLE   = B01000000, // sets DDRJ6 HIGH
 //V5_FLAG           = B10111111, // sets PORTJ5
 //IMU_BUFFER_LENGTH = 25,
 
@@ -19,7 +21,7 @@ FIBER_TRANS_POWER = 10, // PB4, 23
 LED_POWER         = 13, // PB7, 26
 VERTICAL_POWER    = 26, // PA4, 74
 HORIZONTAL_POWER  = 27, // PA5, 73
-//FOCUS_POWER      = ?
+//FOCUS_POWER       = ?
 //BUOYANCY_POWER  = PJ6
 //OLOG_RESET      = PJ2
 
@@ -30,12 +32,15 @@ THRUST_PIN        = 12, // PB6, 25
 LEFT_FIN_PIN      = 44, // PL5, 40
 TOP_FIN_PIN       = 45, // PL4, 39
 RIGHT_FIN_PIN     = 46, // PL3, 38
-//FOCUS_PIN        = ?
+FOCUS_PIN         = 51, // PB2, 21
 
 TEMPERATURE_PIN   = A5, // (59) PF5, 92
 HUMIDITY_PIN      = A6, // (60) PF6, 91
 CURRENT_PIN       = A7, // (61) PF7, 90
 VOLTAGE_PIN       = A15,// (69) PK7, 82
+
+MCU_CTD_RX_PIN    = 52, // SCK PB1, 20 REQUIRED FOR RX FROM CTD DUE TO INTERUPT CAPABILITY
+MCU_CTD_TX_PIN    = 50, // MISO PB3, 22 TX TO CTD FROM MCU
 
 IMU_READ_FIRMWARE_VERSION_COMMAND_CODE = 0xE9,
 IMU_READ_SENSOR_DATA_COMMAND_CODE      = 0xCC,
@@ -43,6 +48,7 @@ IMU_CONTINUOUS_COMMAND_CODE            = 0xC4,
 IMU_MODE_COMMAND_CODE                  = 0xD4,
 IMU_STOP_CONTINUOUS_MODE_COMMAND_CODE  = 0xFA;
 //IMU_DEVICE_RESET_COMMAND_CODE        = 0xFE;
+
 
 const byte IMU_CONTINUOUS_COMMAND[]             = {
   IMU_CONTINUOUS_COMMAND_CODE, 0xC1, 0x29, IMU_READ_SENSOR_DATA_COMMAND_CODE}
@@ -57,8 +63,12 @@ IMU_SLEEP_MODE_COMMAND[]            = {
   IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x4}
 ,
 IMU_DEEP_SLEEP_MODE_COMMAND[]       = {
-  IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x5};
+  IMU_MODE_COMMAND_CODE, 0xA3, 0x47, 0x5},
 //IMU_DEVICE_RESET_COMMAND[]          = {IMU_DEVICE_RESET_COMMAND_CODE, 0x9E, 0x3A};
+
+CTD_INIT_STATE = 0, CTD_CONNECTION_TEST_REQUEST = 1, CTD_CONNECTION_TEST_ECHO = 2, CTD_CONNECTED_TEST_RESPONSE = 3,
+CTD_PC_MODE_REQUEST = 4, CTD_PC_MODE_REQUEST_ECHO = 5, CTD_PC_MODE_REQUEST_RESPONSE = 6, CTD_POLL_DATA_REQUEST = 7, 
+CTD_POLL_DATA_REQUEST_ECHO = 8, CTD_POLL_DATA_REQUEST_SEND = 9, CTD_POLL_DATA_REQUEST_RESPONSE = 10;
 
 unsigned long lastRamp = 0, lastSensor = 0, time, lastCommand = 0, heartbeatThreshhold = 150;
 
@@ -68,11 +78,13 @@ buffer[BUFFER_LENGTH], currentThrust, targetThrust, rampDelay = 10, sensorDelay 
 
 unsigned short imuChksum,  imuResponseChksum;
 
-byte imuBuffer[128], sensorBuffer[17], thrustBuffer[3];
+byte imuBuffer[128], sensorBuffer[17], thrustBuffer[3], ctdBuffer[6], ctdState = CTD_INIT_STATE, cmd = 0;
 
-boolean imu = false, logger = false, imuLog = true, sensorDataRead = false, ramping = false;
+boolean imu = false, logger = false, imuLog = true, sensorDataRead = false, ramping = false, ctd = false;
 
-Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster, focus;
+Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster, lensFocus;
+
+SoftwareSerial CTDSerial(MCU_CTD_RX_PIN, MCU_CTD_TX_PIN);
 
 union f2ba{
   byte array[4];
@@ -83,22 +95,27 @@ float2ByteArray;
 void setup(){
   //Surface Control
   Serial.begin(SURFACE_BAUD);
+  //Acoustic Positioning System
+  //Serial1.begin(POS_BAUD);
   //IMU
   Serial2.begin(IMU_BAUD);
   //Logger
   Serial3.begin(LOGGER_BAUD);
+  //CTD
+  CTDSerial.begin(CTD_BAUD);
   thruster.attach(THRUST_PIN);
   topFin.attach(TOP_FIN_PIN);
   rightFin.attach(RIGHT_FIN_PIN);
   bottomFin.attach(BOTTOM_FIN_PIN);
   leftFin.attach(LEFT_FIN_PIN);
-  focus.attach(FOCUS_PIN);
+  lensFocus.attach(FOCUS_PIN);
+  buoyancyPlunger.attach(BUOYANCY_PIN);
   pinMode(LED_POWER, OUTPUT);
   pinMode(VERTICAL_POWER, OUTPUT);
   pinMode(HORIZONTAL_POWER, OUTPUT);
   pinMode(FIBER_TRANS_POWER, OUTPUT);
   pinMode(LED_DIMMER_PIN, OUTPUT);
-  pinMode(FOCUS_POWER, OUTPUT);
+  //pinMode(FOCUS_POWER, OUTPUT);
 
   neutralize();
 
@@ -108,8 +125,8 @@ void setup(){
 
   sensorBuffer[0] = 'b';
   thrustBuffer[0] = 't';
-  //buoyancyPlunger.attach(BUOYANCY_PIN);
-  //DDRJ = DDRJ | BUOYANCY_ENABLE; // sets PJ6 to OUTPUT while leaving all other Port J pinModes unchanged.
+  buoyancyPlunger.attach(BUOYANCY_PIN);
+  DDRJ = DDRJ | BUOYANCY_ENABLE; // sets PJ6 to OUTPUT while leaving all other Port J pinModes unchanged.
   //DDRJ = DDRJ & V5_FLAG; // sets PJ6 to input while leaving all other Port J pinModes unchanged
 
   wdt_enable(WDTO_8S); // enable watchdog timer for 8s interval
@@ -176,6 +193,9 @@ void loop(){
       case 'o':
         log('v' + String(VERSION_MAJOR, DEC) + "." + String(VERSION_MINOR, DEC));
         break;
+      case 'c':
+        ctd = true;
+        break; 
       }
       length = 0;
     } 
@@ -253,7 +273,91 @@ void loop(){
       }
     }
   }
-
+  if(ctd){
+    if(CTDSerial.peek()=='3'){
+      CTDSerial.read();
+    }
+    switch(ctdState){
+    case CTD_INIT_STATE:
+      ctdState = CTD_CONNECTION_TEST_REQUEST;
+      break;
+    case CTD_CONNECTION_TEST_REQUEST:
+      while(CTDSerial.available())
+        CTDSerial.read(); //flushing buffer if corrupt data
+      CTDSerial.write('0');
+      ctdState = CTD_CONNECTION_TEST_ECHO;
+      break;
+    case CTD_CONNECTION_TEST_ECHO:
+      if(CTDSerial.available()){
+        cmd = CTDSerial.read();
+        if(cmd == 0x00){
+          ctdState = CTD_CONNECTED_TEST_RESPONSE;
+        }
+        else{
+          ctdState = CTD_CONNECTION_TEST_ECHO;
+        }
+      }  
+    case CTD_CONNECTED_TEST_RESPONSE:
+      if(CTDSerial.available()){
+        if(CTDSerial.read() == 0x55)
+          ctdState = CTD_PC_MODE_REQUEST; 
+        else{
+          ctdState = CTD_CONNECTED_TEST_RESPONSE;
+        }
+      }             
+      break;
+    case CTD_PC_MODE_REQUEST:
+      CTDSerial.write(0x0C);
+      ctdState = CTD_PC_MODE_REQUEST_ECHO;
+      break;
+    case CTD_PC_MODE_REQUEST_ECHO:
+      if(CTDSerial.available()){
+        if(CTDSerial.read() == 0x0C)
+          ctdState = CTD_PC_MODE_REQUEST_RESPONSE;
+        else
+          ctdState = CTD_PC_MODE_REQUEST_ECHO;
+      }
+      break;
+    case CTD_PC_MODE_REQUEST_RESPONSE:
+      if(CTDSerial.available()){
+        if(CTDSerial.read() == 0x02)
+          ctdState = CTD_POLL_DATA_REQUEST; 
+        else
+          ctdState = CTD_PC_MODE_REQUEST_RESPONSE;
+      }
+      break;
+    case CTD_POLL_DATA_REQUEST:
+      CTDSerial.write(0x01);
+      ctdState = CTD_POLL_DATA_REQUEST_ECHO;
+      break;
+    case CTD_POLL_DATA_REQUEST_ECHO:
+      if(CTDSerial.available()){
+        if(CTDSerial.read() == 0x01)
+          ctdState = CTD_POLL_DATA_REQUEST_SEND;
+        else
+          ctdState = CTD_POLL_DATA_REQUEST_ECHO;
+      }
+      break;
+    case CTD_POLL_DATA_REQUEST_SEND:
+      CTDSerial.write(0x55);
+      ctdState = CTD_POLL_DATA_REQUEST_RESPONSE;
+      break;
+    case CTD_POLL_DATA_REQUEST_RESPONSE:
+      if(CTDSerial.available() >= 5){
+        for(int i = 0; i < 5; i++){
+          ctdBuffer[i] = CTDSerial.read();
+        }
+        log('c',false);
+        log(ctdBuffer,6);
+        ctd = false;
+        ctdState = CTD_INIT_STATE;
+      }
+      else{
+        ctdState = CTD_POLL_DATA_REQUEST_RESPONSE;
+      }
+      break;
+    }
+  } 
   if(time - lastCommand > heartbeatThreshhold){
     neutralize();
   }
@@ -265,6 +369,7 @@ void neutralize(){
   vertical(90);
   horizontal(90);
   focus(51);
+  buoyancy(81);
 }
 
 void illumination(byte illum){
@@ -315,8 +420,17 @@ void thrust(int speed){
 }
 
 void buoyancy(int pos){
-  buoyancyPlunger.write(pos);
-  log('b' + String(pos));
+  if(pos == 81) {
+    buoyancyPlunger.detach(); 
+  }
+  else {
+    if(!buoyancyPlunger.attached()) {
+      buoyancyPlunger.attach(BUOYANCY_PIN);
+    }
+    buoyancyPlunger.write(pos); 
+  }
+  log('b', false);
+  log(pos);
 }
 
 void power(int config){
@@ -327,12 +441,12 @@ void power(int config){
     digitalWrite(HORIZONTAL_POWER, HIGH);
     digitalWrite(FIBER_TRANS_POWER, HIGH);
     digitalWrite(LED_POWER, HIGH);
-    digitalWrite(FOCUS_POWER, HIGH);
+    //digitalWrite(FOCUS_POWER, HIGH);
     imu = true;
     Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
     Serial2.write(IMU_CONTINUOUS_MODE_COMMAND, 4);
     Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
-    //PORTJ = PORTJ | BUOYANCY_ENABLE; // sets PJ6 HIGH while leaving all other port J pins unchanged
+    PORTJ = PORTJ | BUOYANCY_ENABLE; // sets PJ6 HIGH while leaving all other port J pins unchanged
     power_all_enable();
     power_usart1_disable(); // disable ctd
     break;
@@ -342,12 +456,12 @@ void power(int config){
     digitalWrite(HORIZONTAL_POWER, HIGH);
     digitalWrite(FIBER_TRANS_POWER, HIGH);
     digitalWrite(LED_POWER, HIGH);
-    digitalWrite(FOCUS_POWER, HIGH);
+    //digitalWrite(FOCUS_POWER, HIGH);
     imu = true;
     Serial2.write(IMU_READ_FIRMWARE_VERSION_COMMAND_CODE);
     Serial2.write(IMU_CONTINUOUS_MODE_COMMAND, 4);
     Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
-    //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
+    PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
     power_all_enable();
     power_usart1_disable(); // disable ctd
     break;
@@ -357,11 +471,11 @@ void power(int config){
     digitalWrite(VERTICAL_POWER, LOW);
     digitalWrite(HORIZONTAL_POWER, LOW);
     digitalWrite(FIBER_TRANS_POWER, HIGH);
-    digitalWrite(FOCUS_POWER, LOW);
+    //digitalWrite(FOCUS_POWER, LOW);
     imu = false;
     Serial2.write(IMU_STOP_CONTINUOUS_MODE_COMMAND, 3);
     Serial2.write(IMU_SLEEP_MODE_COMMAND, 4);
-    //PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
+    PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
     power_adc_disable();
     power_twi_disable();
     power_usart1_disable();
@@ -432,5 +546,14 @@ void log(String data, boolean terminate){
     }
   }
 }
+
+
+
+
+
+
+
+
+
 
 

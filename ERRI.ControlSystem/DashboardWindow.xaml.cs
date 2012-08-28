@@ -1,305 +1,281 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Windows.Media.Animation;
+using System.Windows.Input;
+using Microsoft.Xna.Framework.GamerServices;
 
 namespace EERIL.ControlSystem
 {
-	internal enum MessageLevel
-	{
-		Error,
-		Normal,
-		Info
-	}
-	/// <summary>
-	/// Interaction logic for Dashboard.xaml
-	/// </summary>
-	public partial class DashboardWindow : Window {
-		private Controller controller;
-		private readonly IDeviceManager deviceManager;
-		private IMission mission;
-		private IDeployment deployment;
-		private VideoDisplayWindow videoDisplayWindow;
-		private readonly Properties.Settings settings = Properties.Settings.Default;
-		private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
-		private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
-		private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
-		private double serialScrollViewerHeight = 0;
+    /// <summary>
+    /// Interaction logic for Dashboard.xaml
+    /// </summary>
+    public partial class DashboardWindow : Window
+    {
+        private Controller controller = null;
+        private IDeviceManager deviceManager;
+        private VideoDisplayWindow videoDisplayWindow = null;
+        private readonly Properties.Settings settings = Properties.Settings.Default;
+        private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
+        private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
+        private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
+        public Controller Controller
+        {
+            get
+            {
+                return controller;
+            }
+            set
+            {
+                if (controller != null)
+                {
+                    controller.AxisChanged -= controllerAxisChangedHandler;
+                    controller.ConnectionChanged -= controllerConnectionChangedHandler;
+                }
+                controller = value;
+                if (controller != null)
+                {
+                    controller.AxisChanged += controllerAxisChangedHandler;
+                    controller.ConnectionChanged += controllerConnectionChangedHandler;
+                }
+            }
+        }
+        public VideoDisplayWindow VideoDisplay
+        {
+            get
+            {
+                return videoDisplayWindow;
+            }
+            set
+            {
+                if (videoDisplayWindow != null)
+                {
+                    videoDisplayWindow.BitmapFrameCaptured -= bitmapFrameCapturedHandler;
+                }
+                videoDisplayWindow = value;
+                if (videoDisplayWindow != null)
+                {
+                    videoDisplayWindow.BitmapFrameCaptured += bitmapFrameCapturedHandler;
+                }
+            }
+        }
 
-		public static DependencyProperty DeploymentProperty = DependencyProperty.Register("Deployment",
-																						  typeof (IDeployment),
-																						  typeof (DashboardWindow));
+        void VideoDisplayWindowBitmapFrameCaptured(BitmapFrame frame)
+        {
+            return;
+        }
 
-		public static readonly DependencyProperty MissionProperty =
-			DependencyProperty.Register("Mission", typeof (IMission), typeof (DashboardWindow), new PropertyMetadata(default(IMission)));
+        private IDeployment Deployment
+        {
+            get;
+            set;
+        }
 
-		public Controller Controller {
-			get {
-				return controller;
-			}
-			set {
-				if (controller != null) {
-					controller.AxisChanged -= controllerAxisChangedHandler;
-					controller.ConnectionChanged -= controllerConnectionChangedHandler;
-				}
-				controller = value;
-				if (controller != null)
-				{
-					controller.AxisChanged += controllerAxisChangedHandler;
-					controller.ConnectionChanged += controllerConnectionChangedHandler;
-				}
-			}
-		}
-		public VideoDisplayWindow VideoDisplay {
-			get
-			{
-				return videoDisplayWindow;
-			}
-			set
-			{
-				if(videoDisplayWindow != null){
-					videoDisplayWindow.BitmapFrameCaptured -= bitmapFrameCapturedHandler;
-				}
-				videoDisplayWindow = value;
-				if(videoDisplayWindow != null){
-					videoDisplayWindow.BitmapFrameCaptured += bitmapFrameCapturedHandler;
-				}
-			}
-		}
+        private IMission Mission
+        {
+            get;
+            set;
+        }
 
-		void VideoDisplayWindowBitmapFrameCaptured(BitmapFrame frame)
-		{
-		}
+        public DashboardWindow(IMission mission, IDeployment deployment)
+        {
+            InitializeComponent();
+            Mission = mission;
+            Deployment = deployment;
+            deviceManager = (Application.Current as App).DeviceManager;
+            if (deployment.Devices.Count > 0)
+            {
+                deviceManager.ActiveDevice = deployment.Devices[0];
+                deviceManager.ActiveDevice.MessageReceived += ActiveDeviceMessageReceived;
+            }
+            controllerAxisChangedHandler = ControllerAxisChanged;
+            controllerConnectionChangedHandler = ControllerConnectionChanged;
+            bitmapFrameCapturedHandler = VideoDisplayWindowBitmapFrameCaptured;
+            this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString());
+            YawOffsetSlider.ValueChanged += YawOffsetSliderValueChanged;
+            PitchOffsetSlider.ValueChanged += PitchOffsetSliderValueChanged;
+            FinRangeSlider.ValueChanged += FinRangeSliderValueChanged;
+            TopFinOffsetSlider.ValueChanged += TopFinOffsetSliderValueChanged;
+            RightFinOffsetSlider.ValueChanged += RightFinOffsetSliderValueChanged;
+            BottomFinOffsetSlider.ValueChanged += BottomFinOffsetSliderValueChanged;
+            LeftFinOffsetSlider.ValueChanged += LeftFinOffsetSliderValueChanged;
+            illuminationSlider.ValueChanged += IlluminationSliderValueChanged;
+            focusSlider.ValueChanged += focusSliderValueChanged;
+            buoyancySlider.ValueChanged += buoyancySliderValueChanged;
+        }
 
-		public IDeployment Deployment {
-			get { return GetValue(DeploymentProperty) as IDeployment; }
-			private set { SetValue(DeploymentProperty, value);}
-		}
+        void focusSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.FocusPosition = Convert.ToByte(e.NewValue);
+        }
 
-		public IMission Mission
-		{
-			get { return GetValue(MissionProperty) as IMission; }
-			set { SetValue(MissionProperty, value); }
-		}
+        void buoyancySliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.BuoyancyPosition = Convert.ToByte(e.NewValue);
+        }
 
-		public DashboardWindow(IMission mission, IDeployment deployment) {
-			InitializeComponent();
-			Mission = mission;
-			Deployment = deployment;
-			deviceManager = (Application.Current as App).DeviceManager;
-			if (deployment.Devices.Count > 0) {
-				deviceManager.ActiveDevice = deployment.Devices[0];
-				deviceManager.ActiveDevice.MessageReceived += ActiveDeviceMessageReceived;
-			}
-			controllerAxisChangedHandler = ControllerAxisChanged;
-			controllerConnectionChangedHandler = ControllerConnectionChanged;
-			bitmapFrameCapturedHandler = VideoDisplayWindowBitmapFrameCaptured;
-			this.Title = String.Format("Dashboard - {0} > {1}", mission.Name, deployment.DateTime.ToString(CultureInfo.InvariantCulture));
-			YawOffsetSlider.ValueChanged += YawOffsetSliderValueChanged;
-			PitchOffsetSlider.ValueChanged += PitchOffsetSliderValueChanged;
-			FinRangeSlider.ValueChanged += FinRangeSliderValueChanged;
-			TopFinOffsetSlider.ValueChanged += TopFinOffsetSliderValueChanged;
-			RightFinOffsetSlider.ValueChanged += RightFinOffsetSliderValueChanged;
-			BottomFinOffsetSlider.ValueChanged += BottomFinOffsetSliderValueChanged;
-			LeftFinOffsetSlider.ValueChanged += LeftFinOffsetSliderValueChanged;
-			illuminationSlider.ValueChanged += IlluminationSliderValueChanged;
-			focusSlider.ValueChanged += focusSliderValueChanged;
-		}
+        void IlluminationSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.Illumination = Convert.ToByte(e.NewValue);
+        }
 
-		private void WriteToConsole(string line, MessageLevel level = MessageLevel.Normal)
-		{
-			/*Inline inline;
-			if (level == MessageLevel.Normal)
-			{
-				inline = new Run(line);
-			}
-			else
-			{
-				inline = new Bold(new Span(new Run(line)) { Foreground = level == MessageLevel.Error ? Brushes.DarkRed : Brushes.DarkGreen });
-			}
-			serialTextBlock.ContentStart.InsertLineBreak();
-			serialTextBlock.Inlines.InsertBefore(serialTextBlock.Inlines.FirstInline, inline);
-			while (serialTextBlock.Inlines.Count > settings.MessageHistoryLength)
-			{
-				serialTextBlock.Inlines.Remove(serialTextBlock.Inlines.LastInline);
-				serialTextBlock.Inlines.Remove(serialTextBlock.Inlines.LastInline);
-			}*/
-		}
+        void YawOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            videoDisplayWindow.YawOffset = e.NewValue;
+        }
 
-		void focusSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.Focus = Convert.ToByte(e.NewValue);
-		}
+        void PitchOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            videoDisplayWindow.PitchOffset = e.NewValue;
+        }
 
-		void IlluminationSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.Illumination = Convert.ToByte(e.NewValue);
-		}
+        void FinRangeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.FinRange = Convert.ToByte(e.NewValue);
+        }
 
-		void YawOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			videoDisplayWindow.YawOffset = e.NewValue;
-		}
+        void LeftFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.LeftFinOffset = Convert.ToByte(e.NewValue);
+        }
 
-		void PitchOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			videoDisplayWindow.PitchOffset = e.NewValue;
-		}
+        void BottomFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.BottomFinOffset = Convert.ToByte(e.NewValue);
+        }
 
-		void FinRangeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.FinRange = Convert.ToByte(e.NewValue);
-		}
+        void RightFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.RightFinOffset = Convert.ToByte(e.NewValue);
+        }
 
-		void LeftFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.LeftFinOffset = Convert.ToByte(e.NewValue);
-		}
+        void TopFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(e.NewValue);
+        }
 
-		void BottomFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.BottomFinOffset = Convert.ToByte(e.NewValue);
-		}
+        void ActiveDeviceMessageReceived(object sender, byte[] message)
+        {
+            //serialData.Text += message;
+        }
 
-		void RightFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.RightFinOffset = Convert.ToByte(e.NewValue);
-		}
+        void ControllerConnectionChanged(bool connected)
+        {
+            state.Content = connected ? "Connected" : "Disconnected";
+        }
 
-		void TopFinOffsetSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			deviceManager.ActiveDevice.TopFinOffset = Convert.ToByte(e.NewValue);
-		}
+        void ControllerAxisChanged(ControllerJoystick joystick, ControllerJoystickAxis axis, byte oldValue, byte newValue)
+        {
+            IDevice device = deviceManager.ActiveDevice;
+            if (device != null)
+            {
+                switch (joystick)
+                {
+                    case ControllerJoystick.Left:
+                        switch (axis)
+                        {
+                            case ControllerJoystickAxis.X:
+                                try
+                                {
+                                    device.VerticalFinPosition = newValue;
+                                }
+                                catch (Exception ex)
+                                {
+                                    //serialData.Text += ex.Message + '\n';
+                                }
+                                break;
+                            case ControllerJoystickAxis.Y:
+                                try
+                                {
+                                    device.HorizontalFinPosition = newValue;
+                                }
+                                catch (Exception ex)
+                                {
+                                    //serialData.Text += ex.Message + '\n';
+                                }
+                                break;
+                        }
+                        break;
+                    case ControllerJoystick.Right:
+                        switch (axis)
+                        {
+                            case ControllerJoystickAxis.Y:
 
-		void ActiveDeviceMessageReceived(object sender, byte[] message) {
-			WriteToConsole('>' + BitConverter.ToString(message));
-		}
+                                {
+                                    try
+                                    {
+                                        device.Thrust = newValue;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        //serialData.Text += ex.Message + '\n';
+                                    }
+                                }
+                                break;
+                        }
+                        break;
+                }
+            }
+        }
 
-		void ControllerConnectionChanged(bool connected) {
-			state.Content = connected ? "Connected" : "Disconnected";
-		}
+        private void WindowClosed(object sender, EventArgs e)
+        {
+            if (VideoDisplay.IsVisible)
+            {
+                VideoDisplay.Dispatcher.Invoke(
+                    DispatcherPriority.Normal,
+                    new Action(() => VideoDisplay.Close()));
+            }
+            deviceManager.ActiveDevice.Close();
+            (Application.Current as App).MainWindow.Show();
+        }
 
-		void ControllerAxisChanged(ControllerJoystick joystick, ControllerJoystickAxis axis, byte oldValue, byte newValue) {
-			IDevice device = deviceManager.ActiveDevice;
-			if (device != null) {
-				switch (joystick) {
-					case ControllerJoystick.Left:
-						switch (axis) {
-							case ControllerJoystickAxis.X:
-								try
-								{
-									device.HorizontalFinPosition = newValue;
-								}
-								catch (Exception ex)
-								{
-									//TODO: Route to console
-									//serial.Text += ex.Message + '\n';
-								}
-								break;
-							case ControllerJoystickAxis.Y:
-								try
-								{
-									device.VerticalFinPosition = newValue;
-								}
-								catch (Exception ex)
-								{
-									//TODO: Route to console
-									//serialData.Text += ex.Message + '\n';
-								}
-								break;
-						}
-						break;
-					case ControllerJoystick.Right:
-						switch (axis)
-						{
-							case ControllerJoystickAxis.Y:
-								try
-								{
-									device.Thrust = newValue;
-								}
-								catch (Exception ex)
-								{
-									//TODO: Route to console
-									//serialData.Text += ex.Message + '\n';
-								}
-								break;
-						}
-						break;
-				}
-			}
-		}
+        private void RecordVideoButtonClick(object sender, RoutedEventArgs e)
+        {
+            VideoDisplay.RecordVideoStream = !VideoDisplay.RecordVideoStream;
+            recordVideoButton.Content = VideoDisplay.RecordVideoStream ? "Video is Recording" : "Record Video";
+        }
 
-		private void WindowClosed(object sender, EventArgs e) {
-			if (VideoDisplay.IsVisible)
-			{
-				VideoDisplay.Dispatcher.BeginInvoke(
-					DispatcherPriority.Send,
-					new Action(() => VideoDisplay.Close()));
-			}
-			deviceManager.ActiveDevice.Close();
-			(Application.Current as App).MainWindow.Show();
-		}
+        private void PowerComboBoxSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            Control selected = (e.AddedItems[0] as Control);
+            if (deviceManager != null && selected != null)
+            {
+                deviceManager.ActiveDevice.PowerConfiguration = (PowerConfigurations)Byte.Parse(selected.Tag as String);
+            }
+        }
 
-		private void PowerComboBoxSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-		{
-			Control selected = (e.AddedItems[0] as Control);
-			if (deviceManager != null && selected != null)
-			{
-				deviceManager.ActiveDevice.PowerConfiguration = (PowerConfigurations) Byte.Parse(selected.Tag as String);
-			}
-		}
+        private void resetFocusButton_Click(object sender, RoutedEventArgs e)
+        {
+            deviceManager.ActiveDevice.FocusPosition = 51;
+        }
 
-		private void DevicesTreeViewSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e) {
-			devicePropertyGrid.Visibility = e.NewValue != null ? Visibility.Visible : Visibility.Hidden;
-		}
+        private void focusSlider_LostMouseCapture(object sender, MouseEventArgs e)
+        {
+            Duration returnToCenterDuration = new Duration(new TimeSpan(0, 0, 0, 0, 50));
+            focusSlider.BeginAnimation(Slider.ValueProperty, new DoubleAnimation(focusSlider.Value, 51, returnToCenterDuration));
+            focusSlider.Value = 51;
+        }
 
-		private void RecordVideoToggleButtonChecked(object sender, RoutedEventArgs e)
-		{
-			VideoDisplay.RecordVideoStream = true;
-			recordVideoToggleButton.Content = "Video is Recording";
-		}
+        private void invertThrustToggleButton_Checked(object sender, RoutedEventArgs e)
+        {
+            deviceManager.ActiveDevice.Tinvert = true;
+            invertThrustToggleButton.Content = "Thrust control reversed";
+        }
 
-		private void RecordVideoToggleButtonUnchecked(object sender, RoutedEventArgs e)
-		{
-			VideoDisplay.RecordVideoStream = false;
-			recordVideoToggleButton.Content = "Record Video";
-		}
-
-		private void GridSplitterMouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) {
-			if (serialScrollViewer.Visibility == Visibility.Collapsed) {
-				serialScrollViewer.Visibility = Visibility.Visible;
-				serialScrollViewer.Height = serialScrollViewerHeight;
-				serialRow.Height = GridLength.Auto;
-			}
-			else
-			{
-				serialScrollViewerHeight = serialRow.ActualHeight;
-				serialScrollViewer.Visibility = Visibility.Collapsed;
-				serialRow.Height = GridLength.Auto;
-			}
-		}
-
-		private void GridSplitterDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-		{
-			if (serialScrollViewer.Visibility == Visibility.Collapsed)
-			{
-				serialScrollViewer.Visibility = Visibility.Visible;
-			}
-		}
-
-		private void CalibrateImuButtonClick(object sender, RoutedEventArgs e) {
-			IDevice device = deviceManager.ActiveDevice;
-			if (device != null)
-			{
-				device.CalibrateIMU();
-			}
-		}
-	}
+        private void invertThrustToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            deviceManager.ActiveDevice.Tinvert = false;
+            invertThrustToggleButton.Content = "Invert thrust control";
+        }
+        private void buoyancySlider_LostMouseCapture(object sender, MouseEventArgs e)
+        {
+            Duration returnToCenterDuration = new Duration(new TimeSpan(0, 0, 0, 0, 50));
+            buoyancySlider.BeginAnimation(Slider.ValueProperty, new DoubleAnimation(buoyancySlider.Value, 81, returnToCenterDuration));
+            buoyancySlider.Value = 81;
+        }
+      
+    }
 }

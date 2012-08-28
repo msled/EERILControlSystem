@@ -193,37 +193,25 @@ namespace EERIL.ControlSystem.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public double PitchOffset {
-            get {
-                return ((double)(this["PitchOffset"]));
-            }
-            set {
-                this["PitchOffset"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
-        public int MessageHistoryLength {
-            get {
-                return ((int)(this["MessageHistoryLength"]));
-            }
-            set {
-                this["MessageHistoryLength"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("51")]
-        public byte focus {
+        public byte focusPosition {
             get {
-                return ((byte)(this["focus"]));
+                return ((byte)(this["focusPosition"]));
             }
             set {
-                this["focus"] = value;
+                this["focusPosition"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("81")]
+        public string buoyancyPosition {
+            get {
+                return ((string)(this["buoyancyPosition"]));
+            }
+            set {
+                this["buoyancyPosition"] = value;
             }
         }
     }

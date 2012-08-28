@@ -1,7 +1,7 @@
 ﻿<Window x:Class="EERIL.ControlSystem.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Msled Surface Control" Height="350" Width="525" WindowStartupLocation="CenterScreen" Topmost="False" MinWidth="525" MinHeight="350">
+        Title="MSLED Surface Control" Height="350" Width="525" WindowStartupLocation="CenterScreen" Topmost="False" MinWidth="525" MinHeight="350">
     <TabControl Name="mainTabControl">
         <TabItem Header="Devices" Name="devicesTabItem">
             <DockPanel LastChildFill="True">

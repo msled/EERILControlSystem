@@ -93,37 +93,48 @@ namespace EERIL.DeviceControls
                 SetValue(CurrentZProperty, value);
             }
         }
-        public Point3D Distance {
-            get {
+        public Point3D Distance
+        {
+            get
+            {
                 return distance;
             }
         }
-        public float FurthestDistance {
-            get {
+        public float FurthestDistance
+        {
+            get
+            {
                 return furthestDistance;
             }
         }
-        public long Time {
-            get {
-                return (long) GetValue(TimeProperty);
+        public long Time
+        {
+            get
+            {
+                return (long)GetValue(TimeProperty);
             }
-            private set {
+            private set
+            {
                 SetValue(TimeProperty, value);
             }
         }
 
-        public IProducerConsumerCollection<AccelerationSample> Samples {
-            get {
+        public IProducerConsumerCollection<AccelerationSample> Samples
+        {
+            get
+            {
                 return samples;
             }
         }
 
-        public AccelerationBasedLocation() {
+        public AccelerationBasedLocation()
+        {
             samples = new ConcurrentQueue<AccelerationSample>();
             processingTimer.Elapsed += ProcessingTimerOnElapsed;
         }
 
-        private void ProcessingTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs) {
+        private void ProcessingTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        {
             AccelerationSample sample;
             long elapsedTime;
             int count = samples.Count;
@@ -132,7 +143,8 @@ namespace EERIL.DeviceControls
             float distanceZInverse;
             while (count-- > 0 && samples.TryDequeue(out sample))
             {
-                if (initialTimestamp == -1) {
+                if (initialTimestamp == -1)
+                {
                     initialTimestamp = sample.Timestamp;
                     previousTimestamp = initialTimestamp;
                 }
@@ -146,9 +158,9 @@ namespace EERIL.DeviceControls
                 distance.X = Time * AverageX;
                 distance.Y = Time * AverageY;
                 distance.Z = Time * AverageZ;
-                distanceXInverse = distance.X * -1;
-                distanceYInverse = distance.Y * -1;
-                distanceZInverse = distance.Z * -1;
+                distanceXInverse = distance.X;
+                distanceYInverse = distance.Y;
+                distanceZInverse = distance.Z;
                 if (distance.X > furthestDistance || distanceXInverse > furthestDistance)
                 {
                     furthestDistance = distanceXInverse > 0 ? distanceXInverse : distance.X;
@@ -167,17 +179,22 @@ namespace EERIL.DeviceControls
             OnValuesUpdated();
         }
 
-        protected void OnValuesUpdated() {
-            if (ValuesUpdated != null) {
+        protected void OnValuesUpdated()
+        {
+            if (ValuesUpdated != null)
+            {
                 EventHandler eventHandler = ValuesUpdated;
                 Delegate[] delegates = eventHandler.GetInvocationList();
                 EventArgs eventArgs = new EventArgs();
                 foreach (EventHandler handler in delegates)
                 {
                     var dispatcherObject = handler.Target as DispatcherObject;
-                    if (dispatcherObject != null && !dispatcherObject.CheckAccess()) {
+                    if (dispatcherObject != null && !dispatcherObject.CheckAccess())
+                    {
                         dispatcherObject.Dispatcher.Invoke(DispatcherPriority.DataBind, handler, this, eventArgs);
-                    } else {
+                    }
+                    else
+                    {
                         handler(this, eventArgs);
                     }
                 }

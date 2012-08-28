@@ -5,7 +5,7 @@ using PvNET;
 
 namespace EERIL.ControlSystem.Avt
 {
-    public delegate void CameraConnectionHandler(Camera camera);
+    public delegate void CameraConnectionHandler(ICamera camera);
 
     public class GigEVision
     {

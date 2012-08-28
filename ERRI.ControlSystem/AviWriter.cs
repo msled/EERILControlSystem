@@ -18,12 +18,12 @@ namespace EERIL.ControlSystem
         {
             if (width == 0 || height == 0)
             {
-                path = ".stream";
+                path += ".stream";
                 videoStream = File.Create(path, 1392640);
             }
             else
             {
-                path = ".avi";
+                path += ".avi";
                 videoWriter = new AVIWriter();
                 videoWriter.FrameRate = 15;
                 videoWriter.Open(path, width, height);
@@ -31,7 +31,7 @@ namespace EERIL.ControlSystem
         }
         public void AddFrame(IFrame frame)
         {
-            if (videoStream == null)
+            if (videoStream != null)
             {
                 videoStream.Write(frame.Buffer, 0, frame.Buffer.Length);
             }
@@ -42,7 +42,7 @@ namespace EERIL.ControlSystem
         }
         public void Dispose()
         {
-            if (videoStream == null)
+            if (videoStream != null)
             {
                 videoStream.Close();
                 videoStream.Dispose();

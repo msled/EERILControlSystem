@@ -17,8 +17,6 @@ namespace EERIL.ControlSystem {
 	/// Interaction logic for TestWindow.xaml
 	/// </summary>
 	public partial class TestWindow : Window {
-		private ITest curTest;
-
 		public IDevice Device {
 			get;
 			set;
@@ -40,14 +38,13 @@ namespace EERIL.ControlSystem {
 		}
 
 		private void cancelButton_Click(object sender, RoutedEventArgs e) {
-			curTest.Cancel();
 			this.Close();
 		}
 
 		private void beginButton_Click(object sender, RoutedEventArgs e)
 		{
-			curTest = testTreeView.SelectedItem as ITest;
-			curTest.Begin();
+			ITest test = testTreeView.SelectedItem as ITest;
+			test.Begin();
 		}
 	}
 }

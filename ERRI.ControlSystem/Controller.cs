@@ -7,7 +7,6 @@ using System.Threading;
 using System.ComponentModel;
 using Microsoft.Xna.Framework.Input;
 using System.Windows.Threading;
-
 namespace EERIL.ControlSystem
 {
     public delegate void ControllerConnectionChangedHandler(bool connected);
@@ -16,7 +15,7 @@ namespace EERIL.ControlSystem
     public delegate void TriggerStateChangedHandler(Trigger trigger, bool pressed);
     public enum Button
     {
-        X, Y, A, B
+        X, Y, A, B, LB, RB, DU, DD
     }
     public enum Trigger
     {
@@ -34,6 +33,7 @@ namespace EERIL.ControlSystem
     {
         One, Two, Three, Four
     }
+    
     public class Controller : IDisposable
     {
         private GamePadState state;
@@ -70,6 +70,22 @@ namespace EERIL.ControlSystem
             }
         }
 
+        public bool LB
+        {
+            get
+            {
+                return state.Buttons.LeftShoulder == ButtonState.Pressed;
+            }
+        }
+
+        public bool RB
+        {
+            get
+            {
+                return state.Buttons.RightShoulder == ButtonState.Pressed;
+            }
+        }
+
         public bool LeftTrigger
         {
             get
@@ -77,6 +93,23 @@ namespace EERIL.ControlSystem
                 return state.Triggers.Left > 0;
             }
         }
+
+        public bool DU
+        {
+            get
+            {
+                return state.DPad.Up == ButtonState.Pressed;
+            }
+        }
+
+        public bool DD
+        {
+            get
+            {
+                return state.DPad.Down == ButtonState.Pressed;
+            }
+        }
+
 
         public bool RightTrigger
         {
@@ -172,7 +205,7 @@ namespace EERIL.ControlSystem
         private void ControllerMonitor()
         {
             byte leftX = 0, leftY = 0, rightX = 0, rightY = 0;
-            bool y = false, a = false, b = false, rightTrigger = false, leftTrigger = false;
+            bool y = false, a = false, b = false, rightTrigger = false, leftTrigger = false, rb = false, lb = false, du = false, dd = false;
             while (run)
             {
                 state = GamePad.GetState(playerIndex);
@@ -201,6 +234,7 @@ namespace EERIL.ControlSystem
                         OnControllerAxisChanged(ControllerJoystick.Right, ControllerJoystickAxis.X, rightX, newRightX);
                         rightX = newRightX;
                     }
+                   
                     byte newRightY = Convert.ToByte((state.ThumbSticks.Right.Y + 1) * 90);
                     if (rightY != newRightY)
                     {
@@ -221,6 +255,26 @@ namespace EERIL.ControlSystem
                     {
                         b = B;
                         OnButtonStateChanged(Button.B, b);
+                    }
+                    if (lb != LB)
+                    {
+                        lb = LB;
+                        OnButtonStateChanged(Button.LB, lb);
+                    } 
+                    if (rb != RB)
+                    {
+                        rb = RB;
+                        OnButtonStateChanged(Button.RB, rb);
+                    }
+                    if (du != DU)
+                    {
+                        du = DU;
+                        OnButtonStateChanged(Button.DU, du);
+                    }
+                    if (dd != DD)
+                    {
+                        dd = DD;
+                        OnButtonStateChanged(Button.DD, dd);
                     }
                     if (rightTrigger != RightTrigger)
                     {
