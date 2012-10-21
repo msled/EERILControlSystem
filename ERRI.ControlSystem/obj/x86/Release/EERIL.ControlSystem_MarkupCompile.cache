@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Release\
 EERIL.ControlSystem
 none
 false
-DEBUG;TRACE
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\App.xaml
+TRACE
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\App.xaml
 5206771796
 7573112817
-451895408131
-21-119650623
+44-91918832
+21-1785707173
 DashboardWindow.xaml;DeploymentWindow.xaml;MainWindow.xaml;TestWindow.xaml;VideoDisplayWindow.xaml;
 splashscreen1.png
-True
+False
 

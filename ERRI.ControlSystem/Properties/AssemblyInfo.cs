@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EERIL Robot Control System")]
+[assembly: AssemblyTitle("MSLED Surface Control Software")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Extreme Environment Robotics and Instrumentation Laboratory")]
-[assembly: AssemblyProduct("Msled")]
+[assembly: AssemblyProduct("MSLED")]
 [assembly: AssemblyCopyright("Copyright © ASU 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

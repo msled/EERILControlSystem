@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 using EERIL.ControlSystem.Avt;
 
 namespace EERIL.ControlSystem {
@@ -11,5 +12,6 @@ namespace EERIL.ControlSystem {
 		IList<IDevice> Devices { get; }
 		void RecordFrame(IDevice device, IFrame frame);
 		void Dispose();
+        void Bmpsave(Bitmap bitmap);
 	}
 }

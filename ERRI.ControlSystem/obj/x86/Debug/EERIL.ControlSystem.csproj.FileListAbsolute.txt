@@ -36,41 +36,132 @@ C:\Users\msled\Desktop\ddcc-EERILControlSystem-24e8540\ddcc-EERILControlSystem-2
 C:\Users\msled\Desktop\ddcc-EERILControlSystem-24e8540\ddcc-EERILControlSystem-24e8540\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application
 C:\Users\msled\Desktop\ddcc-EERILControlSystem-24e8540\ddcc-EERILControlSystem-24e8540\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
 C:\Users\msled\Desktop\ddcc-EERILControlSystem-24e8540\ddcc-EERILControlSystem-24e8540\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.pdb
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.config
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.pdb
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\PvAPI.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\Lib\Splicer.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\HeadsUpDisplay.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\Lib\PvNET.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.manifest
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.application
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.pdb
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\AForge.Video.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\AForge.Video.VFW.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\PvNET.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\Splicer.dll
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.pdb
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.baml
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\MainWindow.baml
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\TestWindow.baml
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\MainWindow.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\TestWindow.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\App.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_Content.g.cs
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.cache
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.lref
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.baml
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.baml
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.g.resources
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.Properties.Resources.resources
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.read.1.tlog
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.write.1.tlog
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe.manifest
-C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\MainWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\TestWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\MainWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\TestWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\App.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_Content.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.cache
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.lref
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\HeadsUpDisplay.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\PvAPI.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\Lib\Splicer.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\Lib\PvNET.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.config
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.manifest
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.application
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.pdb
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\AForge.Video.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\AForge.Video.VFW.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\PvNET.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\Splicer.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.pdb
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.g.resources
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.Properties.Resources.resources
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe.manifest
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.pdb
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.config
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\MainWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\TestWindow.baml
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\MainWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\TestWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\App.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_Content.g.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.cache
+C:\Users\msled\Desktop\EERILControlSystem_09-02\Backup\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.lref
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.config
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\HeadsUpDisplay.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\PvAPI.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\Lib\Splicer.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\Lib\PvNET.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.manifest
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.application
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.pdb
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\AForge.Video.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\AForge.Video.VFW.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\PvNET.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\Splicer.dll
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.pdb
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\ResolveAssemblyReference.cache
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.baml
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\MainWindow.baml
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\TestWindow.baml
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\MainWindow.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\TestWindow.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\App.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_Content.g.cs
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.cache
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.lref
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.baml
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.baml
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.g.resources
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.Properties.Resources.resources
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.read.1.tlog
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.write.1.tlog
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe.manifest
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
+\\NAS\Data\Programming\New\EERILControlSystem_09-02\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.pdb
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\HeadsUpDisplay.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\PvAPI.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\Lib\Splicer.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\Lib\PvNET.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.config
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.manifest
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.application
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.pdb
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\AForge.Video.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\AForge.Video.VFW.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\PvNET.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\Splicer.dll
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.pdb
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.baml
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\MainWindow.baml
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\TestWindow.baml
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\MainWindow.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\TestWindow.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\App.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_Content.g.cs
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.cache
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.lref
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.baml
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.baml
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.g.resources
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.Properties.Resources.resources
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe.manifest
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
+C:\Users\msled\Desktop\SOFTWARE 2\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.pdb

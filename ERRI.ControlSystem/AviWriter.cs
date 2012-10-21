@@ -37,7 +37,6 @@ namespace EERIL.ControlSystem
             }
             else
             {
-                
                 videoWriter.AddFrame(frame.ToBitmap());
             }
         }

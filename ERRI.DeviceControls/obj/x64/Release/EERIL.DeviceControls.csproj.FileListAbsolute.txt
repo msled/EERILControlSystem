@@ -1,0 +1,9 @@
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\bin\x64\Release\HeadsUpDisplay.cs
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\bin\x64\Release\EERI.DeviceControls.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\bin\x64\Release\EERI.DeviceControls.pdb
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\obj\x64\Release\ResolveAssemblyReference.cache
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\obj\x64\Release\EERIL.DeviceControls.Properties.Resources.resources
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\obj\x64\Release\GenerateResource.read.1.tlog
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\obj\x64\Release\GenerateResource.write.1.tlog
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\obj\x64\Release\EERI.DeviceControls.dll
+C:\Users\msled\Desktop\EERILControlSystem_09-02\ERRI.DeviceControls\obj\x64\Release\EERI.DeviceControls.pdb

@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Xml;
 using EERIL.ControlSystem.Avt;
+using System.Windows.Media.Imaging;
 
 namespace EERIL.ControlSystem
 {
@@ -92,6 +93,11 @@ namespace EERIL.ControlSystem
             xmlWriter.WriteElementString("DateTime", this.DateTime.ToString(CultureInfo.InvariantCulture));
             xmlWriter.WriteElementString("Notes", Notes);
             xmlWriter.Close();
+        }
+
+        public void Bmpsave(Bitmap bitmap)
+        {
+            bitmap.Save(Path.Combine(this.imageDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".jpg"), System.Drawing.Imaging.ImageFormat.Jpeg);
         }
 
         internal static IDeployment Load(DirectoryInfo directory)

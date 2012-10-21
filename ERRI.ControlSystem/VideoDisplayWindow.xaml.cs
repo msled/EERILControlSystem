@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,6 +37,7 @@ namespace EERIL.ControlSystem {
 		protected static extern bool DeleteObject(IntPtr hObject);
 		private List<byte> sent = new List<byte>(100);
 		private bool captureFrame = false;
+        private bool screenshot = false;
 		private BitmapFrame bitmapFrame = null;
 		private readonly TriggerStateChangedHandler triggerStateChangedHandler;
 		private readonly ButtonStateChangedHandler buttonStateChangedHandler;
@@ -45,7 +47,9 @@ namespace EERIL.ControlSystem {
 		private readonly byte[] m23Buffer = new byte[4];
 		private readonly byte[] m33Buffer = new byte[4];
 
-		public bool RecordVideoStream { get; set; }
+        
+
+        public bool RecordVideoStream { get; set; }
 
 		public DashboardWindow Dashboard {
 			get;
@@ -123,6 +127,7 @@ namespace EERIL.ControlSystem {
 					}
 					else
 						handler(frame);
+                  
 				}
 			}
 		}
@@ -205,7 +210,14 @@ namespace EERIL.ControlSystem {
 		void ControllerButtonStateChanged(Button button, bool pressed) {
 			switch (button)
 			{
-				case Button.Y:
+				case Button.X:
+                    if (pressed)
+                    {
+                        screenshot = true;
+                        headsUpDisplay.ScreenshotAck = true;
+                    }
+                    break;
+                case Button.Y:
 					if (pressed)
 					{
                        headsUpDisplay.Visibility = headsUpDisplay.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
@@ -243,7 +255,7 @@ namespace EERIL.ControlSystem {
                 case Button.DU:
                     if (pressed)
                     {
-                        deviceManager.ActiveDevice.BuoyancyPosition = 86;
+                        deviceManager.ActiveDevice.BuoyancyPosition = 255;
                     }
                     else
                         deviceManager.ActiveDevice.BuoyancyPosition = 81;
@@ -251,7 +263,7 @@ namespace EERIL.ControlSystem {
                 case Button.DD:
                     if (pressed)
                     {
-                        deviceManager.ActiveDevice.BuoyancyPosition = 76;
+                        deviceManager.ActiveDevice.BuoyancyPosition = 80;
                     }
                     else
                         deviceManager.ActiveDevice.BuoyancyPosition = 81;
@@ -262,7 +274,8 @@ namespace EERIL.ControlSystem {
         
 		void ActiveDeviceMessageReceived(object sender, byte[] message)
 		{
-			switch (message[0])
+			
+            switch (message[0])
 			{
 				case 0x74:
 					if (message.Length < 2)
@@ -270,18 +283,29 @@ namespace EERIL.ControlSystem {
 					headsUpDisplay.Thrust = message[1]-90;
 					break;
 				case 0x62:
-					if (message.Length < 17)
+					if (message.Length < 17)      
 						break;
 					headsUpDisplay.Current = BitConverter.ToSingle(message, 1);
 					headsUpDisplay.Voltage = BitConverter.ToSingle(message, 5);
 					headsUpDisplay.Humidity = BitConverter.ToSingle(message, 9);
 					headsUpDisplay.Temperature = BitConverter.ToSingle(message, 13);
-					break;
-				case 0xCC:
+
+                  //  w.Write(headsUpDisplay.Current);
+                  //  w.Write(headsUpDisplay.Voltage);
+                  //  w.Write(headsUpDisplay.Humidity);
+                  // w.Write(headsUpDisplay.Temperature);
+
+                    break;
+                //case 0x63:
+                  //  headsUpDisplay.Depth = message[1];
+                  //  headsUpDisplay.Salinity = message[3];
+                  //  headsUpDisplay.ExtTemp = message[5];
+                    //break;
+                case 0xCC:
 					if (!VerifyChecksum(message))
 						break;
 					uint timer = BitConverter.ToUInt32(message, 73);
-					/*headsUpDisplay.Acceleration = new Point3D(){
+					/*headsUpDisplay.Acceleration = new Point3D(){e;
 						X = BitConverter.ToSingle(message, 1),
 						Y = BitConverter.ToSingle(message, 4),
 						Z = BitConverter.ToSingle(message, 9)
@@ -373,10 +397,16 @@ namespace EERIL.ControlSystem {
 				OnBitmapFrameCaptured(bitmapFrame);
 				captureFrame = false;
 			}
+            if (screenshot)
+            {
+                Bitmap bmp = frame.ToBitmap();
+                Deployment.Bmpsave(bmp);
+                screenshot = false;
+                headsUpDisplay.ScreenshotAck = false;
+            }
 			if(RecordVideoStream)
-			{
 				Deployment.RecordFrame(sender as IDevice, frame);
-			}
+			           
 			frame.Dispose();
 			watch.Stop();
 			headsUpDisplay.Fps = ((1000 / watch.ElapsedMilliseconds) + headsUpDisplay.Fps) / 2;

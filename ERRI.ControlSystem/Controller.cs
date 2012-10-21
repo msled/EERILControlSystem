@@ -46,6 +46,14 @@ namespace EERIL.ControlSystem
         private Thread monitorThread;
         private bool run = true;
 
+        public bool X
+        {
+            get
+            {
+                return state.Buttons.X == ButtonState.Pressed;
+            }
+        }
+        
         public bool Y
         {
             get
@@ -205,7 +213,7 @@ namespace EERIL.ControlSystem
         private void ControllerMonitor()
         {
             byte leftX = 0, leftY = 0, rightX = 0, rightY = 0;
-            bool y = false, a = false, b = false, rightTrigger = false, leftTrigger = false, rb = false, lb = false, du = false, dd = false;
+            bool x = false, y = false, a = false, b = false, rightTrigger = false, leftTrigger = false, rb = false, lb = false, du = false, dd = false;
             while (run)
             {
                 state = GamePad.GetState(playerIndex);
@@ -241,6 +249,13 @@ namespace EERIL.ControlSystem
                         OnControllerAxisChanged(ControllerJoystick.Right, ControllerJoystickAxis.Y, rightY, newRightY);
                         rightY = newRightY;
                     }
+
+                    if (x != X)
+                    {
+                        x = X;
+                        OnButtonStateChanged(Button.X, x);
+                    }
+                    
                     if (y != Y)
                     {
                         y = Y;

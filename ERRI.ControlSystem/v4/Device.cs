@@ -260,7 +260,7 @@ namespace EERIL.ControlSystem.v4 {
                         camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte(0 - value), 0x0D });
                     }
                     else
-                        camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte((90-value)/2 + 90), 0x0D });
+                        camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte((90-value) /2 + 90), 0x0D });
                 }
                 else
                 {

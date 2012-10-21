@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Threading;
 
 namespace EERIL.DeviceControls
 {
@@ -15,6 +16,8 @@ namespace EERIL.DeviceControls
         private const double RADIAN_TO_ANGLE_MULTIPLIER = 57.2957795;
         private readonly Brush brush = Brushes.Green;
         private readonly Brush warningBrush = Brushes.Red;
+        private readonly Brush warning2Brush = Brushes.Transparent;
+        private readonly Brush screenshotBrush = Brushes.LightBlue;
         private readonly TranslateTransform pitchTransform = new TranslateTransform(0, 0);
         private readonly TranslateTransform invertedPitchTransform = new TranslateTransform(0, 0);
         private readonly RotateTransform rollTransform = new RotateTransform(0);
@@ -45,6 +48,7 @@ namespace EERIL.DeviceControls
         private Point directionLineTop;
         private Point directionTop;
         private double fontSize;
+        private double symbolfontSize;
         private readonly Typeface typeface = new Typeface("Courier");
         private Brush gaugeBrush = Brushes.Green;
         private Pen gaugePen;
@@ -66,7 +70,13 @@ namespace EERIL.DeviceControls
         private float extTemp;
         private FormattedText extTempFormattedText;
         private FormattedText warningFormattedText;
-        
+        private FormattedText warning2FormattedText;
+        private FormattedText screenshotFormattedText;
+        private FormattedText depthValueFormattedText;
+       
+        private bool screenshotAck;
+        private bool lowVoltage;
+
         double sideGaugeCenter;
         double sideGaugeTop;
         double sideGaugeBottom;
@@ -84,7 +94,6 @@ namespace EERIL.DeviceControls
         private readonly GeometryGroup locationGeometryGroup = new GeometryGroup();
         private readonly RotateTransform locationYawTransform = new RotateTransform();
         private readonly TranslateTransform locationTranslateTransform = new TranslateTransform();
-
 
         private byte Scale { get; set; }
 
@@ -164,6 +173,7 @@ namespace EERIL.DeviceControls
 
         public float Voltage
         {
+
             get { return voltage; }
             set
             {
@@ -211,7 +221,7 @@ namespace EERIL.DeviceControls
                 InvalidateVisual();
             }
         }
-        
+
         public float ExtTemp
         {
             get { return extTemp; }
@@ -221,6 +231,27 @@ namespace EERIL.DeviceControls
                 InvalidateVisual();
             }
         }
+
+        public bool ScreenshotAck
+        {
+            get { return screenshotAck; }
+            set
+            {
+                screenshotAck = value;
+                InvalidateVisual();
+            }
+        }
+
+        public bool LowVoltage
+        {
+            get { return lowVoltage; }
+            set
+            {
+                lowVoltage = value;
+                InvalidateVisual();
+            }
+        }
+
         protected override void OnRender(DrawingContext context)
         {
             base.OnRender(context);
@@ -240,9 +271,13 @@ namespace EERIL.DeviceControls
             RenderGauge(context, Depth.ToString("0.00"), 12, depthFormattedText);
             RenderGauge(context, ExtTemp.ToString("0.00"), 14, extTempFormattedText);
 
-            if(Voltage<7.00)
-                RenderCTDValues(context, "LOW BATTERY", 18, warningFormattedText);
-            
+            RenderDepthGauge(context);
+            if (Voltage <= 11.00)
+                RenderCTDValues(context, "LOW VOLTAGE!", 10, warningFormattedText);
+                       
+
+            if (ScreenshotAck == true)
+                RenderCTDValues(context, "Captured!", 2, screenshotFormattedText);
             RenderCompass(context);
             RenderFalseHorizon(context);
             //RenderMap(context);
@@ -263,11 +298,13 @@ namespace EERIL.DeviceControls
             {
                 return;
             }
+
             double halfWidth = width / 2;
             double halfHeight = height / 2;
             double quarterWidth = width / 4;
             double baseLine = height * .035;
             fontSize = height / (1024 / 20);
+            symbolfontSize = height / (1024 / 70);
             ratioToDisplayAngleMultiplier = width / 360 * RADIAN_TO_ANGLE_MULTIPLIER;
             baselinePen = new Pen(brush, THICKNESS_BASELINE);
             gaugeBrush = brush.Clone();
@@ -389,14 +426,20 @@ namespace EERIL.DeviceControls
             angleLeftRight = new Point(baseLine, halfHeight);
             angleRightLeft = new Point(width - baseLine, halfHeight);
             angleRightRight = new Point(width, halfHeight);
-            
-            warningFormattedText = new FormattedText("LOW BATTERY", CultureInfo.CurrentUICulture,
-                                                      FlowDirection.LeftToRight, typeface, fontSize,
+
+            warningFormattedText = new FormattedText("LOW VOLTAGE!", CultureInfo.CurrentUICulture,
+                                                      FlowDirection.LeftToRight, typeface, symbolfontSize,
                                                       warningBrush)
             {
                 TextAlignment = TextAlignment.Center
+                
             };
-
+            screenshotFormattedText = new FormattedText("Captured!", CultureInfo.CurrentUICulture,
+                                                      FlowDirection.LeftToRight, typeface, fontSize,
+                                                      screenshotBrush)
+            {
+                TextAlignment = TextAlignment.Center
+            };
             temperatureFormattedText = new FormattedText("Temp C", CultureInfo.CurrentUICulture,
                                                       FlowDirection.LeftToRight, typeface, fontSize,
                                                       brush)
@@ -444,6 +487,7 @@ namespace EERIL.DeviceControls
             {
                 TextAlignment = TextAlignment.Center
             };
+
             falseHorizonCrosshairs.Children.Clear();
             falseHorizonCrosshairs.Children.Add(new GeometryDrawing(falseHorizonBrush, falseHorizonPen, new GeometryGroup
             {
@@ -529,7 +573,7 @@ namespace EERIL.DeviceControls
                 },
                 true)
             });
-            
+
             mapGeometryGroup.Children.Clear();
             mapRadius = height * 0.05;
             double locationSideLength = 2 * mapRadius * Math.Cos(30);
@@ -553,6 +597,51 @@ namespace EERIL.DeviceControls
             InvalidateVisual();
         }
 
+        protected void RenderDepthGauge(DrawingContext context)
+        {
+            double height = ActualHeight;
+            double i = 15, heightPoint = 0;
+            Point GaugePoint1 = new Point(50, 10);
+            Point GaugePoint2 = new Point(50, height-10);
+
+            if (gaugePen == null)
+                return;
+
+            context.DrawLine(baselinePen, GaugePoint1, GaugePoint2);
+            DrawingVisual pointer = new DrawingVisual();
+            using (pointer.RenderOpen())
+            {
+                Point start = new Point(60, ((height / 1500) * Fps));
+                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, ((height / 1500) * Fps) - 10), true), new LineSegment(new Point(80, ((height / 1500) * Fps) + 10), true) };
+                PathFigure figure = new PathFigure(start, segments, true);
+                PathGeometry geo = new PathGeometry(new PathFigure[] { figure });
+                context.DrawGeometry(gaugeBrush, gaugePen, geo);
+            }
+            
+            while (i <= height - 15)
+            {
+                Point drawPoint1 = new Point(50, i);
+                Point drawPoint2 = new Point(65, i);
+                Point textPoint = new Point(30, i-10);
+                
+
+                depthValueFormattedText = new FormattedText(heightPoint.ToString(), CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
+                                                     typeface, fontSize, brush)
+                {
+                    TextAlignment = TextAlignment.Center
+                };
+
+                context.DrawLine(baselinePen, drawPoint1, drawPoint2);
+                context.DrawText(depthValueFormattedText, textPoint);
+                
+                i += (height / 15);
+                heightPoint += 100;
+                
+            }
+
+            
+            
+        }
 
         protected void RenderCompass(DrawingContext context)
         {
@@ -593,8 +682,9 @@ namespace EERIL.DeviceControls
             {
                 var location = new Point(ActualWidth / 20 * position, 40);
                 context.DrawText(label, location);
-                
+
             }
+            
         }
 
         protected void RenderGauge(DrawingContext context, string value, int position, FormattedText label)
@@ -612,8 +702,7 @@ namespace EERIL.DeviceControls
                         TextAlignment = TextAlignment.Center
                     }, location);
             }
-            
-            
         }
+
     }
 }
