@@ -16,7 +16,7 @@ namespace EERIL.DeviceControls
         private const double RADIAN_TO_ANGLE_MULTIPLIER = 57.2957795;
         private readonly Brush brush = Brushes.Green;
         private readonly Brush warningBrush = Brushes.Red;
-        private readonly Brush warning2Brush = Brushes.Transparent;
+        private readonly Brush warning2Brush = Brushes.Orange;
         private readonly Brush screenshotBrush = Brushes.LightBlue;
         private readonly TranslateTransform pitchTransform = new TranslateTransform(0, 0);
         private readonly TranslateTransform invertedPitchTransform = new TranslateTransform(0, 0);
@@ -29,6 +29,8 @@ namespace EERIL.DeviceControls
         private Point angleRightLeft;
         private Point angleRightRight;
         private Pen baselinePen;
+        private Pen warningPen;
+        private Pen warning2Pen;
         private DrawingGroup compass;
         private RectangleGeometry compassClippingRectangle = new RectangleGeometry();
         private GeometryGroup compassLines;
@@ -272,9 +274,7 @@ namespace EERIL.DeviceControls
             RenderGauge(context, ExtTemp.ToString("0.00"), 14, extTempFormattedText);
 
             RenderDepthGauge(context);
-            if (Voltage <= 11.00)
-                RenderCTDValues(context, "LOW VOLTAGE!", 10, warningFormattedText);
-                       
+            RenderBatteryBar(context);
 
             if (ScreenshotAck == true)
                 RenderCTDValues(context, "Captured!", 2, screenshotFormattedText);
@@ -303,10 +303,12 @@ namespace EERIL.DeviceControls
             double halfHeight = height / 2;
             double quarterWidth = width / 4;
             double baseLine = height * .035;
-            fontSize = height / (1024 / 20);
+            fontSize = height / (1024 / 15);
             symbolfontSize = height / (1024 / 70);
             ratioToDisplayAngleMultiplier = width / 360 * RADIAN_TO_ANGLE_MULTIPLIER;
             baselinePen = new Pen(brush, THICKNESS_BASELINE);
+            warningPen = new Pen(warningBrush, THICKNESS_BASELINE);
+            warning2Pen = new Pen(warning2Brush, THICKNESS_BASELINE);
             gaugeBrush = brush.Clone();
             gaugeBrush.Opacity = .5;
             gaugePen = new Pen(gaugeBrush, THICKNESS_BASELINE);
@@ -428,7 +430,7 @@ namespace EERIL.DeviceControls
             angleRightRight = new Point(width, halfHeight);
 
             warningFormattedText = new FormattedText("LOW VOLTAGE!", CultureInfo.CurrentUICulture,
-                                                      FlowDirection.LeftToRight, typeface, symbolfontSize,
+                                                      FlowDirection.LeftToRight, typeface, fontSize,
                                                       warningBrush)
             {
                 TextAlignment = TextAlignment.Center
@@ -599,10 +601,11 @@ namespace EERIL.DeviceControls
 
         protected void RenderDepthGauge(DrawingContext context)
         {
+            int x = 100;
             double height = ActualHeight;
-            double i = 15, heightPoint = 0;
-            Point GaugePoint1 = new Point(50, 10);
-            Point GaugePoint2 = new Point(50, height-10);
+            double i = (0.1 * height), heightPoint = 0;
+            Point GaugePoint1 = new Point(50, (0.1 * height));
+            Point GaugePoint2 = new Point(50, (0.9 * height));
 
             if (gaugePen == null)
                 return;
@@ -611,14 +614,14 @@ namespace EERIL.DeviceControls
             DrawingVisual pointer = new DrawingVisual();
             using (pointer.RenderOpen())
             {
-                Point start = new Point(60, ((height / 1500) * Fps));
-                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, ((height / 1500) * Fps) - 10), true), new LineSegment(new Point(80, ((height / 1500) * Fps) + 10), true) };
+                Point start = new Point(60, ((height / 2000) * Fps)+(0.1*height));
+                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, (((height / 2000) * Fps) - 10)+ (0.1 * height)), true), new LineSegment(new Point(80, (((height / 2000) * Fps) + 10) + (0.1 * height)), true) };
                 PathFigure figure = new PathFigure(start, segments, true);
                 PathGeometry geo = new PathGeometry(new PathFigure[] { figure });
                 context.DrawGeometry(gaugeBrush, gaugePen, geo);
             }
             
-            while (i <= height - 15)
+            while (i <= (0.9 * height))
             {
                 Point drawPoint1 = new Point(50, i);
                 Point drawPoint2 = new Point(65, i);
@@ -634,13 +637,26 @@ namespace EERIL.DeviceControls
                 context.DrawLine(baselinePen, drawPoint1, drawPoint2);
                 context.DrawText(depthValueFormattedText, textPoint);
                 
-                i += (height / 15);
-                heightPoint += 100;
-                
+                i += (0.05 * height);
+                heightPoint += 100;                
             }
+        }
 
-            
-            
+        protected void RenderBatteryBar(DrawingContext context)
+        {
+            double height = ActualHeight;
+            double width = ActualWidth;
+            Point WarningPoint = new Point((0.9*width) , (0.04*height));
+            Rect BatteryBar = new Rect((0.85*width), (0.025*height), (width/(10*(1-1.5*(Voltage-16)))), (height/100));
+            if (Voltage < 11.00)
+            {
+                context.DrawRectangle(warningBrush, warningPen, BatteryBar);
+                context.DrawText(warningFormattedText, WarningPoint);
+            }
+            else if (Voltage > 11.00 && Voltage < 12.00)
+                context.DrawRectangle(warning2Brush, warning2Pen, BatteryBar);
+            else
+                context.DrawRectangle(brush, baselinePen, BatteryBar);
         }
 
         protected void RenderCompass(DrawingContext context)

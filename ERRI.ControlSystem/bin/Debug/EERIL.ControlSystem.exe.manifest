@@ -72,14 +72,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EERI.DeviceControls.dll" size="20480">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="EERI.DeviceControls.dll" size="20992">
       <assemblyIdentity name="EERI.DeviceControls" version="1.0.0.0" language="neutral" processorArchitecture="x86" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>qmCHm/c6Ml3+HzcNCH1d5NxlWZo=</dsig:DigestValue>
+        <dsig:DigestValue>f7aLKmD+Q3uwb0K8XXum5Atzonk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -91,7 +91,7 @@
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>4pwCUzOnR6k+M4XCdvTXMDjKAmc=</dsig:DigestValue>
+        <dsig:DigestValue>8tIBK1e8X+CrFy6RRyaLAu2+xmI=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

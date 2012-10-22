@@ -34,3 +34,12 @@ C:\Users\msled\Desktop\SOFTWARE 2\ERRI.DeviceControls\obj\x86\Debug\GenerateReso
 C:\Users\msled\Desktop\SOFTWARE 2\ERRI.DeviceControls\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\msled\Desktop\SOFTWARE 2\ERRI.DeviceControls\obj\x86\Debug\EERI.DeviceControls.dll
 C:\Users\msled\Desktop\SOFTWARE 2\ERRI.DeviceControls\obj\x86\Debug\EERI.DeviceControls.pdb
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\bin\x86\Debug\HeadsUpDisplay.cs
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\bin\x86\Debug\EERI.DeviceControls.dll
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\bin\x86\Debug\EERI.DeviceControls.pdb
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\obj\x86\Debug\EERIL.DeviceControls.Properties.Resources.resources
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\obj\x86\Debug\EERI.DeviceControls.dll
+C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.DeviceControls\obj\x86\Debug\EERI.DeviceControls.pdb
