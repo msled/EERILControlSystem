@@ -203,3 +203,41 @@ C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\
 C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe.manifest
 C:\Users\msled\Desktop\MSLED Software\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.config
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.pdb
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.baml
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\MainWindow.baml
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\TestWindow.baml
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DeploymentWindow.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\MainWindow.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\TestWindow.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\App.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_Content.g.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.cache
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem_MarkupCompile.lref
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\PvAPI.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\Lib\Splicer.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\HeadsUpDisplay.cs
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\Lib\PvNET.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe.manifest
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.application
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.exe
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERIL.ControlSystem.pdb
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\AForge.Video.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\AForge.Video.VFW.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\PvNET.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\Splicer.dll
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\bin\Debug\EERI.DeviceControls.pdb
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\DashboardWindow.baml
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\VideoDisplayWindow.baml
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.g.resources
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.Properties.Resources.resources
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.exe.manifest
+D:\MSLED\EERILControlSystem\ERRI.ControlSystem\obj\x86\Debug\EERIL.ControlSystem.application

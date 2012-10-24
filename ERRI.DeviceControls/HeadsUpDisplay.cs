@@ -601,7 +601,6 @@ namespace EERIL.DeviceControls
 
         protected void RenderDepthGauge(DrawingContext context)
         {
-            int x = 100;
             double height = ActualHeight;
             double i = (0.1 * height), heightPoint = 0;
             Point GaugePoint1 = new Point(50, (0.1 * height));

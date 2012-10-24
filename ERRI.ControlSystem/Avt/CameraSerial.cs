@@ -169,7 +169,7 @@ namespace EERIL.ControlSystem.Avt
                 throw new PvException(error);
 
             // It must fit in the user's buffer.
-            uint dataLength = lengthData[0];
+            uint dataLength = lengthData[0]; 
             if (dataLength > bufferLength)
                 dataLength = bufferLength;
 

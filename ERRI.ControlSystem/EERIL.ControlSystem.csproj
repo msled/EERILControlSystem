@@ -55,7 +55,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>3C42C15A3EC3C2750EC0FE3470E656472B726C13</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>E8611E19D9642F2F181BD531D400D06B79FF4FCF</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>EERIL.ControlSystem_TemporaryKey.pfx</ManifestKeyFile>
@@ -170,6 +170,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="EERIL.ControlSystem_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <SubType>Designer</SubType>

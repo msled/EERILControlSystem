@@ -601,7 +601,6 @@ namespace EERIL.DeviceControls
 
         protected void RenderDepthGauge(DrawingContext context)
         {
-            int x = 100;
             double height = ActualHeight;
             double i = (0.1 * height), heightPoint = 0;
             Point GaugePoint1 = new Point(50, (0.1 * height));
@@ -614,8 +613,8 @@ namespace EERIL.DeviceControls
             DrawingVisual pointer = new DrawingVisual();
             using (pointer.RenderOpen())
             {
-                Point start = new Point(60, ((height / 2000) * x)+(0.1*height));
-                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, (((height / 2000) * x) - 10)+ (0.1 * height)), true), new LineSegment(new Point(80, (((height / 2000) * x) + 10) + (0.1 * height)), true) };
+                Point start = new Point(60, ((height / 2000) * Fps)+(0.1*height));
+                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, (((height / 2000) * Fps) - 10)+ (0.1 * height)), true), new LineSegment(new Point(80, (((height / 2000) * Fps) + 10) + (0.1 * height)), true) };
                 PathFigure figure = new PathFigure(start, segments, true);
                 PathGeometry geo = new PathGeometry(new PathFigure[] { figure });
                 context.DrawGeometry(gaugeBrush, gaugePen, geo);
@@ -644,11 +643,10 @@ namespace EERIL.DeviceControls
 
         protected void RenderBatteryBar(DrawingContext context)
         {
-            int x = 16;
             double height = ActualHeight;
             double width = ActualWidth;
             Point WarningPoint = new Point((0.9*width) , (0.04*height));
-            Rect BatteryBar = new Rect((0.85*width), (0.025*height), (width/(10*(1-1.5*(x-16)))), (height/100));
+            Rect BatteryBar = new Rect((0.85*width), (0.025*height), (width/(10*(1-1.5*(Voltage-16)))), (height/100));
             if (Voltage < 11.00)
             {
                 context.DrawRectangle(warningBrush, warningPen, BatteryBar);
