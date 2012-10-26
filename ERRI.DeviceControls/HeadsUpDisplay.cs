@@ -645,8 +645,13 @@ namespace EERIL.DeviceControls
         {
             double height = ActualHeight;
             double width = ActualWidth;
+            float x;
             Point WarningPoint = new Point((0.9*width) , (0.04*height));
-            Rect BatteryBar = new Rect((0.85*width), (0.025*height), (width/(10*(1-1.5*(Voltage-16)))), (height/100));
+            if (Voltage >= 16.00)
+                x = 16;
+            else
+                x = Voltage;
+            Rect BatteryBar = new Rect((0.85*width), (0.025*height), (width/(10*(1-1.5*(x-16)))), (height/100));
             if (Voltage < 11.00)
             {
                 context.DrawRectangle(warningBrush, warningPen, BatteryBar);

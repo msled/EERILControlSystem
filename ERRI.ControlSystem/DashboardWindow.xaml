@@ -27,7 +27,9 @@
                 <Label Name="illuminationLabel" Content="Illumination:" Height="28" />
                 <Slider Height="23" Name="illuminationSlider" Minimum="0" Maximum="255" Width="142" HorizontalAlignment="Stretch" Value="{Binding Source={x:Static properties:Settings.Default},
                                    Path=illumination}" />
+                
             </StackPanel>
+            <Button Name="recordLogButton" DockPanel.Dock="Top" Height="23" HorizontalAlignment="Stretch" Content="Log Data" Margin="0, 5, 0, 0" HorizontalContentAlignment="Center" Padding="1" Click="recordLogButton_Click"/>
             <StackPanel Name="statePanel"  DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,5,0,0">
                 <Label Name="stateLabel" Content="Controller State:" Height="28" />
                 <Label Name="state" Content= "{Binding Source={x:Static properties:Settings.Default}, Path=connectionConnectionChanged}"/>

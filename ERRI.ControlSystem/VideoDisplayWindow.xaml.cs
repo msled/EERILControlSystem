@@ -48,17 +48,10 @@ namespace EERIL.ControlSystem
         private readonly byte[] m13Buffer = new byte[4];
         private readonly byte[] m23Buffer = new byte[4];
         private readonly byte[] m33Buffer = new byte[4];
-        
 
-        static FileStream fs = File.Create("D:/abc.txt", 2048);
-        static ASCIIEncoding asen = new ASCIIEncoding();
-        static BinaryWriter bin = new BinaryWriter(fs);
-
-        
-
-        string timestamp = "HELLO";
-
+           
         public bool RecordVideoStream { get; set; }
+        public bool RecordLog { get; set; }
 
         public DashboardWindow Dashboard
         {
@@ -150,6 +143,7 @@ namespace EERIL.ControlSystem
             Mission = mission;
             Deployment = deployment;
             Title = String.Format("Video - {0} > {1}", mission.Name, deployment.DateTime.ToString());
+            
             var app = Application.Current as App;
             if (app == null)
             {
@@ -376,15 +370,15 @@ namespace EERIL.ControlSystem
                     //Did I mention ^ that stuff is backwards.
                     break;
             }
-            var length = new System.IO.FileInfo("D:/abc.txt").Length;
-            if (length == 0)
+            if (RecordLog == true)
             {
-               //Write the header
+                FileStream fs = File.Create(Deployment.LogCreate(), 2048);
+                ASCIIEncoding asen = new ASCIIEncoding();
+                BinaryWriter bin = new BinaryWriter(fs);
+                string data2 = "\r\n" + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\tCurrent =" + headsUpDisplay.Current.ToString("0.00") + "\tVoltage = " + headsUpDisplay.Voltage.ToString("0.00") + "\tHumidity = " + headsUpDisplay.Humidity + "\tTemperature = " + headsUpDisplay.Temperature.ToString("0.00") + "\tRoll = " + headsUpDisplay.Roll + "\tPitch = " + headsUpDisplay.Pitch + "\tYaw = " + headsUpDisplay.Yaw;
+                byte[] w = asen.GetBytes(data2);
+                bin.Write(w);
             }
-            string data2 = "\r\n"+DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss")+"\tCurrent =" + headsUpDisplay.Current.ToString("0.00") + "\tVoltage = " + headsUpDisplay.Voltage.ToString("0.00")+"\tHumidity = "+headsUpDisplay.Humidity+"\tTemperature = "+headsUpDisplay.Temperature.ToString("0.00")+"\tRoll = "+headsUpDisplay.Roll+"\tPitch = "+headsUpDisplay.Pitch+"\tYaw = "+headsUpDisplay.Yaw;
-            byte[] w = asen.GetBytes(data2);
-            bin.Write(w);
-            
         }
 
         private static bool VerifyChecksum(byte[] message)

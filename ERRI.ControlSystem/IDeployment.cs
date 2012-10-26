@@ -12,6 +12,7 @@ namespace EERIL.ControlSystem {
 		IList<IDevice> Devices { get; }
 		void RecordFrame(IDevice device, IFrame frame);
 		void Dispose();
+        string LogCreate();
         void Bmpsave(Bitmap bitmap);
 	}
 }

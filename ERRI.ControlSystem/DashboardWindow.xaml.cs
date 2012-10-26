@@ -21,6 +21,7 @@ namespace EERIL.ControlSystem
         private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
         private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
         private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
+        bool RecordLog;
         public Controller Controller
         {
             get
@@ -275,6 +276,13 @@ namespace EERIL.ControlSystem
             Duration returnToCenterDuration = new Duration(new TimeSpan(0, 0, 0, 0, 50));
             buoyancySlider.BeginAnimation(Slider.ValueProperty, new DoubleAnimation(buoyancySlider.Value, 81, returnToCenterDuration));
             buoyancySlider.Value = 81;
+        }
+
+        private void recordLogButton_Click(object sender, RoutedEventArgs e)
+        {
+            videoDisplayWindow.RecordLog = !videoDisplayWindow.RecordLog;
+            recordLogButton.Content = videoDisplayWindow.RecordLog == true ? "Logging Data" : "Log Data";
+            
         }
       
     }

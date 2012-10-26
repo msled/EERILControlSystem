@@ -68,6 +68,7 @@ namespace EERIL.ControlSystem
                 deployment.serialLogStreams.Add(device, File.Create(Path.Combine(deployment.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".stream"), 1024));
                 deployment.videoWriters.Add(device, new AviWriter(Path.Combine(deployment.videoDirectory.FullName, DateTime.Now.Ticks.ToString()), 1360, 1024));
                 device.MessageReceived += deployment.DeviceMessageReceived;
+                FileStream fs = File.Create(Path.Combine(deployment.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".txt"), 2048);
             }
             return deployment;
         }
@@ -100,6 +101,11 @@ namespace EERIL.ControlSystem
             bitmap.Save(Path.Combine(this.imageDirectory.FullName, DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture) + ".jpg"), System.Drawing.Imaging.ImageFormat.Jpeg);
         }
 
+        public string LogCreate()
+        {
+            return Path.Combine(this.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString("yyyy.mm.dd") + ".txt");
+        }
+        
         internal static IDeployment Load(DirectoryInfo directory)
         {
             XmlReader xmlReader = XmlReader.Create(Path.Combine(directory.FullName, "Meta.xml"));
