@@ -229,6 +229,7 @@ namespace EERIL.ControlSystem
                     DispatcherPriority.Normal,
                     new Action(() => VideoDisplay.Close()));
             }
+            Deployment.Dispose();
             deviceManager.ActiveDevice.Close();
             (Application.Current as App).MainWindow.Show();
         }

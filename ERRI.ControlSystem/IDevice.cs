@@ -38,6 +38,7 @@ namespace EERIL.ControlSystem {
         byte Thrust { get; set; }
         bool Turbo { get; set; }
         bool Tinvert { get; set; }
+        bool CTD { get; set; }
         byte Illumination { get; set; }
         PowerConfigurations PowerConfiguration { get; set; }
         void StartVideoCapture(uint timeout);

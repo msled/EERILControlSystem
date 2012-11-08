@@ -69,10 +69,10 @@ namespace EERIL.ControlSystem
             P = (PL) + (256 * PH);
             C = (CL) + (256 * CH);
 
-            Tv = (float)(TC0 + (TC1 * T) + (TC2 * Math.Pow(T, 2)) + (TC3 * Math.Pow(T, 3)) + (TC4 * Math.Pow(T, 4)) + (TC5 * Math.Pow(T, 5)));
+            Tv = (TC0 + (TC1 * T) + (TC2 * Math.Pow(T, 2)) + (TC3 * Math.Pow(T, 3)) + (TC4 * Math.Pow(T, 4)) + (TC5 * Math.Pow(T, 5)));
 
             Pc = P + (PtcC1 * Tpr) + (PtcC2 * Math.Pow(Tpr, 2)) + (PtcC3 * Math.Pow(Tpr, 3)) + (PtcC4 * Math.Pow(Tpr, 4)) + (PtcC5 * Math.Pow(Tpr, 5)) - ((PtcC1 * Tv) + (PtcC2 * Math.Pow(Tv, 2)) + (PtcC3 * Math.Pow(Tv, 3)) + (PtcC4 * Math.Pow(Tv, 4)) + (PtcC5 * Math.Pow(Tv, 5)));
-            Pv = (float)(PC0 + (PC1 * Pc) + (PC2 * Math.Pow(Pc, 2)) + (PC3 * Math.Pow(Pc, 3)) + (PC4 * Math.Pow(Pc, 4)) + (PC5 * Math.Pow(Pc, 5)));
+            Pv = (PC0 + (PC1 * Pc) + (PC2 * Math.Pow(Pc, 2)) + (PC3 * Math.Pow(Pc, 3)) + (PC4 * Math.Pow(Pc, 4)) + (PC5 * Math.Pow(Pc, 5)));
 
             Cc0 = C + (TCRC1 * Tcr) + (TCRC2 * Math.Pow(Tcr, 2)) + (TCRC3 * Math.Pow(Tcr, 3)) + (TCRC4 * Math.Pow(Tcr, 4)) + (TCRC5 * Math.Pow(Tcr, 5)) - ((TCR1C1 * Tv) + (TCR1C2 * Math.Pow(Tv, 2)) + (TCR1C3 * Math.Pow(Tv, 3)) + (TCR1C4 * Math.Pow(Tv, 4)) + (TCR1C5 * Math.Pow(Tv, 5)));
             Cc1 = C + (TCR1C1 * Tcr) + (TCR1C2 * Math.Pow(Tcr, 2)) + (TCR1C3 * Math.Pow(Tcr, 3)) + (TCR1C4 * Math.Pow(Tcr, 4)) + (TCR1C5 * Math.Pow(Tcr, 5)) - ((TCR1C1 * Tv) + (TCR1C2 * Math.Pow(Tv, 2)) + (TCR1C3 * Math.Pow(Tv, 3)) + (TCR1C4 * Math.Pow(Tv, 4)) + (TCR1C5 * Math.Pow(Tv, 5)));

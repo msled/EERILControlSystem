@@ -180,6 +180,7 @@ namespace EERIL.ControlSystem
                         activeDevice.RightFinOffset = Settings.Default.RightFinOffset;
                         activeDevice.BottomFinOffset = Settings.Default.BottomFinOffset;
                         activeDevice.LeftFinOffset = Settings.Default.LeftFinOffset;
+                        activeDevice.CTD = true;
                     }
                     catch (Exception ex)
                     {
@@ -306,11 +307,11 @@ namespace EERIL.ControlSystem
                 case 0x63:
                     if (message.Length < 6)
                         break;
-                    values = CTD.ConvertValues(message[0], message[1], message[2], message[3], message[4], message[5]);
+                    values = CTD.ConvertValues(message[1], message[2], message[3], message[4], message[5], message[6]);
 
-                    headsUpDisplay.ExtTemp = (float)values[0];
-                    headsUpDisplay.Depth = (float)values[1];
-                    headsUpDisplay.Salinity = (float)values[2];
+                    headsUpDisplay.ExtTemp = (float)message[1];
+                    headsUpDisplay.Depth = (float)message[2];
+                    headsUpDisplay.Salinity = (float)message[3];
                     
                     break;
                 case 0xCC:

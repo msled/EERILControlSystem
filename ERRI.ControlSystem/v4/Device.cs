@@ -34,6 +34,7 @@ namespace EERIL.ControlSystem.v4 {
         private bool turbo = false;
         private byte buoyancyPosition = 81;
         public bool tinvert = false;
+        public bool ctd = true;
         
 		private PowerConfigurations powerConfiguration;
 		public event DeviceFrameReadyHandler FrameReady;
@@ -236,19 +237,28 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
-		public bool Turbo {
+        public bool Turbo {
             get { return turbo; }
             set { turbo = value; }
 		}
 
+        public bool CTD
+        {
+            get { return ctd; }
+            set { 
+                if(ctd)
+                    camera.WriteBytesToSerial(new byte[] { 0x63, 0x0D }); 
+            ctd = value; 
+            }
+        }
+        
         public bool Tinvert
         {
             get { return tinvert; }
             set { tinvert = value; }
         }
 
-
-		public byte Thrust {
+        public byte Thrust {
 			get {
                    return thrust;
                 }

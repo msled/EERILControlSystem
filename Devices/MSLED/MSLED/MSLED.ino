@@ -39,8 +39,8 @@ HUMIDITY_PIN      = A6, // (60) PF6, 91
 CURRENT_PIN       = A7, // (61) PF7, 90
 VOLTAGE_PIN       = A15,// (69) PK7, 82
 
-MCU_CTD_RX_PIN    = 52, // SCK PB1, 20 REQUIRED FOR RX FROM CTD DUE TO INTERUPT CAPABILITY
-MCU_CTD_TX_PIN    = 50, // MISO PB3, 22 TX TO CTD FROM MCU
+//MCU_CTD_RX_PIN    = 52, // SCK PB1, 20 REQUIRED FOR RX FROM CTD DUE TO INTERUPT CAPABILITY
+//MCU_CTD_TX_PIN    = 50, // MISO PB3, 22 TX TO CTD FROM MCU
 
 IMU_READ_FIRMWARE_VERSION_COMMAND_CODE = 0xE9,
 IMU_READ_SENSOR_DATA_COMMAND_CODE      = 0xCC,
@@ -78,13 +78,13 @@ buffer[BUFFER_LENGTH], currentThrust, targetThrust, rampDelay = 10, sensorDelay 
 
 unsigned short imuChksum,  imuResponseChksum;
 
-byte imuBuffer[128], sensorBuffer[17], thrustBuffer[3], ctdBuffer[6], ctdState = CTD_INIT_STATE, cmd = 0;
+byte imuBuffer[128], sensorBuffer[17], thrustBuffer[3], ctdBuffer[7], ctdState = CTD_INIT_STATE, cmd = 0;
 
 boolean imu = false, logger = false, imuLog = true, sensorDataRead = false, ramping = false, ctd = false;
 
 Servo topFin, rightFin, bottomFin, leftFin, buoyancyPlunger, thruster, lensFocus;
 
-SoftwareSerial CTDSerial(MCU_CTD_RX_PIN, MCU_CTD_TX_PIN);
+//SoftwareSerial CTDSerial(MCU_CTD_RX_PIN, MCU_CTD_TX_PIN);
 
 union f2ba{
   byte array[4];
@@ -93,16 +93,11 @@ union f2ba{
 float2ByteArray;
 
 void setup(){
-  //Surface Control
-  Serial.begin(SURFACE_BAUD);
-  //Acoustic Positioning System
-  //Serial1.begin(POS_BAUD);
-  //IMU
-  Serial2.begin(IMU_BAUD);
-  //Logger
-  Serial3.begin(LOGGER_BAUD);
-  //CTD
-  CTDSerial.begin(CTD_BAUD);
+  Serial.begin(SURFACE_BAUD);           //Serial 0 for surface control software
+  Serial1.begin(CTD_BAUD);              //CTD on Serial 1
+  Serial2.begin(IMU_BAUD);              //IMU on Serial 2
+  Serial3.begin(LOGGER_BAUD);           //Datalogger on Serial 3
+  
   thruster.attach(THRUST_PIN);
   topFin.attach(TOP_FIN_PIN);
   rightFin.attach(RIGHT_FIN_PIN);
@@ -125,6 +120,7 @@ void setup(){
 
   sensorBuffer[0] = 'b';
   thrustBuffer[0] = 't';
+  ctdBuffer[0] = 'c';
   buoyancyPlunger.attach(BUOYANCY_PIN);
   DDRJ = DDRJ | BUOYANCY_ENABLE; // sets PJ6 to OUTPUT while leaving all other Port J pinModes unchanged.
   //DDRJ = DDRJ & V5_FLAG; // sets PJ6 to input while leaving all other Port J pinModes unchanged
@@ -274,97 +270,139 @@ void loop(){
     }
   }
   if(ctd){
-    if(CTDSerial.peek()=='3'){
-      CTDSerial.read();
+   ctd = true;
+  if(ctd)
+  {
+    if(Serial1.peek()=='3')
+    {  
+      Serial1.read();
     }
-    switch(ctdState){
-    case CTD_INIT_STATE:
-      ctdState = CTD_CONNECTION_TEST_REQUEST;
-      break;
-    case CTD_CONNECTION_TEST_REQUEST:
-      while(CTDSerial.available())
-        CTDSerial.read(); //flushing buffer if corrupt data
-      CTDSerial.write('0');
-      ctdState = CTD_CONNECTION_TEST_ECHO;
-      break;
-    case CTD_CONNECTION_TEST_ECHO:
-      if(CTDSerial.available()){
-        cmd = CTDSerial.read();
-        if(cmd == 0x00){
-          ctdState = CTD_CONNECTED_TEST_RESPONSE;
+    
+    switch(ctdState)
+    {
+      case CTD_INIT_STATE:
+        ctdState = CTD_CONNECTION_TEST_REQUEST;
+        break;
+      
+      case CTD_CONNECTION_TEST_REQUEST: 
+        Serial1.print(0x00);
+        ctdState = CTD_CONNECTION_TEST_ECHO;       
+        break;
+      
+      case CTD_CONNECTION_TEST_ECHO:  
+        if(cmd == 0x00)
+        {
+          ctdState = CTD_CONNECTED_TEST_RESPONSE;          
         }
-        else{
-          ctdState = CTD_CONNECTION_TEST_ECHO;
-        }
-      }  
-    case CTD_CONNECTED_TEST_RESPONSE:
-      if(CTDSerial.available()){
-        if(CTDSerial.read() == 0x55)
-          ctdState = CTD_PC_MODE_REQUEST; 
-        else{
-          ctdState = CTD_CONNECTED_TEST_RESPONSE;
-        }
-      }             
-      break;
-    case CTD_PC_MODE_REQUEST:
-      CTDSerial.write(0x0C);
-      ctdState = CTD_PC_MODE_REQUEST_ECHO;
-      break;
-    case CTD_PC_MODE_REQUEST_ECHO:
-      if(CTDSerial.available()){
-        if(CTDSerial.read() == 0x0C)
-          ctdState = CTD_PC_MODE_REQUEST_RESPONSE;
         else
-          ctdState = CTD_PC_MODE_REQUEST_ECHO;
-      }
-      break;
-    case CTD_PC_MODE_REQUEST_RESPONSE:
-      if(CTDSerial.available()){
-        if(CTDSerial.read() == 0x02)
-          ctdState = CTD_POLL_DATA_REQUEST; 
-        else
-          ctdState = CTD_PC_MODE_REQUEST_RESPONSE;
-      }
-      break;
-    case CTD_POLL_DATA_REQUEST:
-      CTDSerial.write(0x01);
-      ctdState = CTD_POLL_DATA_REQUEST_ECHO;
-      break;
-    case CTD_POLL_DATA_REQUEST_ECHO:
-      if(CTDSerial.available()){
-        if(CTDSerial.read() == 0x01)
-          ctdState = CTD_POLL_DATA_REQUEST_SEND;
-        else
-          ctdState = CTD_POLL_DATA_REQUEST_ECHO;
-      }
-      break;
-    case CTD_POLL_DATA_REQUEST_SEND:
-      CTDSerial.write(0x55);
-      ctdState = CTD_POLL_DATA_REQUEST_RESPONSE;
-      break;
-    case CTD_POLL_DATA_REQUEST_RESPONSE:
-      if(CTDSerial.available() >= 5){
-        for(int i = 0; i < 5; i++){
-          ctdBuffer[i] = CTDSerial.read();
+        {
+            ctdState = CTD_CONNECTION_TEST_ECHO;                       
         }
-        log('c',false);
-        log(ctdBuffer,6);
-        ctd = false;
-        ctdState = CTD_INIT_STATE;
-      }
-      else{
+        
+      case CTD_CONNECTED_TEST_RESPONSE:
+        if(1)
+        {          
+          byte tempVar = Serial1.read();
+          if(tempVar == 0x55 || tempVar == 0xFF)
+          {
+            ctdState = CTD_PC_MODE_REQUEST; 
+          } 
+          else
+          {
+            ctdState = CTD_CONNECTED_TEST_RESPONSE;
+          }
+        }             
+        break;
+        
+      case CTD_PC_MODE_REQUEST:
+        Serial1.write(0x0C);
+        ctdState = CTD_PC_MODE_REQUEST_ECHO;
+        break;
+        
+      case CTD_PC_MODE_REQUEST_ECHO:
+        if(Serial1.available())
+        {
+          if(Serial1.read() == 0x0C)
+          {
+            ctdState = CTD_PC_MODE_REQUEST_RESPONSE;
+          }
+          else
+          {
+            ctdState = CTD_PC_MODE_REQUEST_ECHO;
+          }
+        }
+        break;
+      case CTD_PC_MODE_REQUEST_RESPONSE:
+             
+        if(Serial1.available())
+        {
+          if(Serial1.read() == 0x02)
+          {
+            ctdState = CTD_POLL_DATA_REQUEST; 
+          }
+          else
+          {
+            ctdState = CTD_PC_MODE_REQUEST_RESPONSE;
+          }
+        }
+        break;
+        
+      case CTD_POLL_DATA_REQUEST:
+        Serial1.write(0x01);
+        ctdState = CTD_POLL_DATA_REQUEST_ECHO;
+        break;
+      
+      case CTD_POLL_DATA_REQUEST_ECHO:
+        if(Serial1.available())
+        {
+          if(Serial1.read() == 0x01)
+          {
+            ctdState = CTD_POLL_DATA_REQUEST_SEND;
+          }
+          else
+          {
+            ctdState = CTD_POLL_DATA_REQUEST_ECHO;
+          }
+        }
+        break;
+      
+      case CTD_POLL_DATA_REQUEST_SEND:
+        Serial1.write(0x55);
         ctdState = CTD_POLL_DATA_REQUEST_RESPONSE;
+        break;
+      
+      case CTD_POLL_DATA_REQUEST_RESPONSE:
+        if(Serial1.available() >= 6)
+        {
+          for(int i = 1; i <= 6; i++)
+          {
+            ctdBuffer[i] = Serial1.read();
+            if(i == 6)
+            {
+              //log('c',false);
+              log(ctdBuffer,7);
+              ctd = false;
+              ctdState = CTD_INIT_STATE;
+            }
+          }
+        }
+        else
+        {
+          ctdState = CTD_POLL_DATA_REQUEST_RESPONSE;
+        }
+        break;
       }
-      break;
     }
-  } 
-  if(time - lastCommand > heartbeatThreshhold){
-    neutralize();
+    if(time - lastCommand > heartbeatThreshhold)
+    {
+      neutralize();
+    }
   }
 }
 
+
 void neutralize(){
-  //Neutral
+  //Neutralize
   thrust(90);
   vertical(90);
   horizontal(90);
@@ -448,7 +486,7 @@ void power(int config){
     Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
     PORTJ = PORTJ | BUOYANCY_ENABLE; // sets PJ6 HIGH while leaving all other port J pins unchanged
     power_all_enable();
-    power_usart1_disable(); // disable ctd
+    
     break;
   case 1: //All peripherals on except the buoyancy motor
     digitalWrite(TEMPERATURE_POWER, LOW);
@@ -463,7 +501,7 @@ void power(int config){
     Serial2.write(IMU_CONTINUOUS_COMMAND, 4);
     PORTJ = PORTJ & (~BUOYANCY_ENABLE); // sets PJ6 LOW while leaving all other port J pins unchanged
     power_all_enable();
-    power_usart1_disable(); // disable ctd
+    
     break;
   case 2:
     digitalWrite(TEMPERATURE_POWER, HIGH);

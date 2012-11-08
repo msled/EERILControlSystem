@@ -165,8 +165,8 @@ namespace EERIL.ControlSystem.Avt
 
             // How many characters to read?
             tErr error = (tErr)Pv.RegisterRead(camera, 1, REG_SIO_RX_LENGTH_ADDRESS, lengthData, ref read);
-            if (error != tErr.eErrSuccess)
-                throw new PvException(error);
+            //if (error != tErr.eErrSuccess)
+                //throw new PvException(error);
 
             // It must fit in the user's buffer.
             uint dataLength = lengthData[0]; 
