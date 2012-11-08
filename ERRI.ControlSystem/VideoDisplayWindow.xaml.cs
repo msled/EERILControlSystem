@@ -49,9 +49,12 @@ namespace EERIL.ControlSystem
         private readonly byte[] m23Buffer = new byte[4];
         private readonly byte[] m33Buffer = new byte[4];
 
-           
+        public double[] values = new double[3];
+
         public bool RecordVideoStream { get; set; }
         public bool RecordLog { get; set; }
+
+        CTDconversion CTD = new CTDconversion();
 
         public DashboardWindow Dashboard
         {
@@ -284,7 +287,6 @@ namespace EERIL.ControlSystem
 
         void ActiveDeviceMessageReceived(object sender, byte[] message)
         {
-
             switch (message[0])
             {
                 case 0x74:
@@ -301,11 +303,16 @@ namespace EERIL.ControlSystem
                     headsUpDisplay.Temperature = BitConverter.ToSingle(message, 13);
 
                     break;
-                //case 0x63:
-                //  headsUpDisplay.Depth = message[1];
-                //  headsUpDisplay.Salinity = message[3];
-                //  headsUpDisplay.ExtTemp = message[5];
-                //break;
+                case 0x63:
+                    if (message.Length < 6)
+                        break;
+                    values = CTD.ConvertValues(message[0], message[1], message[2], message[3], message[4], message[5]);
+
+                    headsUpDisplay.ExtTemp = (float)values[0];
+                    headsUpDisplay.Depth = (float)values[1];
+                    headsUpDisplay.Salinity = (float)values[2];
+                    
+                    break;
                 case 0xCC:
                     if (!VerifyChecksum(message))
                         break;
@@ -373,6 +380,7 @@ namespace EERIL.ControlSystem
             if (RecordLog == true)
             {
                 FileStream fs = File.Create(Deployment.LogCreate(), 2048);
+                
                 ASCIIEncoding asen = new ASCIIEncoding();
                 BinaryWriter bin = new BinaryWriter(fs);
                 string data2 = "\r\n" + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\tCurrent =" + headsUpDisplay.Current.ToString("0.00") + "\tVoltage = " + headsUpDisplay.Voltage.ToString("0.00") + "\tHumidity = " + headsUpDisplay.Humidity + "\tTemperature = " + headsUpDisplay.Temperature.ToString("0.00") + "\tRoll = " + headsUpDisplay.Roll + "\tPitch = " + headsUpDisplay.Pitch + "\tYaw = " + headsUpDisplay.Yaw;

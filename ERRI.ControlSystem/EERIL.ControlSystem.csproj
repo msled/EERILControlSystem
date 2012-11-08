@@ -55,7 +55,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>E8611E19D9642F2F181BD531D400D06B79FF4FCF</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>DFB276CDCF3EEAA6771CDED4A535A344434A73B1</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>EERIL.ControlSystem_TemporaryKey.pfx</ManifestKeyFile>
@@ -122,6 +122,7 @@
     <Compile Include="Avt\WhiteBalance.cs" />
     <Compile Include="CommunicationProtocols.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="CTDconversion.cs" />
     <Compile Include="DashboardWindow.xaml.cs">
       <DependentUpon>DashboardWindow.xaml</DependentUpon>
     </Compile>
