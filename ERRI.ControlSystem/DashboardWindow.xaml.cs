@@ -5,23 +5,21 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Input;
-using Microsoft.Xna.Framework.GamerServices;
 
 namespace EERIL.ControlSystem
 {
     /// <summary>
     /// Interaction logic for Dashboard.xaml
     /// </summary>
-    public partial class DashboardWindow : Window
-    {
-        private Controller controller = null;
-        private IDeviceManager deviceManager;
-        private VideoDisplayWindow videoDisplayWindow = null;
+    public partial class DashboardWindow {
+        private Controller controller;
+        private readonly IDeviceManager deviceManager;
+        private VideoDisplayWindow videoDisplayWindow;
         private readonly Properties.Settings settings = Properties.Settings.Default;
         private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
         private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
         private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
-        bool RecordLog;
+        private bool recordLog;
         public Controller Controller
         {
             get
@@ -262,13 +260,13 @@ namespace EERIL.ControlSystem
 
         private void invertThrustToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-            deviceManager.ActiveDevice.Tinvert = true;
+            deviceManager.ActiveDevice.ThrustInversion = true;
             invertThrustToggleButton.Content = "Thrust control reversed";
         }
 
         private void invertThrustToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            deviceManager.ActiveDevice.Tinvert = false;
+            deviceManager.ActiveDevice.ThrustInversion = false;
             invertThrustToggleButton.Content = "Invert thrust control";
         }
         private void buoyancySlider_LostMouseCapture(object sender, MouseEventArgs e)

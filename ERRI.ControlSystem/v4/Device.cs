@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO.MemoryMappedFiles;
-using System.Threading;
 using System.Drawing;
 using EERIL.ControlSystem.Avt;
 using EERIL.ControlSystem.Test;
 using System.Windows.Threading;
-using System.Text;
-using System.Drawing.Imaging;
 using EERIL.ControlSystem.Properties;
-using System.Runtime.CompilerServices;
-using System.IO;
+using EERIL.ControlSystem.v4.Commands;
+using CommandCode = EERIL.ControlSystem.v4.Commands.CommandCode;
 using PvNET;
 
 namespace EERIL.ControlSystem.v4 {
 	[ControlSystem.Device("MsledOS", OsVersion = new double[] { 4 })]
 	class Device : IDevice {
 		private readonly ICamera camera;
-		private string displayName = null;
-		private readonly Thread serialMonitorThread;
+		private readonly string displayName;
 		private readonly Settings settings = Settings.Default;
-		private readonly List<byte> buffer = new List<byte>();
 		private byte horizontalFinPosition = 90;
 		private byte verticalFinPosition = 90;
         private byte focusPosition = 51;
@@ -31,9 +25,7 @@ namespace EERIL.ControlSystem.v4 {
 		private byte finRange = 64;
 		private byte thrust = 90;
 		private byte illumination = 155;
-        private bool turbo = false;
-        private byte buoyancyPosition = 81;
-        public bool tinvert = false;
+	    private byte buoyancyPosition = 81;
         
 		private PowerConfigurations powerConfiguration;
 		public event DeviceFrameReadyHandler FrameReady;
@@ -126,10 +118,7 @@ namespace EERIL.ControlSystem.v4 {
 			set
 			{
 				value = EnforceFinRange(value);
-				if(!camera.WriteBytesToSerial(new byte[] { 0x68, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit horizontal fin position to device.");
-				}
+				camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.HorizontalFin, value));
 				horizontalFinPosition = value;
 			}
 		}
@@ -138,11 +127,8 @@ namespace EERIL.ControlSystem.v4 {
 			get { return verticalFinPosition; }
 			set
 			{
-				value = EnforceFinRange(value);
-				if (!camera.WriteBytesToSerial(new byte[] { 0x76, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit vertical fin position to device.");
-				}
+                value = EnforceFinRange(value);
+                camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.VerticalFin, value));
 				verticalFinPosition = value;
 			}
 		}
@@ -150,12 +136,8 @@ namespace EERIL.ControlSystem.v4 {
         public byte FocusPosition
         {
             get { return focusPosition; }
-            set
-            {
-                if (!camera.WriteBytesToSerial(new byte[] { 0x66, value, 0x0D }))
-                {
-                    throw new Exception("Failed to transmit focus position to device.");
-                }
+            set {
+                camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.FocusPosition, value));
                 focusPosition = value;
             }
         }
@@ -163,12 +145,8 @@ namespace EERIL.ControlSystem.v4 {
         public byte BuoyancyPosition
         {
             get { return buoyancyPosition; }
-            set
-            {
-                if (!camera.WriteBytesToSerial(new byte[] { 0x62, value, 0x0D }))
-                {
-                    throw new Exception("Failed to transmit buoyancy position to device.");
-                }
+            set {
+                camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.BuoyancyPosition, value));
                 buoyancyPosition = value;
             }
         }
@@ -176,12 +154,9 @@ namespace EERIL.ControlSystem.v4 {
 		public byte TopFinOffset
 		{
 			get { return topFinOffset; }
-			set
-			{
-				if (!camera.WriteBytesToSerial(new byte[] { 0x61, 0x74, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit top fin offset.");
-				}
+			set {
+                camera.CommunicationManager.TransmitCommand(
+                    new SingleByteMsledCommandWithModifier(CommandCode.FinOffset, Modifier.TopFin, value));
 				topFinOffset = value;
 			}
 		}
@@ -189,12 +164,9 @@ namespace EERIL.ControlSystem.v4 {
 		public byte RightFinOffset
 		{
 			get { return rightFinOffset; }
-			set
-			{
-				if (!camera.WriteBytesToSerial(new byte[] { 0x61, 0x72, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit right fin offset.");
-				}
+			set {
+                camera.CommunicationManager.TransmitCommand(
+                    new SingleByteMsledCommandWithModifier(CommandCode.FinOffset, Modifier.RightFin, value));
 				rightFinOffset = value;
 			}
 		}
@@ -202,12 +174,9 @@ namespace EERIL.ControlSystem.v4 {
 		public byte BottomFinOffset
 		{
 			get { return bottomFinOffset; }
-			set
-			{
-				if (!camera.WriteBytesToSerial(new byte[] { 0x61, 0x62, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit bottom fin offset.");
-				}
+			set {
+                camera.CommunicationManager.TransmitCommand(
+                    new SingleByteMsledCommandWithModifier(CommandCode.FinOffset, Modifier.BottomFin, value));
 				bottomFinOffset = value;
 			}
 		}
@@ -215,12 +184,9 @@ namespace EERIL.ControlSystem.v4 {
 		public byte LeftFinOffset
 		{
 			get { return leftFinOffset; }
-			set
-			{
-				if (!camera.WriteBytesToSerial(new byte[] { 0x61, 0x6C, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit left fin offset.");
-				}
+			set {
+                camera.CommunicationManager.TransmitCommand(
+                    new SingleByteMsledCommandWithModifier(CommandCode.FinOffset, Modifier.LeftFin, value));
 				leftFinOffset = value;
 			}
 		}
@@ -236,16 +202,9 @@ namespace EERIL.ControlSystem.v4 {
 			}
 		}
 
-		public bool Turbo {
-            get { return turbo; }
-            set { turbo = value; }
-		}
+	    public bool Turbo { get; set; }
 
-        public bool Tinvert
-        {
-            get { return tinvert; }
-            set { tinvert = value; }
-        }
+        public bool ThrustInversion { get; set; }
 
 
 		public byte Thrust {
@@ -253,25 +212,10 @@ namespace EERIL.ControlSystem.v4 {
                    return thrust;
                 }
 			set {
-                if (Tinvert)
-                {
-                    if (Turbo)
-                    {
-                        camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte(0 - value), 0x0D });
-                    }
-                    else
-                        camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte((90-value) /2 + 90), 0x0D });
-                }
-                else
-                {
-                    if (Turbo)
-                    {
-                        camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte(value), 0x0D });
-                    }
-                    else
-                        camera.WriteBytesToSerial(new byte[] { 0x74, Convert.ToByte((value - 90) / 2 + 90), 0x0D });
-                }
-				
+                camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.Thrust,
+                    (ThrustInversion && !Turbo) || Turbo 
+                        ? value 
+                        : Convert.ToByte((90 - value) / 2 + 90)));
                 thrust = value;
             }
 		}
@@ -279,24 +223,16 @@ namespace EERIL.ControlSystem.v4 {
 		public byte Illumination
 		{
 			get { return illumination; }
-			set
-			{
-				if (!camera.WriteBytesToSerial(new byte[] { 0x69, value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit illumination.");
-				} 
+			set {
+                camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.Illumination, value));
 				illumination = value;
 			}
 		}
 
 		public PowerConfigurations PowerConfiguration {
 			get { return powerConfiguration; }
-			set
-			{
-				if (!camera.WriteBytesToSerial(new byte[] { 0x70, (byte)value, 0x0D }))
-				{
-					throw new Exception("Failed to transmit power configuration.");
-				}
+			set {
+                camera.CommunicationManager.TransmitCommand(new SingleByteMsledCommand(CommandCode.PowerConfiguration, (byte)value));
 				powerConfiguration = value;
 			}
 		}
@@ -308,16 +244,14 @@ namespace EERIL.ControlSystem.v4 {
 		}
 
 		public Device(string displayName) {
-			this.displayName = displayName;
+		    Turbo = false;
+		    this.displayName = displayName;
 		}
 
-		public Device(ICamera camera) {
-			this.camera = camera;
+	    public Device(ICamera camera) {
+	        Turbo = false;
+	        this.camera = camera;
 			this.camera.FrameReady += CameraFrameReady;
-			serialMonitorThread = new Thread(MonitorSerialCommunication);
-			serialMonitorThread.Name = "Serial Communication Monitor";
-			serialMonitorThread.IsBackground = true;
-			serialMonitorThread.Priority = ThreadPriority.BelowNormal;
 		}
 
 		private byte EnforceFinRange(byte value)
@@ -395,47 +329,13 @@ namespace EERIL.ControlSystem.v4 {
 			//this.camera.GetImage(bitmap, timeout);
 		}
 
-		private void MonitorSerialCommunication() {
-			byte[] buffer = new byte[settings.SerialReceiveInputBufferSize];
-			uint length = 0;
-				while (true)
-				{
-					lock (buffer)
-					{
-						if (camera.ReadBytesFromSerial(buffer, ref length) && length > 0)
-						{
-							ParseSerial(buffer, length);
-						}
-					}
-					Thread.Yield();
-				}
-		}
-
-		private void ParseSerial(byte[] array, uint length) {
-			for (int i = 0; i < length; i++)
-			{
-				if (array[i] != 0x0D)
-				{
-					buffer.Add(array[i]);
-				}
-				else if(buffer.Count > 0)
-				{
-					byte[] message = buffer.ToArray();
-					buffer.Clear();
-					OnMessageReceived(message);
-				}
-			}
-		}
-
 		public void Open()
 		{
 			this.camera.Open();
-			serialMonitorThread.Start();
 		}
 
 		public void Close()
 		{
-			serialMonitorThread.Abort();
 			this.camera.Close();
 		}
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using EERIL.ControlSystem.Communication;
 using PvNET;
 
 namespace EERIL.ControlSystem.Avt {
@@ -15,6 +16,7 @@ namespace EERIL.ControlSystem.Avt {
         string SerialString { get; }
         uint UniqueId { get; }
         float FrameRate { get; set; }
+        ICommunicationsManager CommunicationManager { get; }
         DSP DSP { get; set; }
         ImageFormat ImageFormat { get; set; }
         Gain Gain { get; set; }
@@ -22,8 +24,6 @@ namespace EERIL.ControlSystem.Avt {
         WhiteBalance WhiteBalance { get; set; }
         void BeginCapture(tImageFormat fmt);
         void EndCapture();
-        bool ReadBytesFromSerial(byte[] buffer, ref uint recieved);
-        bool WriteBytesToSerial(byte[] buffer);
         void Open();
         void AdjustPacketSize();
         void Close();

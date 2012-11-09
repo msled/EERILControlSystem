@@ -61,13 +61,19 @@
     <ManifestKeyFile>EERIL.ControlSystem_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AForge.Video">
@@ -109,6 +115,8 @@
     <Compile Include="AviWriter.cs" />
     <Compile Include="Avt\Camera.cs" />
     <Compile Include="Avt\CameraSerial.cs" />
+    <Compile Include="Avt\CommandCode.cs" />
+    <Compile Include="Avt\CommunicationsManager.cs" />
     <Compile Include="Avt\DeviceManager.cs" />
     <Compile Include="Avt\DSP.cs" />
     <Compile Include="Avt\Exposure.cs" />
@@ -121,6 +129,10 @@
     <Compile Include="Avt\PvException.cs" />
     <Compile Include="Avt\WhiteBalance.cs" />
     <Compile Include="CommunicationProtocols.cs" />
+    <Compile Include="Communication\ICommand.cs" />
+    <Compile Include="Communication\ICommunicationsManager.cs" />
+    <Compile Include="Communication\IMessage.cs" />
+    <Compile Include="Communication\MessageType.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="DashboardWindow.xaml.cs">
       <DependentUpon>DashboardWindow.xaml</DependentUpon>
@@ -160,6 +172,11 @@
     <Compile Include="Test\IOperation.cs" />
     <Compile Include="Test\ITest.cs" />
     <Compile Include="ThreadSafeObservableCollection.cs" />
+    <Compile Include="Communication\CommandBase.cs" />
+    <Compile Include="v4\Commands\CommandCode.cs" />
+    <Compile Include="v4\Commands\Modifier.cs" />
+    <Compile Include="v4\Commands\SingleByteMsledCommand.cs" />
+    <Compile Include="v4\Commands\SingleByteMsledCommandWithModifier.cs" />
     <Compile Include="v4\Device.cs" />
     <Compile Include="v4\PowerTest.cs" />
     <Compile Include="VideoDisplayWindow.xaml.cs" />
@@ -171,6 +188,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="EERIL.ControlSystem_TemporaryKey.pfx" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <SubType>Designer</SubType>
