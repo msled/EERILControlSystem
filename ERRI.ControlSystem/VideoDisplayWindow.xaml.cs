@@ -305,13 +305,13 @@ namespace EERIL.ControlSystem
 
                     break;
                 case 0x63:
-                    if (message.Length < 6)
+                    if (message.Length < 7)
                         break;
                     values = CTD.ConvertValues(message[1], message[2], message[3], message[4], message[5], message[6]);
 
-                    headsUpDisplay.ExtTemp = (float)message[1];
-                    headsUpDisplay.Depth = (float)message[2];
-                    headsUpDisplay.Salinity = (float)message[3];
+                    headsUpDisplay.ExtTemp = (float)values[0];
+                    headsUpDisplay.Depth = (float)values[1];
+                    headsUpDisplay.Salinity = (float)values[2];
                     
                     break;
                 case 0xCC:
@@ -412,7 +412,9 @@ namespace EERIL.ControlSystem
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             watch.Reset();
             watch.Start();
+            IDevice activeDevice = deviceManager.ActiveDevice;
 
+            activeDevice.CTD = true;
             BitmapSource source = frame.ToBitmapSource();
             videoImage.Source = source;
             if (captureFrame)
@@ -433,7 +435,7 @@ namespace EERIL.ControlSystem
 
             frame.Dispose();
             watch.Stop();
-            headsUpDisplay.Fps = ((1000 / watch.ElapsedMilliseconds) + headsUpDisplay.Fps) / 2;
+            headsUpDisplay.Fps = ((1000 / watch.ElapsedMilliseconds) + headsUpDisplay.Fps) / 2;            
         }
 
         private void WindowClosed(object sender, EventArgs e)

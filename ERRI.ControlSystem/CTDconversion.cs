@@ -60,7 +60,7 @@ namespace EERIL.ControlSystem
         public double c4 = 0.0000000010031;
         public double Tpr = 22.86;
         public double Tcr = 23.86;
-        public double T, P, C, Pc, Tv, Pv, Cv, A, B, L, H, Cc0, Cc1, Cdc;
+        public double T, P, C, Pc, Tv, Pv, Cv, A, B, L, H, Cc0, Cc1, Cdc, Depth, Cratio, Cratio2, Ds, Sal;
         double[] values = new double[3];
 
         public double[] ConvertValues(double TL, double TH, double PL, double PH, double CL, double CH)
@@ -74,6 +74,8 @@ namespace EERIL.ControlSystem
             Pc = P + (PtcC1 * Tpr) + (PtcC2 * Math.Pow(Tpr, 2)) + (PtcC3 * Math.Pow(Tpr, 3)) + (PtcC4 * Math.Pow(Tpr, 4)) + (PtcC5 * Math.Pow(Tpr, 5)) - ((PtcC1 * Tv) + (PtcC2 * Math.Pow(Tv, 2)) + (PtcC3 * Math.Pow(Tv, 3)) + (PtcC4 * Math.Pow(Tv, 4)) + (PtcC5 * Math.Pow(Tv, 5)));
             Pv = (PC0 + (PC1 * Pc) + (PC2 * Math.Pow(Pc, 2)) + (PC3 * Math.Pow(Pc, 3)) + (PC4 * Math.Pow(Pc, 4)) + (PC5 * Math.Pow(Pc, 5)));
 
+            Depth = Pv * 9.81;
+
             Cc0 = C + (TCRC1 * Tcr) + (TCRC2 * Math.Pow(Tcr, 2)) + (TCRC3 * Math.Pow(Tcr, 3)) + (TCRC4 * Math.Pow(Tcr, 4)) + (TCRC5 * Math.Pow(Tcr, 5)) - ((TCR1C1 * Tv) + (TCR1C2 * Math.Pow(Tv, 2)) + (TCR1C3 * Math.Pow(Tv, 3)) + (TCR1C4 * Math.Pow(Tv, 4)) + (TCR1C5 * Math.Pow(Tv, 5)));
             Cc1 = C + (TCR1C1 * Tcr) + (TCR1C2 * Math.Pow(Tcr, 2)) + (TCR1C3 * Math.Pow(Tcr, 3)) + (TCR1C4 * Math.Pow(Tcr, 4)) + (TCR1C5 * Math.Pow(Tcr, 5)) - ((TCR1C1 * Tv) + (TCR1C2 * Math.Pow(Tv, 2)) + (TCR1C3 * Math.Pow(Tv, 3)) + (TCR1C4 * Math.Pow(Tv, 4)) + (TCR1C5 * Math.Pow(Tv, 5)));
 
@@ -81,11 +83,20 @@ namespace EERIL.ControlSystem
             B = Cc0 - A * L;
             Cdc = B + (A * C);
 
-            Cv = (float)(CC0 + (CC1 * Cdc) + (CC2 * Math.Pow(Cdc, 2)) + (CC3 * Math.Pow(Cdc, 3)) + (CC4 * Math.Pow(Cdc, 4)) + (CC5 * Math.Pow(Cdc, 5)));
+            Cv = (CC0 + (CC1 * Cdc) + (CC2 * Math.Pow(Cdc, 2)) + (CC3 * Math.Pow(Cdc, 3)) + (CC4 * Math.Pow(Cdc, 4)) + (CC5 * Math.Pow(Cdc, 5)));
+
+            Cratio = Cv / 42914;
+            Cratio /= (c0 + Tv * (c1 + Tv * (c2 + Tv * (c3 + Tv * c4))));
+
+            Cratio2 = Math.Sqrt(Cratio);
+            Ds = b0 + Cratio2 * (b1 + Cratio2 * (b2 + Cratio2 * (b3 + Cratio2 * (b4 + Cratio2 * b5))));
+            Ds *= ((Tv - 15.0) / (1.0 + 0.0162 * (Tv - 15.0)));
+
+            Sal = a0 + Cratio2 * (a1 + Cratio2 * (a2 + Cratio2 * (a3 + Cratio2 * (a4 + Cratio2 * a5)))) + Ds;
 
             values[0] = Tv;
-            values[1] = Pv;
-            values[2] = Cv;
+            values[1] = Depth;
+            values[2] = Sal;
 
             return values;
         }

@@ -85,8 +85,8 @@ namespace EERIL.ControlSystem.Avt
 
             // 2.  Execute read.
             tErr error = (tErr)Pv.RegisterRead(camera, numRegs, pAddressArray, pDataArray, ref read);
-            if (error != tErr.eErrSuccess)
-                throw new PvException(error);
+            //if (error != tErr.eErrSuccess)
+                //throw new PvException(error);
 
             uint data = 0;
 
@@ -137,8 +137,8 @@ namespace EERIL.ControlSystem.Avt
             do
             {
                 error = (tErr)Pv.RegisterRead(camera, 1, addressData, value, ref read);
-                if (error != tErr.eErrSuccess)
-                    throw new PvException(error);
+                //if (error != tErr.eErrSuccess)
+                  //  throw new PvException(error);
             } while (value[0] == 0U); // Waiting for transmitter-ready bit
 
             // Write the buffer.

@@ -223,13 +223,13 @@ namespace EERIL.ControlSystem
 
         private void WindowClosed(object sender, EventArgs e)
         {
+            Deployment.Dispose();
             if (VideoDisplay.IsVisible)
             {
                 VideoDisplay.Dispatcher.Invoke(
                     DispatcherPriority.Normal,
                     new Action(() => VideoDisplay.Close()));
             }
-            Deployment.Dispose();
             deviceManager.ActiveDevice.Close();
             (Application.Current as App).MainWindow.Show();
         }
