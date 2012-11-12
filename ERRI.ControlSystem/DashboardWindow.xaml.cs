@@ -223,7 +223,7 @@ namespace EERIL.ControlSystem
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            Deployment.Dispose();
+            
             if (VideoDisplay.IsVisible)
             {
                 VideoDisplay.Dispatcher.Invoke(
@@ -278,7 +278,7 @@ namespace EERIL.ControlSystem
             buoyancySlider.BeginAnimation(Slider.ValueProperty, new DoubleAnimation(buoyancySlider.Value, 81, returnToCenterDuration));
             buoyancySlider.Value = 81;
         }
-
+            
         private void recordLogButton_Click(object sender, RoutedEventArgs e)
         {
             videoDisplayWindow.RecordLog = !videoDisplayWindow.RecordLog;

@@ -66,10 +66,10 @@ namespace EERIL.ControlSystem.Avt
                     error = Pv.LinkCallbackRegister(this.connectionChangedCallback, tLinkEvent.eLinkRemove, IntPtr.Zero);
                 }
             }
-            /*if (error != tErr.eErrSuccess)
+            if (error != tErr.eErrSuccess)
             {
                 throw new PvException(error);
-            }*/
+            }
         }
 
         ~GigEVision()

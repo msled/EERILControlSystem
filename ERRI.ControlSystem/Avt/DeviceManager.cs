@@ -9,13 +9,11 @@ using System.Threading;
 using System.Windows;
 using EERIL.ControlSystem;
 using System.ComponentModel;
-using PvNET;
 
 namespace EERIL.ControlSystem.Avt
 {
 	class DeviceManager : IDeviceManager {
 		private GigEVision cameraManager;
-        
 		private IDevice activeDevice = null;
 		private readonly ThreadObservableCollection<IDevice> devices = new ThreadObservableCollection<IDevice>();
 
@@ -45,8 +43,8 @@ namespace EERIL.ControlSystem.Avt
 		{
 		    foreach (IDevice device in devices.Select(d => d.Id == camera.Reference ? d : null).Where(device => device != null))
 		    {
-                devices.Remove(device);
-            }
+		        devices.Remove(device);
+		    }
 		}
 
 	    public DeviceManager() {

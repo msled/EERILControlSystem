@@ -24,7 +24,7 @@ using Microsoft.Xna.Framework.Input;
 namespace EERIL.ControlSystem
 {
     public delegate void BitmapFrameCapturedHandler(BitmapFrame frame);
-    
+     
     /// <summary>
     /// Interaction logic for VideoDisplay.xaml
     /// </summary>
@@ -41,6 +41,7 @@ namespace EERIL.ControlSystem
         private bool captureFrame = false;
         private bool screenshot = false;
         private BitmapFrame bitmapFrame = null;
+        private string check1;
         private readonly TriggerStateChangedHandler triggerStateChangedHandler;
         private readonly ButtonStateChangedHandler buttonStateChangedHandler;
         private readonly byte[] m11Buffer = new byte[4];
@@ -55,6 +56,16 @@ namespace EERIL.ControlSystem
         public bool RecordLog { get; set; }
 
         CTDconversion CTD = new CTDconversion();
+        ASCIIEncoding asen = new ASCIIEncoding();
+        static FileStream fs;
+        private string stringCheck = "You found an Easter egg! :)";
+
+        public string StringCheck
+        {
+            get { return stringCheck; }
+            set { stringCheck = value; }
+        }
+      
 
         public DashboardWindow Dashboard
         {
@@ -181,6 +192,7 @@ namespace EERIL.ControlSystem
                         activeDevice.BottomFinOffset = Settings.Default.BottomFinOffset;
                         activeDevice.LeftFinOffset = Settings.Default.LeftFinOffset;
                         activeDevice.CTD = true;
+                        
                     }
                     catch (Exception ex)
                     {
@@ -380,13 +392,29 @@ namespace EERIL.ControlSystem
             }
             if (RecordLog == true)
             {
-                FileStream fs = File.Create(Deployment.LogCreate(), 2048);
-                
-                ASCIIEncoding asen = new ASCIIEncoding();
-                BinaryWriter bin = new BinaryWriter(fs);
-                string data2 = "\r\n" + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\tCurrent =" + headsUpDisplay.Current.ToString("0.00") + "\tVoltage = " + headsUpDisplay.Voltage.ToString("0.00") + "\tHumidity = " + headsUpDisplay.Humidity + "\tTemperature = " + headsUpDisplay.Temperature.ToString("0.00") + "\tRoll = " + headsUpDisplay.Roll + "\tPitch = " + headsUpDisplay.Pitch + "\tYaw = " + headsUpDisplay.Yaw;
-                byte[] w = asen.GetBytes(data2);
-                bin.Write(w);
+                if(!File.Exists(Deployment.LogCreate()))
+                {
+                    fs = File.Create(Deployment.LogCreate(), 4096);
+                    ASCIIEncoding ascen1 = new ASCIIEncoding();
+                    BinaryWriter bin1 = new BinaryWriter(fs);
+                    string data1 = "\r\n MSLED CONTROL SYSTEM MISSION LOG \r\n MISSION INITIALIZED AT: " + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\r\n***********************************************************************************\r\nCalibration constants used:\r\n Temperature:\r\nTC0 = " + CTD.TC0 + "\r\nTC1 = " + CTD.TC1 + "\r\nTC2 = " + CTD.TC2 + "\r\nTC3 = " + CTD.TC3 + "\r\nTC4 = " + CTD.TC4 + "\r\nTC5 = " + CTD.TC5 + "\r\nPressure constants\r\nPC0 = " + CTD.PC0 + "\r\nPC1 = " + CTD.PC1 + "\r\nPC2 = " + CTD.PC2 + "\r\nPC3 = " + CTD.PC3 + "\r\nPC4 = " + CTD.PC4 + "\r\nPC5 = " + CTD.PC5 + "\r\nConductivity constants\r\nCC0 = " + CTD.CC0 + "\r\nCC1 = " + CTD.CC1 + "\r\nCC2 = " + CTD.CC2 + "\r\nCC3 = " + CTD.CC3 + "\r\nCC4 = " + CTD.CC4 + "\r\nCC5 = " +CTD.CC5+ "\r\n\r\nTimestamp\t\tCurrent\tVoltage\tHumidity Temp\tRoll\tPitch\tYaw\tCTD Temp Depth Salinity\tRaw T\tRaw P\tRaw C";
+                    byte[] w1 = asen.GetBytes(data1);
+                    bin1.Write(w1);
+                    bin1.Close();
+                    fs.Close();
+                }
+                if(StringCheck != DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss"))
+                {
+                    Stream fs1 = new FileStream(Deployment.LogCreate(), FileMode.Append);
+                    ASCIIEncoding ascen = new ASCIIEncoding();
+                    BinaryWriter bin = new BinaryWriter(fs1);
+                    string data2 = "\r\n" + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\t" + headsUpDisplay.Current.ToString("0.00") + "\t" + headsUpDisplay.Voltage.ToString("0.00") + "\t" + headsUpDisplay.Humidity.ToString("0.00") + "\t" + headsUpDisplay.Temperature.ToString("0.00") + "\t" + headsUpDisplay.Roll.ToString("0.000") + "\t" + headsUpDisplay.Pitch.ToString("0.000") + "\t" + headsUpDisplay.Yaw.ToString("0.000") + "\t" + values[0].ToString("0.000") + "\t" + values[1].ToString("0.000") + "\t" + values[2].ToString("0.000") + "\t" + CTD.T + "\t" + CTD.P + "\t" + CTD.C;
+                    byte[] w = ascen.GetBytes(data2);
+                    bin.Write(w);
+                    bin.Close();
+                    StringCheck = DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss");
+                    fs1.Close();
+                }
             }
         }
 
@@ -443,7 +471,7 @@ namespace EERIL.ControlSystem
             Deployment.Dispose();
             Dashboard.Dispatcher.Invoke(
                 DispatcherPriority.Normal,
-                new Action(() => Dashboard.Close()));
+                new Action(() => Dashboard.Close()));            
         }
     }
 }

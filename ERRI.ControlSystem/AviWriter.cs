@@ -24,7 +24,7 @@ namespace EERIL.ControlSystem
             else
             {
                 path += ".avi";
-                videoWriter = new AVIWriter("DIB ");
+                videoWriter = new AVIWriter("ffds");
                 videoWriter.FrameRate = 12;
                 videoWriter.Open(path, width, height);
             }

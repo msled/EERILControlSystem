@@ -55,10 +55,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>7F148A12D114E2B008CCCA4B46FF3F6065125F0A</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>7BC0FF9D437CD9EEB9A62820ABA20768194E88A5</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>EERIL.ControlSystem_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>EERIL.ControlSystem_2_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -172,6 +172,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="EERIL.ControlSystem_1_TemporaryKey.pfx" />
+    <None Include="EERIL.ControlSystem_2_TemporaryKey.pfx" />
     <None Include="EERIL.ControlSystem_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

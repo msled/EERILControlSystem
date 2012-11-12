@@ -43,10 +43,10 @@ namespace EERIL.ControlSystem.Avt
                 throw new PvException(tErr.eErrUnavailable);
             }
             tErr error = Pv.CaptureQueueFrame(this.camera.Value, framePointer, this.callback);
-            /*if (error != tErr.eErrSuccess)
+            if (error != tErr.eErrSuccess)
             {
                   throw new PvException(error); // TODO: throws exception here
-            }*/
+            }
         }
         public Camera(tCameraInfo cameraInfo)
         {
