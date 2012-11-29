@@ -6,7 +6,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Input;
-using Microsoft.Research.DynamicDataDisplay;
 
 namespace EERIL.ControlSystem
 {
