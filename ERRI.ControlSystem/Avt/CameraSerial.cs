@@ -24,10 +24,10 @@ namespace EERIL.ControlSystem.Avt
         private const int REG_SIO_TX_BUFFER = 0x16400;
         private const int REG_SIO_RX_BUFFER = 0x16800;
 
-        static uint[] REG_SIO_RX_LENGTH_ADDRESS = new uint[] { REG_SIO_RX_LENGTH };
+        static readonly uint[] RegSioRxLengthAddress = new uint[] { REG_SIO_RX_LENGTH };
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private static unsafe bool FWriteMem(uint camera, uint address, byte[] buffer, uint length)
+        private unsafe bool FWriteMem(uint camera, uint address, byte[] buffer, uint length)
         {
             uint numRegs = (length + 3) / 4;
             uint[] pAddressArray = new uint[numRegs];
@@ -53,7 +53,7 @@ namespace EERIL.ControlSystem.Avt
                     pDataArray[i] = (uint)*(incrementablePointer++) << 24;
                     pDataArray[i] |= (uint)*(incrementablePointer++) << 16;
                     pDataArray[i] |= (uint)*(incrementablePointer++) << 8;
-                    pDataArray[i] |= (uint)*(incrementablePointer++);
+                    pDataArray[i] |= *(incrementablePointer++);
                 }
 
                 // 2.  Execute write.
@@ -65,7 +65,7 @@ namespace EERIL.ControlSystem.Avt
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        private static void FReadMem(uint camera, uint address, byte[] buffer, uint length)
+        private void FReadMem(uint camera, uint address, byte[] buffer, uint length)
         {
             uint numRegs = (length + 3) / 4;
             uint[] pAddressArray = new uint[numRegs];
@@ -102,7 +102,7 @@ namespace EERIL.ControlSystem.Avt
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static void Setup(uint camera)
+        public CameraSerial(uint camera)
         {
             uint[] regAddresses = new uint[4];
             uint[] regValues = new uint[4];
@@ -126,7 +126,7 @@ namespace EERIL.ControlSystem.Avt
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static bool WriteBytesToSerialIo(uint camera, byte[] buffer, uint length)
+        public bool WriteBytesToSerialIo(uint camera, byte[] buffer, uint length)
         {
             uint[] value = new uint[2];
             uint[] addressData = new uint[] { REG_SIO_TX_STATUS };
@@ -137,8 +137,8 @@ namespace EERIL.ControlSystem.Avt
             do
             {
                 error = (tErr)Pv.RegisterRead(camera, 1, addressData, value, ref read);
-                if (error != tErr.eErrSuccess)
-                    throw new PvException(error);
+                //if (error != tErr.eErrSuccess)
+                  //  throw new PvException(error);
             } while (value[0] == 0U); // Waiting for transmitter-ready bit
 
             // Write the buffer.
@@ -157,14 +157,14 @@ namespace EERIL.ControlSystem.Avt
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static bool ReadBytesFromSerialIO(uint camera, byte[] buffer, uint bufferLength,
+        public bool ReadBytesFromSerialIo(uint camera, byte[] buffer, uint bufferLength,
                                                         ref uint receiveLength)
         {
             uint[] lengthData = new uint[1];
             uint read = 0, written = 0;
 
             // How many characters to read?
-            tErr error = (tErr)Pv.RegisterRead(camera, 1, REG_SIO_RX_LENGTH_ADDRESS, lengthData, ref read);
+            tErr error = (tErr)Pv.RegisterRead(camera, 1, RegSioRxLengthAddress, lengthData, ref read);
             if (error != tErr.eErrSuccess)
                 throw new PvException(error);
 
@@ -179,7 +179,7 @@ namespace EERIL.ControlSystem.Avt
                 FReadMem(camera, REG_SIO_RX_BUFFER, buffer, dataLength);
 
                 // Decrement the camera's read index.
-                error = (tErr)Pv.RegisterWrite(camera, 1, REG_SIO_RX_LENGTH_ADDRESS, lengthData, ref written);
+                error = (tErr)Pv.RegisterWrite(camera, 1, RegSioRxLengthAddress, lengthData, ref written);
                 if (error != tErr.eErrSuccess)
                     throw new PvException(error);
             }

@@ -37,14 +37,14 @@ namespace EERIL.ControlSystem {
         byte LeftFinOffset { get; set; }
         byte Thrust { get; set; }
         bool Turbo { get; set; }
-        bool Tinvert { get; set; }
         bool CTD { get; set; }
+        bool ThrustInversion { get; set; }
         byte Illumination { get; set; }
         PowerConfigurations PowerConfiguration { get; set; }
         void StartVideoCapture(uint timeout);
         void StopVideoCapture();
-        void PrepareForGrab(ref uint dcamMode, ref uint colorCode, ref uint width, ref uint height);
-        void GetImage(Bitmap bitmap, uint timeout);
+        //void PrepareForGrab(ref uint dcamMode, ref uint colorCode, ref uint width, ref uint height);
+        //void GetImage(Bitmap bitmap, uint timeout);
         void Open();
         void Close();
     }

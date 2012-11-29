@@ -256,8 +256,9 @@ namespace EERIL.DeviceControls
 
         protected override void OnRender(DrawingContext context)
         {
-            base.OnRender(context);
+            base.OnRender(context);            
             context.DrawLine(baselinePen, angleLeftLeft, angleLeftRight);
+            //context.DrawText(warningFormattedText, new Point(ActualWidth/2, ActualHeight/2));
             context.DrawLine(baselinePen, angleRightLeft, angleRightRight);
             context.DrawLine(baselinePen, directionLineLeftBoundTop, directionLineLeftBoundBottom);
             context.DrawLine(baselinePen, directionLineRightBoundTop, directionLineRightBoundBottom);
@@ -613,8 +614,8 @@ namespace EERIL.DeviceControls
             DrawingVisual pointer = new DrawingVisual();
             using (pointer.RenderOpen())
             {
-                Point start = new Point(60, ((height / 2000) * Fps)+(0.1*height));
-                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, (((height / 2000) * Fps) - 10)+ (0.1 * height)), true), new LineSegment(new Point(80, (((height / 2000) * Fps) + 10) + (0.1 * height)), true) };
+                Point start = new Point(60, ((height / 2000) * Depth)+(0.1*height));
+                LineSegment[] segments = new LineSegment[] { new LineSegment(new Point(80, (((height / 2000) * Depth) - 10)+ (0.1 * height)), true), new LineSegment(new Point(80, (((height / 2000) * Depth) + 10) + (0.1 * height)), true) };
                 PathFigure figure = new PathFigure(start, segments, true);
                 PathGeometry geo = new PathGeometry(new PathFigure[] { figure });
                 context.DrawGeometry(gaugeBrush, gaugePen, geo);

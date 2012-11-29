@@ -55,19 +55,25 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>7BC0FF9D437CD9EEB9A62820ABA20768194E88A5</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>E8611E19D9642F2F181BD531D400D06B79FF4FCF</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>EERIL.ControlSystem_2_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>EERIL.ControlSystem_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AForge.Video">
@@ -75,6 +81,14 @@
     </Reference>
     <Reference Include="AForge.Video.VFW">
       <HintPath>.\AForge.Video.VFW.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamicDataDisplay, Version=0.3.0.0, Culture=neutral, PublicKeyToken=5b7d744a7263923f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DDD\DynamicDataDisplay.dll</HintPath>
+    </Reference>
+    <Reference Include="DynamicDataDisplay.Silverlight, Version=2.0.907.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DDD\DynamicDataDisplay.Silverlight.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="PvNET, Version=1.26.0.0, Culture=neutral, processorArchitecture=x86">
@@ -89,6 +103,10 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive, Version=1.0.10621.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DDD\System.Reactive.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -109,6 +127,8 @@
     <Compile Include="AviWriter.cs" />
     <Compile Include="Avt\Camera.cs" />
     <Compile Include="Avt\CameraSerial.cs" />
+    <Compile Include="Avt\CommandCode.cs" />
+    <Compile Include="Avt\CommunicationsManager.cs" />
     <Compile Include="Avt\DeviceManager.cs" />
     <Compile Include="Avt\DSP.cs" />
     <Compile Include="Avt\Exposure.cs" />
@@ -121,8 +141,12 @@
     <Compile Include="Avt\PvException.cs" />
     <Compile Include="Avt\WhiteBalance.cs" />
     <Compile Include="CommunicationProtocols.cs" />
+    <Compile Include="Communication\ICommand.cs" />
+    <Compile Include="Communication\ICommunicationsManager.cs" />
+    <Compile Include="Communication\IMessage.cs" />
+    <Compile Include="Communication\MessageType.cs" />
     <Compile Include="Controller.cs" />
-    <Compile Include="CTDconversion.cs" />
+    <Compile Include="CTDConversion.cs" />
     <Compile Include="DashboardWindow.xaml.cs">
       <DependentUpon>DashboardWindow.xaml</DependentUpon>
     </Compile>
@@ -161,6 +185,11 @@
     <Compile Include="Test\IOperation.cs" />
     <Compile Include="Test\ITest.cs" />
     <Compile Include="ThreadSafeObservableCollection.cs" />
+    <Compile Include="Communication\CommandBase.cs" />
+    <Compile Include="v4\Commands\CommandCode.cs" />
+    <Compile Include="v4\Commands\Modifier.cs" />
+    <Compile Include="v4\Commands\SingleByteMsledCommand.cs" />
+    <Compile Include="v4\Commands\SingleByteMsledCommandWithModifier.cs" />
     <Compile Include="v4\Device.cs" />
     <Compile Include="v4\PowerTest.cs" />
     <Compile Include="VideoDisplayWindow.xaml.cs" />
@@ -171,9 +200,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="EERIL.ControlSystem_1_TemporaryKey.pfx" />
-    <None Include="EERIL.ControlSystem_2_TemporaryKey.pfx" />
-    <None Include="EERIL.ControlSystem_TemporaryKey.pfx" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <SubType>Designer</SubType>
@@ -262,6 +289,9 @@
       <Project>{1172188C-168A-42E6-8806-01C33A08529E}</Project>
       <Name>EERIL.DeviceControls</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

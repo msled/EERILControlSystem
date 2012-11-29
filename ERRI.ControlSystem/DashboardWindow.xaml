@@ -30,9 +30,9 @@
                 
             </StackPanel>
             <Button Name="recordLogButton" DockPanel.Dock="Top" Height="23" HorizontalAlignment="Stretch" Content="Log Data" Margin="0, 5, 0, 0" HorizontalContentAlignment="Center" Padding="1" Click="recordLogButton_Click"/>
-            <StackPanel Name="statePanel"  DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,5,0,0">
-                <Label Name="stateLabel" Content="Controller State:" Height="28" />
-                <Label Name="state" Content= "{Binding Source={x:Static properties:Settings.Default}, Path=connectionConnectionChanged}"/>
+            <StackPanel Name="statePanel"  DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0" Height="30" VerticalAlignment="Top">
+                <Label Name="stateLabel" Content="Controller State:" Height="28" VerticalAlignment=" Top" />
+                <Label Name="state" Height ="28" VerticalAlignment ="Top" Content= "{Binding Source={x:Static properties:Settings.Default}, Path=connectionConnectionChanged}"/>
             </StackPanel>
           
             
@@ -45,9 +45,9 @@
                         <Slider Height="23" Name="focusSlider" Width="145" Minimum="0" Maximum="102" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=focusPosition}" LostMouseCapture="focusSlider_LostMouseCapture"/>
                     </StackPanel>
-                    <StackPanel Height="50" Name="ResetFocusPanel" Width="250" Orientation="Horizontal">
-                        <TextBox Name="resetFocus" Height="23" Width="40"></TextBox>
-                        <Button Name="resetFocusButton" Content="Reset Focus" Height="23" Width="80" Click="resetFocusButton_Click"></Button>
+                    <StackPanel Height="50"  Name="ResetFocusPanel" Width="250" Orientation="Horizontal" HorizontalAlignment=" Center">
+                        <TextBox Name="resetFocus" Height="23" Width="40" HorizontalAlignment="Center" Margin="10"></TextBox>
+                        <Button Name="resetFocusButton" Content="Reset Focus" Height="23" Width="178" Click="resetFocusButton_Click"></Button>
                         
 
                     </StackPanel>
@@ -56,9 +56,16 @@
                         <Slider Height="23" Name="buoyancySlider" Width="145" Minimum="0" Maximum="162" Value="{Binding Source={x:Static properties:Settings.Default},
                                Path=buoyancyPosition}" LostMouseCapture="buoyancySlider_LostMouseCapture"/>
                     </StackPanel>
-                    <StackPanel Height="25" Name="InvertThrustPanel" Width="250">
-                        <CheckBox Name="invertThrustToggleButton" HorizontalAlignment="Center" Content="Invert Thrust Control" Checked="invertThrustToggleButton_Checked" Unchecked="invertThrustToggleButton_Unchecked" HorizontalContentAlignment="Center" Padding="1" />
+                    <StackPanel Height="50"  Name="ResetBuoyancyPanel" Width="250" Orientation="Horizontal" HorizontalAlignment=" Center">
+                        <TextBox Name="resetBuoyancy" Height="23" Width="40" HorizontalAlignment="Center" Margin="10"></TextBox>
+                        <Button Name="resetBuoyancyButton" Content="Reset Buoyancy" Height="23" Width="178" Click="resetBuoyancyButton_Click"></Button>
 
+
+                    </StackPanel>
+                    <StackPanel Height="25" Name="InvertThrustPanel" Width="250">
+                        <CheckBox Name="invertThrustToggleButton" HorizontalAlignment="Center" Margin="4,4,0,0" Checked="invertThrustToggleButton_Checked" Unchecked="invertThrustToggleButton_Unchecked" HorizontalContentAlignment="Center" Padding="1">
+                            <TextBlock Text="Invert Thrust Control" Margin="0,-2,0,0"/>
+                        </CheckBox>
                     </StackPanel>
                     <StackPanel Name="HeadingOffsetPanel" Orientation="Horizontal">
                         <Label Content="Heading Offset:" Height="28" Width="105" />

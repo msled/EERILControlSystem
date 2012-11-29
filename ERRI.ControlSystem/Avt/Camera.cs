@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Windows.Threading;
+using EERIL.ControlSystem.Communication;
 using PvNET;
 
 namespace EERIL.ControlSystem.Avt
@@ -21,8 +18,7 @@ namespace EERIL.ControlSystem.Avt
         private const UInt32 MAX_PACKET_SIZE = 16456;
         private readonly Dictionary<IntPtr, byte[]> buffers = new Dictionary<IntPtr, byte[]>();
         private readonly tFrameCallback callback;
-        private readonly Timer heartbeatTimer;
-        private readonly byte[] heartbeat = new byte[] { 0xA6, 0x0D };
+        private CommunicationsManager communicationManager;
 
         public event FrameReadyHandler FrameReady;
 
@@ -38,28 +34,14 @@ namespace EERIL.ControlSystem.Avt
 
         internal void ReleaseFrame(IntPtr framePointer)
         {
-            if (!this.camera.HasValue)
-            {
-                throw new PvException(tErr.eErrUnavailable);
-            }
-            tErr error = Pv.CaptureQueueFrame(this.camera.Value, framePointer, this.callback);
-            if (error != tErr.eErrSuccess)
-            {
-                  throw new PvException(error); // TODO: throws exception here
-            }
+            communicationManager.QueueFrame(framePointer, callback);
         }
+
         public Camera(tCameraInfo cameraInfo)
         {
-            this.heartbeatTimer = new Timer(Heartbeat, null, 100, 100);
             this.cameraInfo = cameraInfo;
-            this.callback = new tFrameCallback(OnFrameReady);
+            callback = OnFrameReady;
         }
-
-        public void Heartbeat(object state)
-        {
-            this.WriteBytesToSerial(heartbeat);
-        }
-
 
         public uint UniqueId
         {
@@ -93,7 +75,7 @@ namespace EERIL.ControlSystem.Avt
 
         public tInterface InterfaceType
         {
-            get { return (tInterface)cameraInfo.InterfaceType; }
+            get { return cameraInfo.InterfaceType; }
         }
 
         public string DisplayName
@@ -159,18 +141,12 @@ namespace EERIL.ControlSystem.Avt
                 {
                     Pv.AttrUint32Set(camera.Value, "Height", value.height);
                 }
-                if (value.regionx >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "RegionX", value.regionx);
-                }
-                if (value.regiony >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "RegionY", value.regiony);
-                }
                 if (value.width >= 1)
                 {
                     Pv.AttrUint32Set(camera.Value, "Width", value.width);
                 }
+                Pv.AttrUint32Set(camera.Value, "RegionX", value.regionx);
+                Pv.AttrUint32Set(camera.Value, "RegionY", value.regiony);
             }
         }
 
@@ -195,19 +171,19 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(tErr.eErrUnavailable);
                 }
-                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                if (value.bottom <= 4294967295)
                 {
                     Pv.AttrUint32Set(camera.Value, "DSPSubregionBottom", value.bottom);
                 }
-                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                if (value.bottom <= 4294967295)
                 {
                     Pv.AttrUint32Set(camera.Value, "DSPSubregionLeft", value.left);
                 }
-                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                if (value.bottom <= 4294967295)
                 {
                     Pv.AttrUint32Set(camera.Value, "DSPSubregionRight", value.right);
                 }
-                if (value.bottom >= 0 && value.bottom <= 4294967295)
+                if (value.bottom <= 4294967295)
                 {
                     Pv.AttrUint32Set(camera.Value, "DSPSubregionTop", value.top);
                 }
@@ -245,19 +221,11 @@ namespace EERIL.ControlSystem.Avt
                 }
 
                 Pv.AttrEnumSet(camera.Value, "GainMode", value.mode.ToString());
-                if (value.tolerance >= 0 && value.tolerance <= 50)
+                if (value.tolerance <= 50)
                 {
                     Pv.AttrUint32Set(camera.Value, "GainAutoAdjustTol", value.tolerance);
                 }
-                if (value.max >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "GainAutoMax", value.max);
-                }
-                if (value.min >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "GainAutoMin", value.min);
-                }
-                if (value.outliers >= 0 && value.outliers <= 1000)
+                if (value.outliers <= 1000)
                 {
                     Pv.AttrUint32Set(camera.Value, "GainAutoOutliers", value.outliers);
                 }
@@ -265,14 +233,13 @@ namespace EERIL.ControlSystem.Avt
                 {
                     Pv.AttrUint32Set(camera.Value, "GainAutoRate", value.rate);
                 }
-                if (value.target >= 0 && value.target <= 100)
+                if (value.target <= 100)
                 {
                     Pv.AttrUint32Set(camera.Value, "GainAutoTarget", value.target);
                 }
-                if (value.value >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "GainValue", value.value);
-                }
+                Pv.AttrUint32Set(camera.Value, "GainValue", value.value);
+                Pv.AttrUint32Set(camera.Value, "GainAutoMax", value.max);
+                Pv.AttrUint32Set(camera.Value, "GainAutoMin", value.min);
             }
         }
 
@@ -304,7 +271,7 @@ namespace EERIL.ControlSystem.Avt
                 }
 
                 Pv.AttrEnumSet(camera.Value, "WhitebalMode", value.mode.ToString());
-                if (value.tolerance >= 0 && value.tolerance <= 50)
+                if (value.tolerance <= 50)
                 {
                     Pv.AttrUint32Set(camera.Value, "WhitebalAutoAdjustTol", value.tolerance);
                 }
@@ -312,14 +279,8 @@ namespace EERIL.ControlSystem.Avt
                 {
                     Pv.AttrUint32Set(camera.Value, "WhitebalAutoRate", value.rate);
                 }
-                if (value.red >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "WhitebalValueRed", value.red);
-                }
-                if (value.blue >= 0)
-                {
-                    Pv.AttrUint32Set(camera.Value, "WhitebalValueBlue", value.blue);
-                }
+                Pv.AttrUint32Set(camera.Value, "WhitebalValueRed", value.red);
+                Pv.AttrUint32Set(camera.Value, "WhitebalValueBlue", value.blue);
             }
         }
 
@@ -358,19 +319,19 @@ namespace EERIL.ControlSystem.Avt
 
                 Pv.AttrEnumSet(camera.Value, "ExposureAutoAlg", value.algorithm.ToString());
                 Pv.AttrEnumSet(camera.Value, "ExposureMode", value.mode.ToString());
-                if (value.tolerance >= 0 && value.tolerance <= 50)
+                if (value.tolerance <= 50)
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureAutoAdjustTol", value.tolerance);
                 }
-                if (value.max >= 0 && value.max <= 60000000)
+                if (value.max <= 60000000)
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureAutoMax", value.max);
                 }
-                if (value.min >= 0 && value.min <= 60000000)
+                if (value.min <= 60000000)
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureAutoMin", value.min);
                 }
-                if (value.outliers >= 0 && value.outliers <= 1000)
+                if (value.outliers <= 1000)
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureAutoOutliers", value.outliers);
                 }
@@ -378,14 +339,20 @@ namespace EERIL.ControlSystem.Avt
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureAutoRate", value.rate);
                 }
-                if (value.target >= 0 && value.target <= 100)
+                if (value.target <= 100)
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureAutoTarget", value.target);
                 }
-                if (value.value >= 0 && value.value <= 60000000)
+                if (value.value <= 60000000)
                 {
                     Pv.AttrUint32Set(camera.Value, "ExposureValue", value.value);
                 }
+            }
+        }
+
+        public ICommunicationsManager CommunicationManager {
+            get {
+                return communicationManager;
             }
         }
 
@@ -398,9 +365,9 @@ namespace EERIL.ControlSystem.Avt
                 throw new PvException(error);
             }
 
-            this.ImageFormat.pixelformat = fmt;
+            ImageFormat.pixelformat = fmt;
 
-            error = Pv.CaptureStart(this.camera.Value);
+            error = Pv.CaptureStart(camera.Value);
             if (error != tErr.eErrSuccess)
                 goto error;
 
@@ -409,34 +376,29 @@ namespace EERIL.ControlSystem.Avt
             frames = new tFrame[FRAME_POOL_SIZE];
 
             uint bufferSize = 0;
-            error = Pv.AttrUint32Get(this.camera.Value, "TotalBytesPerFrame", ref bufferSize);
+            error = Pv.AttrUint32Get(camera.Value, "TotalBytesPerFrame", ref bufferSize);
             if (error != tErr.eErrSuccess)
                 goto error;
-            byte[] buffer;
-            GCHandle bufferHandle, frameHandle;
-            tFrame frame;
-            IntPtr framePointer;
             for (int count = FRAME_POOL_SIZE - 1; count >= 0; count--)
             {
-                buffer = new byte[bufferSize];
-                bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                byte[] buffer = new byte[bufferSize];
+                GCHandle bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
                 frameBufferHandles[count] = bufferHandle;
-                frame = new tFrame
-                    {
-                        ImageBuffer = bufferHandle.AddrOfPinnedObject(),
-                        ImageBufferSize = bufferSize,
-                        AncillaryBufferSize = 0
-                    };
+                tFrame frame = new tFrame
+                {
+                    ImageBuffer = bufferHandle.AddrOfPinnedObject(),
+                    ImageBufferSize = bufferSize,
+                    AncillaryBufferSize = 0
+                };
                 frames[count] = frame;
-                frameHandle = GCHandle.Alloc(frame, GCHandleType.Pinned);
+                GCHandle frameHandle = GCHandle.Alloc(frame, GCHandleType.Pinned);
                 framePoolHandles[count] = frameHandle;
-                framePointer = frameHandle.AddrOfPinnedObject();
+                IntPtr framePointer = frameHandle.AddrOfPinnedObject();
                 buffers.Add(framePointer, buffer);
-                error = Pv.CaptureQueueFrame(this.camera.Value, framePointer, this.callback);
-                if (error != tErr.eErrSuccess)
+                if (!communicationManager.QueueFrame(framePointer, callback))
                     goto error;
             }
-            this.FrameRate = 15;
+            this.FrameRate = 30;
             error = Pv.AttrEnumSet(this.camera.Value, "FrameStartTriggerMode", "FixedRate");
             if (error != tErr.eErrSuccess)
                 goto error;
@@ -473,17 +435,6 @@ namespace EERIL.ControlSystem.Avt
             Pv.CaptureEnd(this.camera.Value);
         }
 
-        public bool WriteBytesToSerial(byte[] buffer)
-        {
-            heartbeatTimer.Change(100, 100);
-            return camera.HasValue && CameraSerial.WriteBytesToSerialIo(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength));
-        }
-
-        public bool ReadBytesFromSerial(byte[] buffer, ref uint recieved)
-        {
-            return camera.HasValue && CameraSerial.ReadBytesFromSerialIO(camera.Value, buffer, Convert.ToUInt32(buffer.LongLength), ref recieved);
-        }
-
         public void Open()
         {
             if (!camera.HasValue)
@@ -496,8 +447,8 @@ namespace EERIL.ControlSystem.Avt
                     throw new PvException(err);
                 }
                 camera = cameraId;
-                CameraSerial.Setup(cameraId);
-                WriteBytesToSerial(new byte[] { 0x6F, 0x0D });
+                communicationManager = new CommunicationsManager(cameraId);
+                CommunicationManager.TransmitCommand(new ValuelessCommand((byte)CommandCode.Initialize));
             }
         }
 
@@ -524,6 +475,10 @@ namespace EERIL.ControlSystem.Avt
                 {
                     throw new PvException(err);
                 }
+            }
+
+            if (CommunicationManager != null) {
+                CommunicationManager.Dispose();
             }
         }
     };

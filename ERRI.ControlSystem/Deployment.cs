@@ -21,6 +21,8 @@ namespace EERIL.ControlSystem
         private const string SERIAL_DATA_DIRECTORY = "SerialData";
         private const string VIDEOS_DIRECTORY = "Videos";
 
+        string DateTimeNow = DateTime.Now.ToString("yyyy_mm_dd_hh_mm_ss");
+
         private DirectoryInfo videoDirectory;
         private readonly IDictionary<IDevice, AviWriter> videoWriters = new ConcurrentDictionary<IDevice, AviWriter>();
         private DirectoryInfo imageDirectory;
@@ -82,7 +84,7 @@ namespace EERIL.ControlSystem
             IDevice device = sender as IDevice;
             if (device != null)
             {
-                //this.serialLogStreams[device].Write(message, 0, message.Length);
+                this.serialLogStreams[device].Write(message, 0, message.Length);
             }
         }
 
@@ -102,7 +104,7 @@ namespace EERIL.ControlSystem
 
         public string LogCreate()
         {
-            return Path.Combine(this.serialDataDirectory.FullName, DateTime.Now.Ticks.ToString("yyyymmdd") + ".txt");
+            return Path.Combine(this.serialDataDirectory.FullName, DateTimeNow + ".csv");
         }
         
         internal static IDeployment Load(DirectoryInfo directory)

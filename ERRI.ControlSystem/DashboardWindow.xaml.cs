@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Windows;
+using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Windows.Media.Animation;
 using System.Windows.Input;
-using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Research.DynamicDataDisplay;
 
 namespace EERIL.ControlSystem
 {
     /// <summary>
     /// Interaction logic for Dashboard.xaml
     /// </summary>
-    public partial class DashboardWindow : Window
-    {
-        private Controller controller = null;
-        private IDeviceManager deviceManager;
-        private VideoDisplayWindow videoDisplayWindow = null;
+    public partial class DashboardWindow {
+        private Controller controller;
+        private readonly IDeviceManager deviceManager;
+        private VideoDisplayWindow videoDisplayWindow;
         private readonly Properties.Settings settings = Properties.Settings.Default;
         private readonly ControllerAxisChangedHandler controllerAxisChangedHandler;
         private readonly ControllerConnectionChangedHandler controllerConnectionChangedHandler;
         private readonly BitmapFrameCapturedHandler bitmapFrameCapturedHandler;
-        bool RecordLog;
+        private bool recordLog;
         public Controller Controller
         {
             get
@@ -68,6 +68,22 @@ namespace EERIL.ControlSystem
             return;
         }
 
+        public TextBox ResetFocus
+        {
+            get
+            {
+                return this.resetFocus;
+            }
+        }
+
+        public TextBox ResetBuoyancy
+        {
+            get
+            {
+                return this.resetBuoyancy;
+            }
+        }
+
         private IDeployment Deployment
         {
             get;
@@ -105,6 +121,7 @@ namespace EERIL.ControlSystem
             illuminationSlider.ValueChanged += IlluminationSliderValueChanged;
             focusSlider.ValueChanged += focusSliderValueChanged;
             buoyancySlider.ValueChanged += buoyancySliderValueChanged;
+            
         }
 
         void focusSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -223,7 +240,7 @@ namespace EERIL.ControlSystem
 
         private void WindowClosed(object sender, EventArgs e)
         {
-            
+            //Deployment.Dispose();
             if (VideoDisplay.IsVisible)
             {
                 VideoDisplay.Dispatcher.Invoke(
@@ -251,7 +268,8 @@ namespace EERIL.ControlSystem
 
         private void resetFocusButton_Click(object sender, RoutedEventArgs e)
         {
-            deviceManager.ActiveDevice.FocusPosition = 51;
+            string temp = ResetFocus.Text;
+            deviceManager.ActiveDevice.FocusPosition = Convert.ToByte(temp);
         }
 
         private void focusSlider_LostMouseCapture(object sender, MouseEventArgs e)
@@ -263,13 +281,13 @@ namespace EERIL.ControlSystem
 
         private void invertThrustToggleButton_Checked(object sender, RoutedEventArgs e)
         {
-            deviceManager.ActiveDevice.Tinvert = true;
+            deviceManager.ActiveDevice.ThrustInversion = true;
             invertThrustToggleButton.Content = "Thrust control reversed";
         }
 
         private void invertThrustToggleButton_Unchecked(object sender, RoutedEventArgs e)
         {
-            deviceManager.ActiveDevice.Tinvert = false;
+            deviceManager.ActiveDevice.ThrustInversion = false;
             invertThrustToggleButton.Content = "Invert thrust control";
         }
         private void buoyancySlider_LostMouseCapture(object sender, MouseEventArgs e)
@@ -278,13 +296,21 @@ namespace EERIL.ControlSystem
             buoyancySlider.BeginAnimation(Slider.ValueProperty, new DoubleAnimation(buoyancySlider.Value, 81, returnToCenterDuration));
             buoyancySlider.Value = 81;
         }
-            
+
         private void recordLogButton_Click(object sender, RoutedEventArgs e)
         {
             videoDisplayWindow.RecordLog = !videoDisplayWindow.RecordLog;
             recordLogButton.Content = videoDisplayWindow.RecordLog == true ? "Logging Data" : "Log Data";
             
         }
+
+        private void resetBuoyancyButton_Click(object sender, RoutedEventArgs e)
+        {
+            string temp = ResetBuoyancy.Text;
+            deviceManager.ActiveDevice.BuoyancyPosition = Convert.ToByte(temp);
+        }
+
+        
       
     }
 }

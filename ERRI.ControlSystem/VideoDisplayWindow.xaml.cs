@@ -24,7 +24,7 @@ using Microsoft.Xna.Framework.Input;
 namespace EERIL.ControlSystem
 {
     public delegate void BitmapFrameCapturedHandler(BitmapFrame frame);
-     
+
     /// <summary>
     /// Interaction logic for VideoDisplay.xaml
     /// </summary>
@@ -56,16 +56,17 @@ namespace EERIL.ControlSystem
         public bool RecordLog { get; set; }
 
         CTDconversion CTD = new CTDconversion();
-        ASCIIEncoding asen = new ASCIIEncoding();
-        static FileStream fs;
         private string stringCheck = "You found an Easter egg! :)";
+
+        FileStream fs;
+        ASCIIEncoding asen;
 
         public string StringCheck
         {
             get { return stringCheck; }
             set { stringCheck = value; }
         }
-      
+
 
         public DashboardWindow Dashboard
         {
@@ -154,10 +155,11 @@ namespace EERIL.ControlSystem
         public VideoDisplayWindow(IMission mission, IDeployment deployment)
         {
             InitializeComponent();
+            
             Mission = mission;
             Deployment = deployment;
             Title = String.Format("Video - {0} > {1}", mission.Name, deployment.DateTime.ToString());
-            
+
             var app = Application.Current as App;
             if (app == null)
             {
@@ -192,7 +194,7 @@ namespace EERIL.ControlSystem
                         activeDevice.BottomFinOffset = Settings.Default.BottomFinOffset;
                         activeDevice.LeftFinOffset = Settings.Default.LeftFinOffset;
                         activeDevice.CTD = true;
-                        
+
                     }
                     catch (Exception ex)
                     {
@@ -230,7 +232,7 @@ namespace EERIL.ControlSystem
                     break;
             }
         }
-
+        
 
         void ControllerButtonStateChanged(Button button, bool pressed)
         {
@@ -324,7 +326,7 @@ namespace EERIL.ControlSystem
                     headsUpDisplay.ExtTemp = (float)values[0];
                     headsUpDisplay.Depth = (float)values[1];
                     headsUpDisplay.Salinity = (float)values[2];
-                    
+
                     break;
                 case 0xCC:
                     if (!VerifyChecksum(message))
@@ -392,18 +394,18 @@ namespace EERIL.ControlSystem
             }
             if (RecordLog == true)
             {
-                if(!File.Exists(Deployment.LogCreate()))
+                if (!File.Exists(Deployment.LogCreate()))
                 {
                     fs = File.Create(Deployment.LogCreate(), 4096);
                     ASCIIEncoding ascen1 = new ASCIIEncoding();
                     BinaryWriter bin1 = new BinaryWriter(fs);
-                    string data1 = "\r\n MSLED CONTROL SYSTEM MISSION LOG \r\n MISSION INITIALIZED AT: " + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\r\n***********************************************************************************\r\nCalibration constants used:\r\n Temperature:\r\nTC0 = " + CTD.TC0 + "\r\nTC1 = " + CTD.TC1 + "\r\nTC2 = " + CTD.TC2 + "\r\nTC3 = " + CTD.TC3 + "\r\nTC4 = " + CTD.TC4 + "\r\nTC5 = " + CTD.TC5 + "\r\nPressure constants\r\nPC0 = " + CTD.PC0 + "\r\nPC1 = " + CTD.PC1 + "\r\nPC2 = " + CTD.PC2 + "\r\nPC3 = " + CTD.PC3 + "\r\nPC4 = " + CTD.PC4 + "\r\nPC5 = " + CTD.PC5 + "\r\nConductivity constants\r\nCC0 = " + CTD.CC0 + "\r\nCC1 = " + CTD.CC1 + "\r\nCC2 = " + CTD.CC2 + "\r\nCC3 = " + CTD.CC3 + "\r\nCC4 = " + CTD.CC4 + "\r\nCC5 = " +CTD.CC5+ "\r\n\r\nTimestamp\t\tCurrent\tVoltage\tHumidity Temp\tRoll\tPitch\tYaw\tCTD Temp Depth Salinity\tRaw T\tRaw P\tRaw C";
+                    string data1 = "\r\n MSLED CONTROL SYSTEM MISSION LOG \r\n MISSION INITIALIZED AT: " + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\r\n***********************************************************************************\r\nCalibration constants used:\r\n Temperature:\r\nTC0 = " + CTD.TC0 + "\r\nTC1 = " + CTD.TC1 + "\r\nTC2 = " + CTD.TC2 + "\r\nTC3 = " + CTD.TC3 + "\r\nTC4 = " + CTD.TC4 + "\r\nTC5 = " + CTD.TC5 + "\r\nPressure constants\r\nPC0 = " + CTD.PC0 + "\r\nPC1 = " + CTD.PC1 + "\r\nPC2 = " + CTD.PC2 + "\r\nPC3 = " + CTD.PC3 + "\r\nPC4 = " + CTD.PC4 + "\r\nPC5 = " + CTD.PC5 + "\r\nConductivity constants\r\nCC0 = " + CTD.CC0 + "\r\nCC1 = " + CTD.CC1 + "\r\nCC2 = " + CTD.CC2 + "\r\nCC3 = " + CTD.CC3 + "\r\nCC4 = " + CTD.CC4 + "\r\nCC5 = " + CTD.CC5 + "\r\n\r\nTimestamp\t\tCurrent\tVoltage\tHumidity Temp\tRoll\tPitch\tYaw\tCTD Temp Depth Salinity\tRaw T\tRaw P\tRaw C";
                     byte[] w1 = asen.GetBytes(data1);
                     bin1.Write(w1);
                     bin1.Close();
                     fs.Close();
                 }
-                if(StringCheck != DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss"))
+                if (StringCheck != DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss"))
                 {
                     Stream fs1 = new FileStream(Deployment.LogCreate(), FileMode.Append);
                     ASCIIEncoding ascen = new ASCIIEncoding();
@@ -463,7 +465,7 @@ namespace EERIL.ControlSystem
 
             frame.Dispose();
             watch.Stop();
-            headsUpDisplay.Fps = ((1000 / watch.ElapsedMilliseconds) + headsUpDisplay.Fps) / 2;            
+            headsUpDisplay.Fps = ((1000 / watch.ElapsedMilliseconds) + headsUpDisplay.Fps) / 2;
         }
 
         private void WindowClosed(object sender, EventArgs e)
@@ -471,7 +473,7 @@ namespace EERIL.ControlSystem
             Deployment.Dispose();
             Dashboard.Dispatcher.Invoke(
                 DispatcherPriority.Normal,
-                new Action(() => Dashboard.Close()));            
+                new Action(() => Dashboard.Close()));
         }
     }
 }
