@@ -111,7 +111,7 @@
 
             <TabItem Header="Dashboard" Name="dashboardTabItem">
                 <Grid Name="maingrid">
-                    <Image Source="mapping.jpg" Stretch="UniformTofill"/>
+                    <Image Source="mapping.jpg" Stretch= "Fill"/>
                 </Grid>
             </TabItem>
         </TabControl>

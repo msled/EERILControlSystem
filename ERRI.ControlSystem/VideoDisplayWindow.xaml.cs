@@ -59,8 +59,7 @@ namespace EERIL.ControlSystem
         private string stringCheck = "You found an Easter egg! :)";
 
         FileStream fs;
-        ASCIIEncoding asen;
-
+        
         public string StringCheck
         {
             get { return stringCheck; }
@@ -400,7 +399,7 @@ namespace EERIL.ControlSystem
                     ASCIIEncoding ascen1 = new ASCIIEncoding();
                     BinaryWriter bin1 = new BinaryWriter(fs);
                     string data1 = "\r\n MSLED CONTROL SYSTEM MISSION LOG \r\n MISSION INITIALIZED AT: " + DateTime.Now.ToString("yyyy:mm:dd:h:mm:ss") + "\r\n***********************************************************************************\r\nCalibration constants used:\r\n Temperature:\r\nTC0 = " + CTD.TC0 + "\r\nTC1 = " + CTD.TC1 + "\r\nTC2 = " + CTD.TC2 + "\r\nTC3 = " + CTD.TC3 + "\r\nTC4 = " + CTD.TC4 + "\r\nTC5 = " + CTD.TC5 + "\r\nPressure constants\r\nPC0 = " + CTD.PC0 + "\r\nPC1 = " + CTD.PC1 + "\r\nPC2 = " + CTD.PC2 + "\r\nPC3 = " + CTD.PC3 + "\r\nPC4 = " + CTD.PC4 + "\r\nPC5 = " + CTD.PC5 + "\r\nConductivity constants\r\nCC0 = " + CTD.CC0 + "\r\nCC1 = " + CTD.CC1 + "\r\nCC2 = " + CTD.CC2 + "\r\nCC3 = " + CTD.CC3 + "\r\nCC4 = " + CTD.CC4 + "\r\nCC5 = " + CTD.CC5 + "\r\n\r\nTimestamp\t\tCurrent\tVoltage\tHumidity Temp\tRoll\tPitch\tYaw\tCTD Temp Depth Salinity\tRaw T\tRaw P\tRaw C";
-                    byte[] w1 = asen.GetBytes(data1);
+                    byte[] w1 = ascen1.GetBytes(data1);
                     bin1.Write(w1);
                     bin1.Close();
                     fs.Close();
